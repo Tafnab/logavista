@@ -29,7 +29,7 @@
 
 ## Key Features
 
-* >>> Software is in Beta Testing Currently >>>
+* :warning: :eyes: Software is in Beta Testing Currently 
 * Allows viewing of over 20 log file types
 * Can merge log files of different types providing they have a valid timestamp
 * Customized specifically for MX Linux (Debian)
@@ -40,7 +40,7 @@
 
 ## How To Use
 
-<p>You can download the .deb binary file or <a href="#build-instructions">build your own</a>.</p>
+<p>You can <a href="https://github.com/Tafnab/logavista/blob/master/logavista_0.9-1_amd64.deb">download the .deb binary file</a> or <a href="#build-instructions">build your own</a>.</p>
 
 <p>On MX Linux, just run from the graphical menu System/Logavista option. On other Linux(es), the graphical option won't work because you need to launch with mx-pkexec or gksu. If you have either of those installed, edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
 
