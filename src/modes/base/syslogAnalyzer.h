@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SYSLOG_ANALYZER_H_
+#define _SYSLOG_ANALYZER_H_
 
 #include <QString>
 
@@ -39,18 +40,23 @@ class SyslogAnalyzer : public FileAnalyzer
 public:
     explicit SyslogAnalyzer(LogMode *logMode);
 
-    ~SyslogAnalyzer() override;
+    virtual ~SyslogAnalyzer();
 
-    LogViewColumns initColumns() override;
-
-protected:
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
-    Analyzer::LogFileSortMode logFileSortMode() override;
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) override;
-
-private:
+    LogViewColumns initColumns() Q_DECL_OVERRIDE;
+    
     inline QString undefinedHostName();
     inline QString undefinedProcess();
-    inline LogLine *undefinedLogLine(const QString &message, const LogFile &originalFile);
+    inline LogLine *undefinedLogLine(const QString &message, const LogFile &originalFile);    
+    LogLevel* level_from_message(const QString &level_message);
+
+protected:
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) Q_DECL_OVERRIDE;
+
+
+private:
+
 };
 
+#endif // _SYSLOG_ANALYZER_H_

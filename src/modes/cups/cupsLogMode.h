@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_LOG_MODE_H_
+#define _CUPS_LOG_MODE_H_
 
 /**
  * Cups Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Cups Log Icon
  */
-#define CUPS_MODE_ICON "preferences-devices-printer"
+#define CUPS_MODE_ICON "/usr/local/share/icons/logavista/cups.png"
 
 #include <QList>
 
@@ -45,12 +46,14 @@ class CupsLogMode : public LogMode
     Q_OBJECT
 
 public:
-    explicit CupsLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, CupsConfigurationWidget *cupsConfigurationWidget);
+    explicit CupsLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration,
+                         CupsConfigurationWidget *cupsConfigurationWidget);
 
-    ~CupsLogMode() override;
+    ~CupsLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _CUPS_LOG_MODE_H_

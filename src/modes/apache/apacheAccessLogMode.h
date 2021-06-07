@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _APACHE_ACCESS_LOG_MODE_H_
+#define _APACHE_ACCESS_LOG_MODE_H_
 
 /**
  * Apache Access Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Apache Access Log Icon
  */
-#define APACHE_ACCESS_MODE_ICON "preferences-system-network-server-web"
+#define APACHE_ACCESS_MODE_ICON "network-server"
 
 #include <QList>
 
@@ -45,12 +46,14 @@ class ApacheAccessLogMode : public LogMode
     Q_OBJECT
 
 public:
-    explicit ApacheAccessLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration, ApacheConfigurationWidget *apacheConfigurationWidget);
+    explicit ApacheAccessLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration,
+                                 ApacheConfigurationWidget *apacheConfigurationWidget);
 
-    ~ApacheAccessLogMode() override;
+    ~ApacheAccessLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _APACHE_ACCESS_LOG_MODE_H_

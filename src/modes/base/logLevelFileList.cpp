@@ -21,21 +21,23 @@
 
 #include "logLevelFileList.h"
 
-#include <QListWidgetItem>
 #include <QString>
 #include <QStringList>
+#include <QListWidgetItem>
 
 #include <QPushButton>
 
 // KDE includes
+#include <QMenu>
 #include <KLocalizedString>
-#include <QFileInfo>
+#include <kmessagebox.h>
 #include <QIcon>
+#include <QFileInfo>
 
 #include "defaults.h"
 
-#include "globals.h"
 #include "logging.h"
+#include "globals.h"
 
 #include "logLevel.h"
 #include "logLevelSelectionDialog.h"
@@ -49,14 +51,15 @@ LogLevelFileList::LogLevelFileList(QWidget *parent, const QString &description)
 
     changeItem = new QPushButton(i18n("&Change Status..."));
     changeItem->setToolTip(i18n("Change the level of the current file(s)"));
-    changeItem->setWhatsThis(
-        i18n("Changes the level of the current file(s). See KSystemLog documentation for more information about "
-             "each log level."));
+    changeItem->setWhatsThis(i18n(
+        "Changes the level of the current file(s). See KSystemLog documentation for more information about "
+        "each log level."));
 
     // Insert the button just after the "Modify File" button
     buttonsLayout()->insertWidget(2, changeItem);
 
-    QAction *action = mFileListHelper.prepareButtonAndAction(changeItem, QIcon::fromTheme(QStringLiteral("favorites")), this, SLOT(changeItemType()));
+    QAction *action = fileListHelper.prepareButtonAndAction(
+        changeItem, QIcon::fromTheme(QStringLiteral("favorites")), this, SLOT(changeItemType()));
 
     // Insert the action just after the "Modify File" action
     fileList->insertAction(fileList->actions().at(2), action);
@@ -66,7 +69,8 @@ LogLevelFileList::LogLevelFileList(QWidget *parent, const QString &description)
     connect(fileList, &QListWidget::itemSelectionChanged, this, &LogLevelFileList::updateSpecificButtons);
     connect(this, &FileList::fileListChanged, this, &LogLevelFileList::updateSpecificButtons);
 
-    disconnect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(modifyItem(QListWidgetItem *)));
+    disconnect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this,
+               SLOT(modifyItem(QListWidgetItem *)));
     connect(fileList, &QListWidget::itemDoubleClicked, this, &LogLevelFileList::changeItemType);
 
     updateSpecificButtons();
@@ -81,33 +85,31 @@ LogLevelFileList::~LogLevelFileList()
 
 void LogLevelFileList::insertItem(LogLevel *level, const QString &itemText, bool missing)
 {
-    auto item = new QListWidgetItem(level->icon(), itemText, fileList);
-    if (missing) {
+    QListWidgetItem *item = new QListWidgetItem(QIcon(level->pixmap()), itemText, fileList);
+    if (missing)
         item->setForeground(Qt::red);
-    }
     item->setData(LogLevelFileList::LogLevelRole, level->id());
 }
 
 void LogLevelFileList::addItem()
 {
     // Open a standard Filedialog
-    const QList<QUrl> urls = mFileListHelper.openUrls();
+    QList<QUrl> urls = fileListHelper.openUrls();
 
-    const QStringList paths = mFileListHelper.findPaths(urls);
-    for (const QString &path : paths) {
+    QStringList paths = fileListHelper.findPaths(urls);
+    foreach (const QString &path, paths) {
         insertItem(Globals::instance().informationLogLevel(), path);
     }
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void LogLevelFileList::updateSpecificButtons()
 {
-    if (!fileList->selectedItems().isEmpty()) {
+    if (fileList->selectedItems().count() > 0)
         changeItem->setEnabled(true);
-    } else {
+    else
         changeItem->setEnabled(false);
-    }
 }
 
 void LogLevelFileList::changeItemType()
@@ -117,40 +119,40 @@ void LogLevelFileList::changeItemType()
     LogLevelSelectionDialog logLevelSelectionDialog(this);
     QListWidget *logLevels = logLevelSelectionDialog.logLevels();
 
-    const auto logLevelsItems{Globals::instance().logLevels()};
-    for (LogLevel *level : logLevelsItems) {
-        logLevels->addItem(new QListWidgetItem(level->icon(), level->name()));
+    foreach (LogLevel *level, Globals::instance().logLevels()) {
+        logLevels->addItem(new QListWidgetItem(QIcon(level->pixmap()), level->name()));
     }
 
     int choice = logLevelSelectionDialog.exec();
 
     if (choice == QDialog::Accepted) {
-        const QList<QListWidgetItem *> selectedLogLevels = logLevels->selectedItems();
-        if (!selectedLogLevels.isEmpty()) {
+        QList<QListWidgetItem *> selectedLogLevels = logLevels->selectedItems();
+        if (selectedLogLevels.isEmpty() == false) {
             QListWidgetItem *logLevel = selectedLogLevels.at(0);
             int selectedLogLevel = logLevels->row(logLevel);
 
-            const QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
-            for (QListWidgetItem *item : selectedItems) {
+            QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+            foreach (QListWidgetItem *item, selectedItems) {
                 item->setIcon(logLevel->icon());
                 item->setData(LogLevelFileList::LogLevelRole, selectedLogLevel);
             }
 
-            Q_EMIT fileListChanged();
+            emit fileListChanged();
         }
     }
 }
 
-LogLevel *LogLevelFileList::level(int i) const
+LogLevel *LogLevelFileList::level(int i)
 {
-    return Globals::instance().logLevels().value(Globals::LogLevelIds(fileList->item(i)->data(LogLevelFileList::LogLevelRole).toInt()));
+    return Globals::instance().logLevels().at(
+        fileList->item(i)->data(LogLevelFileList::LogLevelRole).toInt());
 }
 
-QList<int> LogLevelFileList::levels() const
+QList<int> LogLevelFileList::levels()
 {
     QList<int> levels;
-    const int count = fileList->count();
-    levels.reserve(count);
+    int count = fileList->count();
+
     for (int i = 0; i < count; i++) {
         levels.append(this->level(i)->id());
     }
@@ -173,7 +175,7 @@ void LogLevelFileList::addPaths(const QStringList &stringList, const QList<int> 
 
     while (itString.hasNext()) {
         int valueInt = itInt.next();
-        const QString valueString = itString.next();
+        QString valueString = itString.next();
         bool missingFile = false;
 
         QFileInfo checkFile(valueString);
@@ -182,11 +184,16 @@ void LogLevelFileList::addPaths(const QStringList &stringList, const QList<int> 
             missingFile = true;
         }
 
-        LogLevel *level = Globals::instance().logLevels().value(Globals::LogLevelIds(valueInt), Globals::instance().informationLogLevel());
+        LogLevel *level;
+        if (valueInt >= 0 && valueInt < (int)Globals::instance().logLevels().count())
+            level = Globals::instance().logLevels().at(valueInt);
+        else
+            level = Globals::instance().informationLogLevel();
+
         insertItem(level, valueString, missingFile);
     }
 
-    mWarningBox->setVisible(missingFiles);
+    warningBox->setVisible(missingFiles);
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }

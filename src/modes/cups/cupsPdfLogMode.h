@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_PDF_LOG_MODE_H_
+#define _CUPS_PDF_LOG_MODE_H_
 
 /**
  * Cups Pdf Log Mode Identifier
@@ -45,12 +46,14 @@ class CupsPdfLogMode : public LogMode
     Q_OBJECT
 
 public:
-    explicit CupsPdfLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, CupsConfigurationWidget *cupsConfigurationWidget);
+    explicit CupsPdfLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration,
+                            CupsConfigurationWidget *cupsConfigurationWidget);
 
-    ~CupsPdfLogMode() override;
+    ~CupsPdfLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _CUPS_PDF_LOG_MODE_H_

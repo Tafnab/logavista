@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_LEVEL_FILE_LIST_H_
+#define _LOG_LEVEL_FILE_LIST_H_
 
 #include "fileList.h"
 
@@ -31,16 +32,16 @@ class LogLevelFileList : public FileList
     Q_OBJECT
 
 public:
-    explicit LogLevelFileList(QWidget *parent, const QString &description);
+    LogLevelFileList(QWidget *parent, const QString &description);
 
-    ~LogLevelFileList() override;
+    virtual ~LogLevelFileList();
 
-    QList<int> levels() const;
+    QList<int> levels();
 
     void addPaths(const QStringList &filePaths, const QList<int> &fileLevels);
 
 private:
-    LogLevel *level(int i) const;
+    LogLevel *level(int i);
 
     void insertItem(LogLevel *level, const QString &itemText, bool missing = false);
 
@@ -48,12 +49,13 @@ private:
 
     QPushButton *changeItem;
 
-protected Q_SLOTS:
-    void addItem() override;
+protected slots:
+    void addItem() Q_DECL_OVERRIDE;
 
-private Q_SLOTS:
+private slots:
     void updateSpecificButtons();
 
     void changeItemType();
 };
 
+#endif //_LOG_LEVEL_FILE_LIST_H_

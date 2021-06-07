@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_LEVEL_SELECTION_DIALOG_H_
+#define _LOG_LEVEL_SELECTION_DIALOG_H_
 
 #include <QDialog>
 
@@ -28,10 +29,11 @@
 class LogLevelSelectionDialog : public QDialog, public Ui::LogLevelSelectionDialogBase
 {
 public:
-    explicit LogLevelSelectionDialog(QWidget *parent = nullptr);
+    explicit LogLevelSelectionDialog(QWidget *parent = NULL);
 
-    ~LogLevelSelectionDialog() override;
+    virtual ~LogLevelSelectionDialog();
 
     QListWidget *logLevels() const;
 };
 
+#endif //_LOG_LEVEL_SELECTION_DIALOG_H_

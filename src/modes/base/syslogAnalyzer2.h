@@ -19,74 +19,58 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#ifndef _FILE_LIST_H_
-#define _FILE_LIST_H_
+#ifndef _SYSLOG_ANALYZER2_H_
+#define _SYSLOG_ANALYZER2_H_
 
-#include <QWidget>
+#include <QString>
+#include <QDateTime>
+#include <QRegularExpression>
+#include <QRegularExpressionMatchIterator>
+#include <QDebug>
 
-#include "fileListHelper.h"
+#include "fileAnalyzer.h"
 
-#include "ui_fileListBase.h"
-#include <KMessageWidget>
+#include "logFile.h"
 
-class QVBoxLayout;
+class LogFileReader;
 
-class FileList : public QWidget, public Ui::FileListBase
+class LogMode;
+class LogLine;
+
+class SyslogAnalyzer2 : public FileAnalyzer
 {
     Q_OBJECT
 
 public:
+    explicit SyslogAnalyzer2(LogMode *logMode);
+
+    virtual ~SyslogAnalyzer2();
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE;
     
-    friend class MergerConfigurationWidget; 
-    
-    FileList(QWidget *parent, const QString &descriptionText);
-    virtual ~FileList();
-
-    int count() const;
-
-    bool isEmpty() const;
-
-    QStringList paths();
-
-    void addPaths(const QStringList &paths);
-
-public slots:
-    void removeAllItems();
-    void mergeAllItems();
-
-signals:
-    void fileListChanged();
 
 
-private slots:
+                                     
+    // Just a fun little function to return one of the logLevel pointers based on searching the message
+    //      in cases where the log file format isn't recognized or where the message level isn't indicated in a standard way. 
+    // It returns informationLogLevel if it doesn't find anything.
 
-    void updateButtons();
-
-    void removeSelectedItem();
-    void mergeSelectedItem();
-    void moveUpItem();
-    void moveDownItem();
-
-protected slots:
-    virtual void addItem();
-
-    void modifyItem();
-    void modifyItem(QListWidgetItem *item);
+    inline LogLevel* level_from_message(const QString &level_message) ;
+    inline QString get_standard_level(const QString &level_message);   
 
 protected:
-    void removeItem(int id);
-    void addQStringList(QStringList);
-    void moveItem(int direction);
-    void unselectAllItems();
-
-    /**
-     * Convenient method which returns the layout which manage the button list
-     */
-    QVBoxLayout *buttonsLayout();
-
-    FileListHelper fileListHelper;
-
-    KMessageWidget *warningBox;
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) Q_DECL_OVERRIDE;
+    // LogLine *adv_parseMessage(const QString &logLine, const LogFile &originalFile, const LogLine* logLinePrevious );
+    
+private:
+    inline QString undefinedHostName();
+    inline QString undefinedProcess();
+    inline LogLine *undefinedLogLine(const QString &message, const LogFile &originalFile);
 };
 
-#endif //_FILE_LIST_H_
+extern QDateTime previousDate;
+extern QString previousHostName;
+
+#endif // _SYSLOG_ANALYZER2_H_

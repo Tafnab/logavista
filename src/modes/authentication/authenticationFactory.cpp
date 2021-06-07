@@ -21,15 +21,20 @@
 
 #include "authenticationFactory.h"
 
+#include <QList>
+
 #include "logMode.h"
 #include "logging.h"
 
-#include "authenticationLogMode.h"
 #include "simpleAction.h"
+#include "authenticationLogMode.h"
+
+#include "logModeFactory.h"
 
 QList<LogMode *> AuthenticationLogModeFactory::createLogModes() const
 {
-    const QList<LogMode *> logModes{new AuthenticationLogMode()};
+    QList<LogMode *> logModes;
+    logModes.append(new AuthenticationLogMode());
     return logModes;
 }
 
@@ -37,11 +42,10 @@ LogModeAction *AuthenticationLogModeFactory::createLogModeAction() const
 {
     LogMode *logMode = Globals::instance().findLogMode(QStringLiteral(AUTHENTICATION_LOG_MODE_ID));
 
-    if (!logMode->filesExist()) {
+    if (!logMode->filesExist())
         return nullptr;
-    }
 
-    auto logModeAction = new SimpleAction(logMode->action(), logMode);
+    SimpleAction *logModeAction = new SimpleAction(logMode->action(), logMode);
 
     return logModeAction;
 }

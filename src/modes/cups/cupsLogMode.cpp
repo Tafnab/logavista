@@ -22,17 +22,20 @@
 #include "cupsLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "cupsAnalyzer.h"
-#include "cupsConfiguration.h"
-#include "cupsConfigurationWidget.h"
 #include "cupsItemBuilder.h"
+#include "cupsConfigurationWidget.h"
+#include "cupsConfiguration.h"
 
-CupsLogMode::CupsLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, CupsConfigurationWidget *cupsConfigurationWidget)
+CupsLogMode::CupsLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration,
+                         CupsConfigurationWidget *cupsConfigurationWidget)
     : LogMode(QStringLiteral(CUPS_LOG_MODE_ID), i18n("Cups Log"), QStringLiteral(CUPS_MODE_ICON))
 {
     d->logModeConfiguration = cupsConfiguration;
@@ -43,9 +46,9 @@ CupsLogMode::CupsLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, C
     // Cups Log Action
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the Cups log."));
-    d->action->setWhatsThis(
-        i18n("Displays the CUPS log in the current tab. CUPS is the program which manages printing on your "
-             "computer."));
+    d->action->setWhatsThis(i18n(
+        "Displays the CUPS log in the current tab. CUPS is the program which manages printing on your "
+        "computer."));
 
     checkLogFilesPresence(cupsConfiguration->cupsPaths());
 }
@@ -60,8 +63,8 @@ Analyzer *CupsLogMode::createAnalyzer(const QVariant &options)
     return new CupsAnalyzer(this);
 }
 
-QVector<LogFile> CupsLogMode::createLogFiles()
+QList<LogFile> CupsLogMode::createLogFiles()
 {
-    auto *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
+    CupsConfiguration *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
     return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPaths());
 }

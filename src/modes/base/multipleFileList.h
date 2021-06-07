@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _MULTIPLE_FILE_LIST_H_
+#define _MULTIPLE_FILE_LIST_H_
 
 #include <QButtonGroup>
 #include <QWidget>
@@ -35,8 +36,11 @@ class MultipleFileList : public QWidget, public Ui::MultipleFileListBase
     Q_OBJECT
 
 public:
+        
+    friend class MergerConfigurationWidget; 
+    
     MultipleFileList(QWidget *parent, const QString &descriptionText);
-    ~MultipleFileList() override;
+    virtual ~MultipleFileList();
 
     bool isOneOfCategoryEmpty() const;
 
@@ -46,21 +50,23 @@ public:
 
     int addCategory(const QString &itemName, const QString &buttonName);
 
-public Q_SLOTS:
+public slots:
     void removeAllItems();
+    void mergeAllItems();
 
-Q_SIGNALS:
+signals:
     void fileListChanged();
 
-private Q_SLOTS:
+private slots:
 
     void updateButtons();
 
     void removeSelectedItem();
+    void mergeSelectedItem();
     void moveUpItem();
     void moveDownItem();
 
-protected Q_SLOTS:
+protected slots:
     virtual void addItem(int category);
 
     void modifyItem();
@@ -82,12 +88,13 @@ protected:
 
     QTreeWidgetItem *findCategoryOfChild(QTreeWidgetItem *childItem);
 
-    FileListHelper mFileListHelper;
+    FileListHelper fileListHelper;
 
-    QButtonGroup mAddButtons;
+    QButtonGroup addButtons;
 
 private:
-    KMessageWidget *mWarningBox = nullptr;
-    bool mMissingFiles = false;
+    KMessageWidget *warningBox;
+    bool missingFiles;
 };
 
+#endif //_MULTIPLE_FILE_LIST_H_

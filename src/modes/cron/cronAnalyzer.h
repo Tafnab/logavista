@@ -19,56 +19,61 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CRON_ANALYZER_H_
+#define _CRON_ANALYZER_H_
 
 #include <KLocalizedString>
+#include <QDebug>
 
 #include "syslogAnalyzer.h"
 
-#include "cronConfiguration.h"
 #include "cronLogMode.h"
+#include "cronConfiguration.h"
 
 class LogMode;
 
 class CronAnalyzer : public SyslogAnalyzer
 {
     Q_OBJECT
-
+private:
+    inline QString undefinedHostName();
+    inline QString undefinedProcess();
+    inline LogLine *undefinedLogLine(const QString &message, const LogFile &originalFile);
 public:
-    explicit CronAnalyzer(LogMode *logMode);
-    ~CronAnalyzer() override
+    CronAnalyzer(LogMode *logMode)
+        : SyslogAnalyzer(logMode)
     {
     }
 
-    LogViewColumns initColumns() override;
+    virtual ~CronAnalyzer() {}
 
-    Analyzer::LogFileSortMode logFileSortMode() override;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) Q_DECL_OVERRIDE;
+    inline bool isCronLine(LogLine *syslogLine);
+    
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+        columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Host"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Process"), true, true));
+        columns.addColumn(LogViewColumn(i18n("User"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Message"), true, true));
+        //columns.addColumn(LogViewColumn(i18n("Command"), true, false));
+        //columns.addColumn(LogViewColumn(i18n("User"), true, false));
+        return columns;
+    }
+
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE { return Analyzer::FilteredLogFile; };
 
     /*
      * Cron line example :
-     * Sep 16 01:3;D (  [ -d /var/lib/php5 ] && find /var/lib/php5/ -type f -cmin +$(/usr/lib/php5/maxlifetime) -print0 | xargs -r -0 rm)
+     * Sep 16 01:39:01 localhost /USR/SBIN/CRON[11069]: (root) CMD (  [ -d /var/lib/php5 ] && find /var/lib/php5/ -type f -cmin +$(/usr/lib/php5/maxlifetime) -print0 | xargs -r -0 rm)
      * Sep 16 18:39:05 localhost /usr/sbin/cron[5479]: (CRON) INFO (pidfile fd = 3)
      * Sep 16 18:39:05 localhost /usr/sbin/cron[5480]: (CRON) STARTUP (fork ok)
      * Sep 16 18:39:05 localhost /usr/sbin/cron[5480]: (CRON) INFO (Running @reboot jobs)
      *
      */
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) override;
 
-    inline bool isCronLine(LogLine *syslogLine)
-    {
-        auto *cronConfiguration = mLogMode->logModeConfiguration<CronConfiguration *>();
-        if (cronConfiguration->processFilter().isEmpty()) {
-            return true;
-        }
-
-        // If the process line does not match the cron process, then ignore this line
-        const QStringList list = syslogLine->logItems();
-        QString processLine = list.at(1);
-        if (processLine.contains(cronConfiguration->processFilter(), Qt::CaseInsensitive)) {
-            return true;
-        }
-
-        return false;
-    }
 };
 
+#endif

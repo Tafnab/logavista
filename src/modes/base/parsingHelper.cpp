@@ -21,16 +21,16 @@
 
 #include "parsingHelper.h"
 
-#include <KFormat>
 #include <KLocalizedString>
+#include <KFormat>
 
 #include "logging.h"
 
-ParsingHelper *ParsingHelper::self = nullptr;
+ParsingHelper *ParsingHelper::self = NULL;
 
 ParsingHelper *ParsingHelper::instance()
 {
-    if (!ParsingHelper::self) {
+    if (ParsingHelper::self == NULL) {
         ParsingHelper::self = new ParsingHelper();
     }
 
@@ -40,70 +40,70 @@ ParsingHelper *ParsingHelper::instance()
 ParsingHelper::ParsingHelper()
 {
     // Initialize Existing months
-    mMapMonths[QStringLiteral("Jan")] = 1;
-    mMapMonths[QStringLiteral("Feb")] = 2;
-    mMapMonths[QStringLiteral("Mar")] = 3;
-    mMapMonths[QStringLiteral("Apr")] = 4;
-    mMapMonths[QStringLiteral("May")] = 5;
-    mMapMonths[QStringLiteral("Jun")] = 6;
-    mMapMonths[QStringLiteral("Jul")] = 7;
-    mMapMonths[QStringLiteral("Aug")] = 8;
-    mMapMonths[QStringLiteral("Sep")] = 9;
-    mMapMonths[QStringLiteral("Oct")] = 10;
-    mMapMonths[QStringLiteral("Nov")] = 11;
-    mMapMonths[QStringLiteral("Dec")] = 12;
+    mapMonths[QLatin1String("Jan")] = 1;
+    mapMonths[QLatin1String("Feb")] = 2;
+    mapMonths[QLatin1String("Mar")] = 3;
+    mapMonths[QLatin1String("Apr")] = 4;
+    mapMonths[QLatin1String("May")] = 5;
+    mapMonths[QLatin1String("Jun")] = 6;
+    mapMonths[QLatin1String("Jul")] = 7;
+    mapMonths[QLatin1String("Aug")] = 8;
+    mapMonths[QLatin1String("Sep")] = 9;
+    mapMonths[QLatin1String("Oct")] = 10;
+    mapMonths[QLatin1String("Nov")] = 11;
+    mapMonths[QLatin1String("Dec")] = 12;
 
     // Initialize HTTP Responses
     // 1xx Responses
-    mMapHTTPResponse[QStringLiteral("100")] = QStringLiteral("Continue");
-    mMapHTTPResponse[QStringLiteral("101")] = QStringLiteral("Switching Protocols");
+    mapHTTPResponse[QLatin1String("100")] = QLatin1String("Continue");
+    mapHTTPResponse[QLatin1String("101")] = QLatin1String("Switching Protocols");
 
     // 2xx Responses
-    mMapHTTPResponse[QStringLiteral("200")] = QStringLiteral("OK");
-    mMapHTTPResponse[QStringLiteral("201")] = QStringLiteral("Created");
-    mMapHTTPResponse[QStringLiteral("202")] = QStringLiteral("Accepted");
-    mMapHTTPResponse[QStringLiteral("203")] = QStringLiteral("Non-Authoritative Information");
-    mMapHTTPResponse[QStringLiteral("204")] = QStringLiteral("No Content");
-    mMapHTTPResponse[QStringLiteral("205")] = QStringLiteral("Reset Content");
-    mMapHTTPResponse[QStringLiteral("206")] = QStringLiteral("Partial Content");
+    mapHTTPResponse[QLatin1String("200")] = QLatin1String("OK");
+    mapHTTPResponse[QLatin1String("201")] = QLatin1String("Created");
+    mapHTTPResponse[QLatin1String("202")] = QLatin1String("Accepted");
+    mapHTTPResponse[QLatin1String("203")] = QLatin1String("Non-Authoritative Information");
+    mapHTTPResponse[QLatin1String("204")] = QLatin1String("No Content");
+    mapHTTPResponse[QLatin1String("205")] = QLatin1String("Reset Content");
+    mapHTTPResponse[QLatin1String("206")] = QLatin1String("Partial Content");
 
     // 3xx Responses
-    mMapHTTPResponse[QStringLiteral("300")] = QStringLiteral("OK");
-    mMapHTTPResponse[QStringLiteral("301")] = QStringLiteral("Moved Permanently");
-    mMapHTTPResponse[QStringLiteral("302")] = QStringLiteral("Found");
-    mMapHTTPResponse[QStringLiteral("303")] = QStringLiteral("See Other");
-    mMapHTTPResponse[QStringLiteral("304")] = QStringLiteral("Not Modified");
-    mMapHTTPResponse[QStringLiteral("305")] = QStringLiteral("Use Proxy");
-    mMapHTTPResponse[QStringLiteral("306")] = QStringLiteral("(Unused)");
-    mMapHTTPResponse[QStringLiteral("307")] = QStringLiteral("Temporary Redirect");
+    mapHTTPResponse[QLatin1String("300")] = QLatin1String("OK");
+    mapHTTPResponse[QLatin1String("301")] = QLatin1String("Moved Permanently");
+    mapHTTPResponse[QLatin1String("302")] = QLatin1String("Found");
+    mapHTTPResponse[QLatin1String("303")] = QLatin1String("See Other");
+    mapHTTPResponse[QLatin1String("304")] = QLatin1String("Not Modified");
+    mapHTTPResponse[QLatin1String("305")] = QLatin1String("Use Proxy");
+    mapHTTPResponse[QLatin1String("306")] = QLatin1String("(Unused)");
+    mapHTTPResponse[QLatin1String("307")] = QLatin1String("Temporary Redirect");
 
     // 4xx Responses
-    mMapHTTPResponse[QStringLiteral("400")] = QStringLiteral("Bad Request");
-    mMapHTTPResponse[QStringLiteral("401")] = QStringLiteral("Unauthorized");
-    mMapHTTPResponse[QStringLiteral("402")] = QStringLiteral("Payment Required");
-    mMapHTTPResponse[QStringLiteral("403")] = QStringLiteral("Forbidden");
-    mMapHTTPResponse[QStringLiteral("404")] = QStringLiteral("Not Found");
-    mMapHTTPResponse[QStringLiteral("405")] = QStringLiteral("Method Not Allowed");
-    mMapHTTPResponse[QStringLiteral("406")] = QStringLiteral("Not Acceptable");
-    mMapHTTPResponse[QStringLiteral("407")] = QStringLiteral("Proxy Authentication Required");
-    mMapHTTPResponse[QStringLiteral("408")] = QStringLiteral("Request Timeout");
-    mMapHTTPResponse[QStringLiteral("409")] = QStringLiteral("Conflict");
-    mMapHTTPResponse[QStringLiteral("410")] = QStringLiteral("Gone");
-    mMapHTTPResponse[QStringLiteral("411")] = QStringLiteral("Length Required");
-    mMapHTTPResponse[QStringLiteral("412")] = QStringLiteral("Precondition Failed");
-    mMapHTTPResponse[QStringLiteral("413")] = QStringLiteral("Request Entity Too Large");
-    mMapHTTPResponse[QStringLiteral("414")] = QStringLiteral("Request-URI Too Long");
-    mMapHTTPResponse[QStringLiteral("415")] = QStringLiteral("Unsupported Media Type");
-    mMapHTTPResponse[QStringLiteral("416")] = QStringLiteral("Requested Range Not Satisfiable");
-    mMapHTTPResponse[QStringLiteral("417")] = QStringLiteral("Expectation Failed");
+    mapHTTPResponse[QLatin1String("400")] = QLatin1String("Bad Request");
+    mapHTTPResponse[QLatin1String("401")] = QLatin1String("Unauthorized");
+    mapHTTPResponse[QLatin1String("402")] = QLatin1String("Payment Required");
+    mapHTTPResponse[QLatin1String("403")] = QLatin1String("Forbidden");
+    mapHTTPResponse[QLatin1String("404")] = QLatin1String("Not Found");
+    mapHTTPResponse[QLatin1String("405")] = QLatin1String("Method Not Allowed");
+    mapHTTPResponse[QLatin1String("406")] = QLatin1String("Not Acceptable");
+    mapHTTPResponse[QLatin1String("407")] = QLatin1String("Proxy Authentication Required");
+    mapHTTPResponse[QLatin1String("408")] = QLatin1String("Request Timeout");
+    mapHTTPResponse[QLatin1String("409")] = QLatin1String("Conflict");
+    mapHTTPResponse[QLatin1String("410")] = QLatin1String("Gone");
+    mapHTTPResponse[QLatin1String("411")] = QLatin1String("Length Required");
+    mapHTTPResponse[QLatin1String("412")] = QLatin1String("Precondition Failed");
+    mapHTTPResponse[QLatin1String("413")] = QLatin1String("Request Entity Too Large");
+    mapHTTPResponse[QLatin1String("414")] = QLatin1String("Request-URI Too Long");
+    mapHTTPResponse[QLatin1String("415")] = QLatin1String("Unsupported Media Type");
+    mapHTTPResponse[QLatin1String("416")] = QLatin1String("Requested Range Not Satisfiable");
+    mapHTTPResponse[QLatin1String("417")] = QLatin1String("Expectation Failed");
 
     // 5xx Responses
-    mMapHTTPResponse[QStringLiteral("500")] = QStringLiteral("Internal Server Error");
-    mMapHTTPResponse[QStringLiteral("501")] = QStringLiteral("Not Implemented");
-    mMapHTTPResponse[QStringLiteral("502")] = QStringLiteral("Bad Gateway");
-    mMapHTTPResponse[QStringLiteral("503")] = QStringLiteral("Service Unavailable");
-    mMapHTTPResponse[QStringLiteral("504")] = QStringLiteral("Gateway Timeout");
-    mMapHTTPResponse[QStringLiteral("505")] = QStringLiteral("HTTP Version Not Supported");
+    mapHTTPResponse[QLatin1String("500")] = QLatin1String("Internal Server Error");
+    mapHTTPResponse[QLatin1String("501")] = QLatin1String("Not Implemented");
+    mapHTTPResponse[QLatin1String("502")] = QLatin1String("Bad Gateway");
+    mapHTTPResponse[QLatin1String("503")] = QLatin1String("Service Unavailable");
+    mapHTTPResponse[QLatin1String("504")] = QLatin1String("Gateway Timeout");
+    mapHTTPResponse[QLatin1String("505")] = QLatin1String("HTTP Version Not Supported");
 }
 
 ParsingHelper::~ParsingHelper()
@@ -114,17 +114,18 @@ QDateTime ParsingHelper::parseHttpDateTime(const QString &logLine)
 {
     // Format example : 22/May/2005:01:50:34 +0200
 
-    const QString day = logLine.mid(0, 2);
-    const QString month = logLine.mid(3, 3);
-    const QString year = logLine.mid(7, 4);
+    QString day = logLine.mid(0, 2);
+    QString month = logLine.mid(3, 3);
+    QString year = logLine.mid(7, 4);
 
-    const QString hour = logLine.mid(12, 2);
-    const QString min = logLine.mid(15, 2);
-    const QString sec = logLine.mid(18, 2);
+    QString hour = logLine.mid(12, 2);
+    QString min = logLine.mid(15, 2);
+    QString sec = logLine.mid(18, 2);
 
     // QString zone=logLine.mid(22,5);
 
-    return QDateTime(QDate(year.toInt(), parseSyslogMonth(month), day.toInt()), QTime(hour.toInt(), min.toInt(), sec.toInt()));
+    return QDateTime(QDate(year.toInt(), parseSyslogMonth(month), day.toInt()),
+                     QTime(hour.toInt(), min.toInt(), sec.toInt()));
 }
 
 /**
@@ -133,9 +134,9 @@ QDateTime ParsingHelper::parseHttpDateTime(const QString &logLine)
 QDateTime ParsingHelper::parseSyslogDateTime(const QString &dateTime)
 {
     // TODO Create this regexp in constructor
-    const static QRegExp regex(QLatin1String(R"((\S*)[ ]+(\d*) (\d*):(\d*):(\d*) (\d*))"));
+    QRegExp regex(QLatin1String("(\\S*)[ ]+(\\d*) (\\d*):(\\d*):(\\d*) (\\d*)"));
 
-    const int firstPosition = regex.indexIn(dateTime);
+    int firstPosition = regex.indexIn(dateTime);
     if (firstPosition == -1) {
         logDebug() << "Unable to parse date " << dateTime;
         return QDateTime::currentDateTime();
@@ -145,19 +146,19 @@ QDateTime ParsingHelper::parseSyslogDateTime(const QString &dateTime)
                      QTime(regex.cap(3).toInt(), regex.cap(4).toInt(), regex.cap(5).toInt(), 0));
 }
 
-QString ParsingHelper::syslogDateTimeRegexp() const
+QString ParsingHelper::syslogDateTimeRegexp()
 {
-    return QStringLiteral("(\\S*[ ]+\\d* \\d*:\\d*:\\d* \\d*)");
+    return QLatin1String("(\\S*[ ]+\\d* \\d*:\\d*:\\d* \\d*)");
 }
 
 int ParsingHelper::parseSyslogMonth(const QString &string)
 {
-    return mMapMonths.value(string, 1);
+    return mapMonths.value(string, 1);
 }
 
 QString ParsingHelper::parseSize(const QString &stringSize)
 {
-    const qint64 size = stringSize.toLongLong();
+    qint64 size = stringSize.toLongLong();
 
     return KFormat().formatByteSize(size);
 }
@@ -165,12 +166,11 @@ QString ParsingHelper::parseSize(const QString &stringSize)
 QString ParsingHelper::parseHttpResponse(const QString &response)
 {
     // Search the response string in the map
-    QMap<QString, QString>::Iterator it = mMapHTTPResponse.find(response);
-    if (it != mMapHTTPResponse.end()) {
+    QMap<QString, QString>::Iterator it = mapHTTPResponse.find(response);
+    if (it != mapHTTPResponse.end())
         return i18nc("HttpResponseNumber HttpResponseDescription", "%1 %2", response, *it);
-    } else {
+    else
         return response;
-    }
 }
 
 QString ParsingHelper::parseAgent(const QString &agent)

@@ -19,11 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _FILE_LIST_HELPER_H_
+#define _FILE_LIST_HELPER_H_
 
-#include <QIcon>
 #include <QUrl>
 #include <QWidget>
+#include <QIcon>
 
 class QAction;
 class QPushButton;
@@ -37,15 +38,15 @@ class FileListHelper : public QObject
     Q_OBJECT
 
 public:
-    explicit FileListHelper(QWidget *parent);
-    ~FileListHelper() override;
+    FileListHelper(QWidget *parent);
+    virtual ~FileListHelper();
 
-    QStringList findPaths(const QList<QUrl> &urls);
+    QStringList findPaths(QList<QUrl> urls);
     bool isValidFile(const QUrl &url);
     QStringList expandJoker(const QUrl &url);
 
-    QList<QUrl> openUrls() const;
-    QUrl openUrl(const QString &originPath) const;
+    QList<QUrl> openUrls();
+    QUrl openUrl(const QString &originPath);
 
     /**
      * Change the enabled status of the button and of its QActions
@@ -55,12 +56,15 @@ public:
     /**
      * TODO Do this inline (and remove this method)
      */
-    void prepareButton(QPushButton *button, const QIcon &icon, const QObject *receiver, const char *member, QWidget *fileList);
+    void prepareButton(QPushButton *button, const QIcon &icon, const QObject *receiver, const char *member,
+                       QWidget *fileList);
 
     QAction *prepareButtonAndAction(QPushButton *button, const QIcon &icon);
-    QAction *prepareButtonAndAction(QPushButton *button, const QIcon &icon, const QObject *receiver, const char *member);
+    QAction *prepareButtonAndAction(QPushButton *button, const QIcon &icon, const QObject *receiver,
+                                    const char *member);
 
 private:
-    QWidget *const mParent = nullptr;
+    QWidget *parent;
 };
 
+#endif //_FILE_LIST_HELPER_H_

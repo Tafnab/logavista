@@ -23,7 +23,8 @@
 
 #include <QPushButton>
 
-#include <KStandardGuiItem>
+#include <kstandardguiitem.h>
+#include <kiconloader.h>
 
 LogLevelSelectionDialog::LogLevelSelectionDialog(QWidget *parent)
     : QDialog(parent)

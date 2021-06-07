@@ -1,3 +1,7 @@
+
+
+
+
 /***************************************************************************
  *   KSystemLog, a system log viewer tool                                  *
  *   Copyright (C) 2007 by Nicolas Ternisien                               *
@@ -21,20 +25,22 @@
 
 #include "fileListHelper.h"
 
-#include <QAction>
-#include <QFileDialog>
 #include <QObject>
+#include <QAction>
 #include <QPushButton>
+#include <QFileDialog>
+#include <QDebug>
 
 #include <KLocalizedString>
-#include <KMessageBox>
+#include <kmessagebox.h>
+#include <kiconloader.h>
 
 #include "defaults.h"
 
 #include "logging.h"
 
 FileListHelper::FileListHelper(QWidget *p)
-    : mParent(p)
+    : parent(p)
 {
 }
 
@@ -45,7 +51,7 @@ FileListHelper::~FileListHelper()
 QAction *FileListHelper::prepareButtonAndAction(QPushButton *button, const QIcon &icon)
 {
     // Initialize action
-    auto action = new QAction(button);
+    QAction *action = new QAction(button);
     action->setIcon(icon);
     action->setText(button->text());
 
@@ -61,7 +67,8 @@ QAction *FileListHelper::prepareButtonAndAction(QPushButton *button, const QIcon
     return action;
 }
 
-QAction *FileListHelper::prepareButtonAndAction(QPushButton *button, const QIcon &icon, const QObject *receiver, const char *member)
+QAction *FileListHelper::prepareButtonAndAction(QPushButton *button, const QIcon &icon,
+                                                const QObject *receiver, const char *member)
 {
     QAction *action = prepareButtonAndAction(button, icon);
     connect(button, SIGNAL(clicked(bool)), receiver, member);
@@ -69,18 +76,19 @@ QAction *FileListHelper::prepareButtonAndAction(QPushButton *button, const QIcon
     return action;
 }
 
-void FileListHelper::prepareButton(QPushButton *button, const QIcon &icon, const QObject *receiver, const char *member, QWidget *fileList)
+void FileListHelper::prepareButton(QPushButton *button, const QIcon &icon, const QObject *receiver,
+                                   const char *member, QWidget *fileList)
 {
     // Initialize action
     QAction *action = prepareButtonAndAction(button, icon, receiver, member);
     fileList->addAction(action);
 }
 
-QStringList FileListHelper::findPaths(const QList<QUrl> &urls)
+QStringList FileListHelper::findPaths(QList<QUrl> urls)
 {
     QStringList paths;
 
-    for (QList<QUrl>::ConstIterator it = urls.constBegin(), total = urls.constEnd(); it != total; ++it) {
+    for (QList<QUrl>::ConstIterator it = urls.constBegin(); it != urls.constEnd(); ++it) {
         QUrl url(*it);
 
         if (isValidFile(url)) {
@@ -88,11 +96,11 @@ QStringList FileListHelper::findPaths(const QList<QUrl> &urls)
             if (url.fileName().contains(QLatin1Char('*'))) {
                 const QStringList foundPaths = expandJoker(url);
                 logDebug() << "Found paths of " << url.path() << ":" << foundPaths;
-                for (const QString &foundPath : foundPaths) {
+                foreach (const QString &foundPath, foundPaths) {
                     paths.append(foundPath);
                 }
             } else {
-                paths.append(url.toLocalFile());
+                paths.append(url.path());
             }
         }
     }
@@ -104,29 +112,33 @@ bool FileListHelper::isValidFile(const QUrl &url)
 {
     QString message;
 
+    //qDebug() << "In FileListHelper::isValidFile, file = " << url.path();
     // If it is not valid
     if (!url.isValid()) {
         return false;
     }
-
+    //qDebug() << "Must be valid";
+    
     // If it is not a local file
     if (!url.isLocalFile()) {
         message = i18n("'%1' is not a local file.", url.path());
-        KMessageBox::error(mParent, message, i18n("File selection failed"), KMessageBox::Notify);
+        KMessageBox::error(parent, message, i18n("File selection failed"), KMessageBox::Notify);
         return false;
     }
 
     // If it's a directory, it's not valid
-    if (QDir(url.toLocalFile()).exists()) {
+    if (QDir(url.path()).exists()) {
         return false;
     }
 
     return true;
 }
 
-QList<QUrl> FileListHelper::openUrls() const
+QList<QUrl> FileListHelper::openUrls()
 {
-    QFileDialog fileDialog(mParent, QString(), QStringLiteral(DEFAULT_LOG_FOLDER), i18n("All Files (*)") + QLatin1String(";;") + i18n("Log Files (*.log)"));
+    QFileDialog fileDialog(parent, QString(), DEFAULT_LOG_FOLDER, QLatin1String("*|") + i18n("All Files (*)")
+                                                                      + QLatin1String("\n*.log|")
+                                                                      + i18n("Log Files (*.log)"));
     fileDialog.setWindowTitle(i18n("Choose Log File"));
     fileDialog.setFileMode(QFileDialog::ExistingFiles);
 
@@ -134,37 +146,37 @@ QList<QUrl> FileListHelper::openUrls() const
     return fileDialog.selectedUrls();
 }
 
-QUrl FileListHelper::openUrl(const QString &originPath) const
+QUrl FileListHelper::openUrl(const QString &originPath)
 {
-    QFileDialog fileDialog(mParent, QString(), originPath, i18n("All Files (*)") + QLatin1String(";;") + i18n("Log Files (*.log)"));
+    QFileDialog fileDialog(parent, QString(), originPath, QLatin1String("*|") + i18n("All Files (*)")
+                                                              + QLatin1String("\n*.log|")
+                                                              + i18n("Log Files (*.log)"));
     fileDialog.setWindowTitle(i18n("Choose Log File"));
     fileDialog.setFileMode(QFileDialog::AnyFile);
 
     fileDialog.exec();
-    const QList<QUrl> urls = fileDialog.selectedUrls();
-    if (!urls.isEmpty()) {
+    QList<QUrl> urls = fileDialog.selectedUrls();
+    if (!urls.isEmpty())
         return fileDialog.selectedUrls().at(0);
-    } else {
+    else
         return QUrl();
-    }
 }
 
 QStringList FileListHelper::expandJoker(const QUrl &url)
 {
-    const QFileInfo info(url.toLocalFile());
+    QDir directory = QDir(url.path().left(url.path().count() - url.fileName().count()));
 
-    logDebug() << "Dir " << info.dir().path();
-    const QString filename = info.fileName();
+    logDebug() << "Dir " << directory.path();
+    QString filename = url.fileName();
 
     if (filename.isEmpty()) {
         return QStringList();
     }
 
     QStringList foundPaths;
-    const QStringList files = info.dir().entryList(QStringList(filename), QDir::Files | QDir::NoSymLinks);
-    foundPaths.reserve(files.count());
-    for (const QString &file : files) {
-        foundPaths.append(info.dir().absoluteFilePath(file));
+    const QStringList files = directory.entryList(QStringList(filename), QDir::Files | QDir::NoSymLinks);
+    foreach (const QString &file, files) {
+        foundPaths.append(directory.absoluteFilePath(file));
     }
 
     return foundPaths;
@@ -174,8 +186,8 @@ void FileListHelper::setEnabledAction(QPushButton *button, bool enabled)
 {
     button->setEnabled(enabled);
 
-    const QList<QAction *> actions = button->actions();
-    for (QAction *action : actions) {
+    QList<QAction *> actions = button->actions();
+    foreach (QAction *action, actions) {
         action->setEnabled(enabled);
     }
 }

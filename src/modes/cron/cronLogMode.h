@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CRON_LOG_MODE_H_
+#define _CRON_LOG_MODE_H_
 
 /**
  * Cron Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Cron Log Icon
  */
-#define CRON_MODE_ICON "preferences-system-time"
+#define CRON_MODE_ICON "/usr/local/share/icons/logavista/x-office-calendar.svg"
 
 #include <QList>
 
@@ -43,10 +44,11 @@ class CronLogMode : public LogMode
 public:
     explicit CronLogMode();
 
-    ~CronLogMode() override;
+    ~CronLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _CRON_LOG_MODE_H_

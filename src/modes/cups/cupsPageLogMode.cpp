@@ -22,17 +22,20 @@
 #include "cupsPageLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
-#include "cupsConfiguration.h"
-#include "cupsConfigurationWidget.h"
 #include "cupsPageAnalyzer.h"
 #include "cupsPageItemBuilder.h"
+#include "cupsConfigurationWidget.h"
+#include "cupsConfiguration.h"
 
-CupsPageLogMode::CupsPageLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, CupsConfigurationWidget *cupsConfigurationWidget)
+CupsPageLogMode::CupsPageLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration,
+                                 CupsConfigurationWidget *cupsConfigurationWidget)
     : LogMode(QStringLiteral(CUPS_PAGE_LOG_MODE_ID), i18n("Cups Page Log"), QStringLiteral(CUPS_PAGE_MODE_ICON))
 {
     d->logModeConfiguration = cupsConfiguration;
@@ -43,10 +46,10 @@ CupsPageLogMode::CupsPageLogMode(QSharedPointer<CupsConfiguration> &cupsConfigur
     // Cups Log Action
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the CUPS Page log."));
-    d->action->setWhatsThis(
-        i18n("Displays the CUPS Page log in the current tab. CUPS is the program which manages printing on your "
-             "computer. This log saves all requests performed to the CUPS embedded web server (default: "
-             "<i>http://localhost:631</i>)."));
+    d->action->setWhatsThis(i18n(
+        "Displays the CUPS Page log in the current tab. CUPS is the program which manages printing on your "
+        "computer. This log saves all requests performed to the CUPS embedded web server (default: "
+        "<i>http://localhost:631</i>)."));
 
     checkLogFilesPresence(cupsConfiguration->cupsPagePaths());
 }
@@ -61,8 +64,8 @@ Analyzer *CupsPageLogMode::createAnalyzer(const QVariant &options)
     return new CupsPageAnalyzer(this);
 }
 
-QVector<LogFile> CupsPageLogMode::createLogFiles()
+QList<LogFile> CupsPageLogMode::createLogFiles()
 {
-    auto *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
+    CupsConfiguration *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
     return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPagePaths());
 }

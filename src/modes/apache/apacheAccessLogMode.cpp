@@ -22,18 +22,22 @@
 #include "apacheAccessLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "apacheAccessAnalyzer.h"
 #include "apacheAccessItemBuilder.h"
-#include "apacheConfiguration.h"
 #include "apacheConfigurationWidget.h"
+#include "apacheConfiguration.h"
 
-ApacheAccessLogMode::ApacheAccessLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration, ApacheConfigurationWidget *apacheConfigurationWidget)
-    : LogMode(QStringLiteral(APACHE_ACCESS_LOG_MODE_ID), i18n("Apache Access Log"), QStringLiteral(APACHE_ACCESS_MODE_ICON))
+ApacheAccessLogMode::ApacheAccessLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration,
+                                         ApacheConfigurationWidget *apacheConfigurationWidget)
+    : LogMode(QStringLiteral(APACHE_ACCESS_LOG_MODE_ID), i18n("Apache Access Log"),
+              QStringLiteral(APACHE_ACCESS_MODE_ICON))
 {
     d->logModeConfiguration = apacheConfiguration;
     d->logModeConfigurationWidget = apacheConfigurationWidget;
@@ -43,9 +47,9 @@ ApacheAccessLogMode::ApacheAccessLogMode(QSharedPointer<ApacheConfiguration> &ap
     // Apache Log Action
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the Apache Access log."));
-    d->action->setWhatsThis(
-        i18n("Displays the Apache Access log in the current tab. Apache is the main used Web server in the world. "
-             "This log saves all requests performed by the Apache web server."));
+    d->action->setWhatsThis(i18n(
+        "Displays the Apache Access log in the current tab. Apache is the main used Web server in the world. "
+        "This log saves all requests performed by the Apache web server."));
 
     checkLogFilesPresence(apacheConfiguration->apacheAccessPaths());
 }
@@ -60,8 +64,8 @@ Analyzer *ApacheAccessLogMode::createAnalyzer(const QVariant &options)
     return new ApacheAccessAnalyzer(this);
 }
 
-QVector<LogFile> ApacheAccessLogMode::createLogFiles()
+QList<LogFile> ApacheAccessLogMode::createLogFiles()
 {
-    auto *apacheConfiguration = logModeConfiguration<ApacheConfiguration *>();
+    ApacheConfiguration *apacheConfiguration = logModeConfiguration<ApacheConfiguration *>();
     return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apacheAccessPaths());
 }

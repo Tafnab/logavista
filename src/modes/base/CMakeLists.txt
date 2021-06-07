@@ -1,3 +1,10 @@
+
+include_directories( 
+	${CMAKE_CURRENT_SOURCE_DIR}/../..
+	${CMAKE_CURRENT_SOURCE_DIR}/../../lib
+	${CMAKE_CURRENT_BINARY_DIR}/../../config 
+)
+
 set(ksystemlog_base_mode_sources
 	parsingHelper.cpp
 	fileList.cpp
@@ -7,6 +14,7 @@ set(ksystemlog_base_mode_sources
 	logLevelSelectionDialog.cpp
 	genericConfiguration.cpp
 	syslogAnalyzer.cpp
+	syslogAnalyzer2.cpp
 )
 
 ki18n_wrap_ui(ksystemlog_base_mode_sources fileListBase.ui )

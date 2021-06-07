@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_ITEM_BUILDER_H_
+#define _CUPS_ITEM_BUILDER_H_
 
 #include <QString>
 
@@ -30,20 +31,29 @@
 #include "logging.h"
 
 #include "logLine.h"
-#include "logMode.h"
 #include "logViewWidgetItem.h"
+#include "logMode.h"
 
 class CupsItemBuilder : public LogModeItemBuilder
 {
 public:
-    CupsItemBuilder()
-    {
-    }
+    CupsItemBuilder() {}
 
-    ~CupsItemBuilder() override
-    {
-    }
+    virtual ~CupsItemBuilder() {}
 
-    QString createFormattedText(LogLine *line) const override;
+    QString createFormattedText(LogLine *line) const Q_DECL_OVERRIDE
+    {
+        QString result;
+
+        result.append(QLatin1String("<table>"));
+
+        result.append(labelMessageFormat(i18n("Date:"), formatDate(line->time())));
+        result.append(labelMessageFormat(i18n("Level:"), line->logLevel()->name()));
+
+        result.append(QLatin1String("</table>"));
+
+        return result;
+    }
 };
 
+#endif // _CUPS_ITEM_BUILDER_H_

@@ -22,17 +22,20 @@
 #include "cupsPdfLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
-#include "cupsConfiguration.h"
-#include "cupsConfigurationWidget.h"
 #include "cupsPdfAnalyzer.h"
 #include "cupsPdfItemBuilder.h"
+#include "cupsConfigurationWidget.h"
+#include "cupsConfiguration.h"
 
-CupsPdfLogMode::CupsPdfLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration, CupsConfigurationWidget *cupsConfigurationWidget)
+CupsPdfLogMode::CupsPdfLogMode(QSharedPointer<CupsConfiguration> &cupsConfiguration,
+                               CupsConfigurationWidget *cupsConfigurationWidget)
     : LogMode(QStringLiteral(CUPS_PDF_LOG_MODE_ID), i18n("Cups PDF Log"), QStringLiteral(CUPS_PDF_MODE_ICON))
 {
     d->logModeConfiguration = cupsConfiguration;
@@ -43,10 +46,10 @@ CupsPdfLogMode::CupsPdfLogMode(QSharedPointer<CupsConfiguration> &cupsConfigurat
     // Cups Log Action
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the CUPS PDF log."));
-    d->action->setWhatsThis(
-        i18n("Displays the CUPS PDF log in the current tab. CUPS is the program which manages printing on your "
-             "computer. This log saves all requests performed to the CUPS embedded web server (default: "
-             "<i>http://localhost:631</i>)."));
+    d->action->setWhatsThis(i18n(
+        "Displays the CUPS PDF log in the current tab. CUPS is the program which manages printing on your "
+        "computer. This log saves all requests performed to the CUPS embedded web server (default: "
+        "<i>http://localhost:631</i>)."));
 
     checkLogFilesPresence(cupsConfiguration->cupsPdfPaths());
 }
@@ -61,8 +64,8 @@ Analyzer *CupsPdfLogMode::createAnalyzer(const QVariant &options)
     return new CupsPdfAnalyzer(this);
 }
 
-QVector<LogFile> CupsPdfLogMode::createLogFiles()
+QList<LogFile> CupsPdfLogMode::createLogFiles()
 {
-    auto *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
+    CupsConfiguration *cupsConfiguration = logModeConfiguration<CupsConfiguration *>();
     return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPdfPaths());
 }

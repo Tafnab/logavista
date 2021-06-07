@@ -21,8 +21,9 @@
 
 #include "syslogAnalyzer.h"
 
-#include <QDateTime>
 #include <QStringList>
+#include <QDateTime>
+#include <QDebug>
 
 #include <KLocalizedString>
 
@@ -30,9 +31,9 @@
 #include "logging.h"
 
 #include "localLogFileReader.h"
-#include "logLevel.h"
 #include "logLine.h"
 #include "logMode.h"
+#include "logLevel.h"
 #include "logViewWidget.h"
 
 #include "logViewModel.h"
@@ -40,6 +41,41 @@
 #include "parsingHelper.h"
 
 #include "ksystemlogConfig.h"
+
+
+ inline LogLevel* SyslogAnalyzer::level_from_message(const QString &level_message) {
+        
+            if (level_message == "" || level_message.length() < 3) {Globals::instance().informationLogLevel(); };
+
+    const QRegularExpression* pattern_emergency = new QRegularExpression(R"Q([-\ ]*EMERGENCY|EMERG|EMRG|Emergency[:\ ]|emergency:|\ emerg\ |\.emerg[:\.\ ])Q");
+    const QRegularExpression* pattern_alert =  new QRegularExpression(R"Q([-\ ]*ALERT|ALERT|ALRT|Alert[:\ ]|\.alert[:\.\ ])Q");
+    const QRegularExpression* pattern_critical =  new QRegularExpression(R"Q([-\ ]*CRITICAL|CRIT|Critical[:\ ]|\ critical\ |\.crit[\.\ ]|\.critical[:\.\ ]| PANIC[:\ ]| panic[:\ ])Q");
+    const QRegularExpression* pattern_error = new  QRegularExpression(R"Q([-\ ]*ERROR|ERR|\ Error[:\ ]|\ error\ |\ err\ |\.err[\.\ ]|\.error[:\.\ ]|'.*'\s+[fF]ailed)Q");
+    const QRegularExpression* pattern_warning = new  QRegularExpression(R"Q([-\ ]*WARNING|WARN|WRN|\ Warning[:\ ]|\ warn\ |\ warning\ |\ warning:|\.warn[\.\ ]|\.warning[:\.\ ])Q");
+    const QRegularExpression* pattern_notice = new  QRegularExpression(R"Q([-\ ]*NOTICE|NOTICE|\ Notice[:\ ]|\ notice\ |\.notice[:\.\ ])Q");
+    const QRegularExpression* pattern_debug = new  QRegularExpression(R"Q(DBG|[-\ ]*DEBUG|\ Debug[:\ ]|\.debug[:\.\ ])Q");
+    
+    // Massive screwup in Qt
+    if (level_message == "") { return(Globals::instance().informationLogLevel()); };
+        
+        if ((pattern_emergency->match(level_message).hasMatch())) {
+            return Globals::instance().emergencyLogLevel();
+        } else if ((pattern_critical->match(level_message).hasMatch())) {
+            return Globals::instance().criticalLogLevel();
+        } else if ((pattern_alert->match(level_message).hasMatch())) {
+            return Globals::instance().alertLogLevel();
+        } else if ((pattern_error->match(level_message).hasMatch())) {
+            return Globals::instance().errorLogLevel();
+        } else if ((pattern_warning->match(level_message).hasMatch())) {
+            return Globals::instance().warningLogLevel();
+        } else if ((pattern_notice->match(level_message).hasMatch())) {
+            return Globals::instance().noticeLogLevel();
+        } else if ((pattern_debug->match(level_message).hasMatch())) {
+            return Globals::instance().debugLogLevel();
+        }
+
+        return Globals::instance().informationLogLevel();
+    }    
 
 SyslogAnalyzer::SyslogAnalyzer(LogMode *logMode)
     : FileAnalyzer(logMode)
@@ -85,49 +121,50 @@ LogLine *SyslogAnalyzer::parseMessage(const QString &logLine, const LogFile &ori
         return undefinedLogLine(logLine, originalFile);
     }
 
-    const int year = QDate::currentDate().year();
+    int year = QDate::currentDate().year();
 
     // Month number
     QString month(logLine.left(3));
 
     QString line(logLine);
 
-    line.remove(0, 4);
-    const int monthNum = ParsingHelper::instance()->parseSyslogMonth(month);
+    line = line.remove(0, 4);
+    int monthNum = ParsingHelper::instance()->parseSyslogMonth(month);
 
     // Day number
     QString day(line.left(2));
-    const int dayNum = day.toInt();
+    int dayNum = day.toInt();
 
-    line.remove(0, 3);
+    line = line.remove(0, 3);
 
     // Time
     QString stringTime(line.left(8));
-    const int h = stringTime.leftRef(2).toInt();
+    int h = stringTime.leftRef(2).toInt();
     stringTime.remove(0, 3);
-    const int m = stringTime.leftRef(2).toInt();
+    int m = stringTime.leftRef(2).toInt();
     stringTime.remove(0, 3);
-    const int s = stringTime.leftRef(2).toInt();
+    int s = stringTime.leftRef(2).toInt();
     stringTime.remove(0, 3);
 
-    const QDateTime dateTime(QDate(year, monthNum, dayNum), QTime(h, m, s));
-    if (!dateTime.isValid()) {
+    QDateTime dateTime(QDate(year, monthNum, dayNum), QTime(h, m, s));
+    if (dateTime.isValid() == false) {
         logDebug() << "Malformed date and time";
+        //qDebug() << "SyslogAnalyzer::parseMessage decided that date/time was bad.";
         return undefinedLogLine(logLine, originalFile);
     }
 
-    line.remove(0, 9);
+    line = line.remove(0, 9);
 
     QString hostname;
 
-    const int nextSpace = line.indexOf(QLatin1Char(' '));
+    int nextSpace = line.indexOf(QLatin1Char(' '));
     int nextDoubleDot = line.indexOf(QLatin1Char(':'));
 
     // Normal case or no process name
     if (nextSpace < nextDoubleDot || nextDoubleDot == -1) {
         // Host name
         hostname = line.left(nextSpace);
-        line.remove(0, nextSpace + 1);
+        line = line.remove(0, nextSpace + 1);
     }
     // No host name case (very rare)
     else {
@@ -146,22 +183,23 @@ LogLine *SyslogAnalyzer::parseMessage(const QString &logLine, const LogFile &ori
         process = line.left(nextDoubleDot);
 
         // If the delete process identifier option is enabled
-        if (KSystemLogConfig::deleteProcessIdentifier()) {
-            const int squareBracket = process.indexOf(QLatin1Char('['));
+        if (KSystemLogConfig::deleteProcessIdentifier() == true) {
+            int squareBracket = process.indexOf(QLatin1Char('['));
 
             // If we find a bracket, we remove the useless part
             if (squareBracket != -1) {
-                process.truncate(squareBracket);
+                process = process.left(squareBracket);
             }
         }
-        line.remove(0, nextDoubleDot + 1);
+        line = line.remove(0, nextDoubleDot + 1);
 
         message = line.remove(0, 1);
     }
     // If we can't find any ':' character, it means that this line is a
     // internal message of syslogd
     else {
-        if (line.contains(QLatin1String("last message repeated")) || line.contains(QLatin1String("-- MARK --"))) {
+        if (line.contains(QLatin1String("last message repeated"))
+            || line.contains(QLatin1String("-- MARK --"))) {
             process = QStringLiteral("syslog");
         } else {
             process = undefinedProcess();
@@ -174,20 +212,18 @@ LogLine *SyslogAnalyzer::parseMessage(const QString &logLine, const LogFile &ori
     list.append(hostname);
     list.append(process);
     list.append(message);
+    LogLevel* my_level = level_from_message(message);
 
-    return new LogLine(mLogLineInternalIdGenerator++, dateTime, list, originalFile.url().toLocalFile(), originalFile.defaultLogLevel(), mLogMode);
+    return new LogLine(logLineInternalIdGenerator++, dateTime, list, originalFile.url().path(),
+                       my_level, logMode);
 }
 
 inline LogLine *SyslogAnalyzer::undefinedLogLine(const QString &message, const LogFile &originalFile)
 {
     QStringList items;
     items << undefinedHostName() << undefinedProcess() << message;
-    return new LogLine(mLogLineInternalIdGenerator++,
-                       QDateTime::currentDateTime(),
-                       items,
-                       originalFile.url().toLocalFile(),
-                       originalFile.defaultLogLevel(),
-                       mLogMode);
+    return new LogLine(logLineInternalIdGenerator++, QDateTime::currentDateTime(), items,
+                       originalFile.url().path(), originalFile.defaultLogLevel(), logMode);
 }
 
 inline QString SyslogAnalyzer::undefinedHostName()

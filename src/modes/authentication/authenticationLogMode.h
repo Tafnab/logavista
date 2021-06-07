@@ -19,23 +19,29 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _AUTHENTICATION_LOG_MODE_H_
+#define _AUTHENTICATION_LOG_MODE_H_
 
 /**
- * Acpid Log Mode Identifier
+ * Authentication Log Mode Identifier
  */
 #define AUTHENTICATION_LOG_MODE_ID "authenticationLogMode"
 
 /**
  * Authentication Log Icon
  */
-#define AUTHENTICATION_MODE_ICON "dialog-password"
+#define AUTHENTICATION_MODE_ICON "/usr/local/share/icons/logavista/emblem-remove.svg"
 
 #include <QList>
 
-#include "logFile.h"
-
+#include "logging.h"
 #include "logMode.h"
+
+#include "syslogAnalyzer.h"
+#include "authenticationConfigurationWidget.h"
+#include "authenticationConfiguration.h"
+
+#include "logModeItemBuilder.h"
 
 class AuthenticationLogMode : public LogMode
 {
@@ -44,10 +50,11 @@ class AuthenticationLogMode : public LogMode
 public:
     explicit AuthenticationLogMode();
 
-    ~AuthenticationLogMode() override;
+    ~AuthenticationLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _AUTHENTICATION_LOG_MODE_H_

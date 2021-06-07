@@ -23,22 +23,22 @@
 
 #include <KLocalizedString>
 
+#include "multipleActions.h"
 #include "logMode.h"
 #include "logging.h"
-#include "multipleActions.h"
 
-#include "apacheAccessLogMode.h"
 #include "apacheLogMode.h"
+#include "apacheAccessLogMode.h"
 
-#include "apacheConfiguration.h"
 #include "apacheConfigurationWidget.h"
+#include "apacheConfiguration.h"
 
 QList<LogMode *> ApacheLogModeFactory::createLogModes() const
 {
     // Create the shared configuration and configuration widget between the logModes
 
     QSharedPointer<ApacheConfiguration> logModeConfiguration = QSharedPointer<ApacheConfiguration>(new ApacheConfiguration());
-    auto logModeConfigurationWidget = new ApacheConfigurationWidget();
+    ApacheConfigurationWidget *logModeConfigurationWidget = new ApacheConfigurationWidget();
 
     QList<LogMode *> logModes;
     logModes.append(new ApacheLogMode(logModeConfiguration, logModeConfigurationWidget));
@@ -52,21 +52,19 @@ LogModeAction *ApacheLogModeFactory::createLogModeAction() const
     LogMode *apacheLogMode = Globals::instance().findLogMode(QStringLiteral(APACHE_LOG_MODE_ID));
     LogMode *apacheAccessLogMode = Globals::instance().findLogMode(QStringLiteral(APACHE_ACCESS_LOG_MODE_ID));
 
-    const bool apacheLogsExist = apacheLogMode->filesExist();
-    const bool apacheAccessLogsExist = apacheAccessLogMode->filesExist();
+    bool apacheLogsExist = apacheLogMode->filesExist();
+    bool apacheAccessLogsExist = apacheAccessLogMode->filesExist();
 
-    if (!apacheLogsExist && !apacheAccessLogsExist) {
+    if (!apacheLogsExist && !apacheAccessLogsExist)
         return nullptr;
-    }
 
-    auto multipleActions = new MultipleActions(QIcon::fromTheme(QStringLiteral(APACHE_MODE_ICON)), i18n("Apache"), apacheLogMode);
-    if (apacheLogsExist) {
+    MultipleActions *multipleActions = new MultipleActions(QIcon::fromTheme(QStringLiteral(APACHE_MODE_ICON)),
+                                                           i18n("Apache"), apacheLogMode);
+    if (apacheLogsExist)
         multipleActions->addInnerAction(apacheLogMode->action());
-    }
 
-    if (apacheAccessLogsExist) {
+    if (apacheAccessLogsExist)
         multipleActions->addInnerAction(apacheAccessLogMode->action());
-    }
 
     multipleActions->setCategory(LogModeAction::ServicesCategory);
 

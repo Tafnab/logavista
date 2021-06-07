@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _APACHE_ACCESS_ANALYZER_H_
+#define _APACHE_ACCESS_ANALYZER_H_
 
 #include <KLocalizedString>
 
@@ -36,19 +37,101 @@ class ApacheAccessAnalyzer : public FileAnalyzer
     Q_OBJECT
 
 public:
-    explicit ApacheAccessAnalyzer(LogMode *logMode);
-
-    ~ApacheAccessAnalyzer() override
+    explicit ApacheAccessAnalyzer(LogMode *logMode)
+        : FileAnalyzer(logMode)
     {
     }
 
-    LogViewColumns initColumns() override;
+    virtual ~ApacheAccessAnalyzer() {}
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+
+        columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Host Name"), true, true));
+        columns.addColumn(LogViewColumn(
+            i18n("Id."), true, true)); //=Identification protocol [From RFC1413 (see Google for more infos)]
+        columns.addColumn(LogViewColumn(i18n("User"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Response"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Bytes Sent"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Agent Identity"), true, true));
+        columns.addColumn(LogViewColumn(i18n("HTTP Request"), true, false));
+        columns.addColumn(LogViewColumn(i18n("URL"), true, true));
+
+        return columns;
+    }
 
 protected:
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE { return new LocalLogFileReader(logFile); }
 
-    Analyzer::LogFileSortMode logFileSortMode() override;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE { return Analyzer::AscendingSortedLogFile; }
 
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) override;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) Q_DECL_OVERRIDE
+    {
+        QString line(logLine);
+
+        int spacePos = line.indexOf(QLatin1Char(' '));
+
+        QString hostName = line.left(spacePos);
+        line = line.remove(0, spacePos + 1);
+
+        spacePos = line.indexOf(QLatin1Char(' '));
+        QString identd = line.left(spacePos);
+        line = line.remove(0, spacePos + 1);
+
+        spacePos = line.indexOf(QLatin1Char(' '));
+        QString userName = line.left(spacePos);
+        line = line.remove(0, spacePos + 1);
+
+        int endDate = line.indexOf(QLatin1Char(']'));
+        QString strDateTime = line.left(endDate);
+        line = line.remove(0, endDate + 3);
+
+        QDateTime dateTime
+            = ParsingHelper::instance()->parseHttpDateTime(strDateTime.mid(1, strDateTime.count() - 2));
+
+        int endQuote = line.indexOf(QLatin1Char('\"'));
+        QString message = line.left(endQuote);
+        line = line.remove(0, endQuote + 2);
+
+        spacePos = line.indexOf(QLatin1Char(' '));
+        QString httpResponse = ParsingHelper::instance()->parseHttpResponse(line.left(spacePos));
+        line = line.remove(0, spacePos + 1);
+
+        spacePos = line.indexOf(QLatin1Char(' '));
+        QString bytesSent = ParsingHelper::instance()->parseSize(line.left(spacePos));
+        line = line.remove(0, spacePos + 2);
+
+        QString url;
+
+        endQuote = line.indexOf(QLatin1Char('\"'));
+        if (endQuote != -1) {
+            url = line.left(endQuote);
+            line = line.remove(0, endQuote + 3);
+        }
+
+        QString agent;
+
+        // TODO Convert this value to find a more simple name for the Agent
+        endQuote = line.indexOf(QLatin1Char('\"'));
+        if (endQuote != -1) {
+            agent = ParsingHelper::instance()->parseAgent(line.left(endQuote));
+        }
+
+        QStringList list;
+        list.append(hostName);
+        list.append(identd);
+        list.append(userName);
+        list.append(httpResponse);
+        list.append(bytesSent);
+        list.append(agent);
+        list.append(message);
+        list.append(url);
+
+        return new LogLine(logLineInternalIdGenerator++, dateTime, list, originalLogFile.url().path(),
+                           Globals::instance().informationLogLevel(), logMode);
+    }
 };
 
+#endif // _APACHE_ACCESS_ANALYZER_H_

@@ -19,40 +19,66 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _AUTHENTICATION_CONFIGURATION_H_
+#define _AUTHENTICATION_CONFIGURATION_H_
 
 #include <QStringList>
+#include <QString>
+#include <QProcess>
+#include <QDebug>
 
 #include "logModeConfiguration.h"
 
-#include "defaults.h"
 #include "logging.h"
-
-#include "authenticationLogMode.h"
+#include "defaults.h"
 
 #include "ksystemlogConfig.h"
+
+class AuthenticationConfigurationPrivate
+{
+public:
+    QStringList authenticationPaths;
+};
 
 class AuthenticationConfiguration : public LogModeConfiguration
 {
     Q_OBJECT
 
 public:
-    AuthenticationConfiguration();
+    AuthenticationConfiguration()
+        : d(new AuthenticationConfigurationPrivate())
+    {
+        configuration->setCurrentGroup(QStringLiteral("AuthenticationLogMode"));
 
-    ~AuthenticationConfiguration() override;
+        // Need only the latest security log.
+        QProcess myProcess;
+        // This command will only bring up the latest 3 authentications logs, introduces dependence on utility "head"
+        QString Command = "/bin/bash -c \"ls -t /var/log/auth.log.* | head -n 3 \"";
+        myProcess.start(Command);
+        myProcess.waitForFinished();
+        QString secfile(myProcess.readAllStandardOutput());
+        secfile = secfile.trimmed();
+        
+		// QStringList defaultAuthenticationPaths = QStringList(secfile.split('\n'));
+        // Push the new files onto the default*Paths using <<, otherwise they will be ignored
+//         for (auto i = 0; i < default_files.length(); i++) {
+//             defaultAuthenticationPaths << default_files[i];
+//         }
+         QStringList defaultAuthenticationPaths; 
+         defaultAuthenticationPaths << QString("/var/log/auth.log") << QString("/var/log/auth.log.1") << QString("/var/log/auth.log.2.gz");
 
-    QString authenticationPath() const;
+        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->authenticationPaths, defaultAuthenticationPaths,
+                                         QStringLiteral("LogFilesPaths"));
+    }
 
-    void setAuthenticationPath(const QString &authenticationPath);
+    virtual ~AuthenticationConfiguration() { delete d; }
 
-    QStringList warningKeywords() const;
+    QStringList authenticationPaths() const { return d->authenticationPaths; }
 
-    QStringList errorKeywords() const;
+    void setAuthenticationPaths(const QStringList &authenticationPaths) { d->authenticationPaths = authenticationPaths; }
 
 private:
-    QString mAuthenticationPath;
-
-    QStringList mWarningKeywords;
-    QStringList mErrorKeywords;
+    AuthenticationConfigurationPrivate *const d;
 };
 
+#endif // _AUTHENTICATION_CONFIGURATION_H_

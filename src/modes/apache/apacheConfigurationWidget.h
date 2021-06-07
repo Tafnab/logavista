@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _APACHE_CONFIGURATION_WIDGET_H_
+#define _APACHE_CONFIGURATION_WIDGET_H_
 
 #include "logModeConfigurationWidget.h"
 
@@ -39,27 +40,76 @@ class ApacheConfigurationWidget : public LogModeConfigurationWidget
     Q_OBJECT
 
 public:
-    ApacheConfigurationWidget();
-
-    ~ApacheConfigurationWidget() override
+    ApacheConfigurationWidget()
+        : LogModeConfigurationWidget(i18n("Apache Log"), QStringLiteral(APACHE_MODE_ICON), i18n("Apache Log"))
     {
+        QHBoxLayout *layout = new QHBoxLayout();
+        this->setLayout(layout);
+
+        apacheFileList
+            = new MultipleFileList(this, i18n(
+                                             "<p>These files will be analyzed to show the <b>Apache log</b> "
+                                             "and the <b>Apache Access log</b>.</p>"));
+
+        apachePathsId = apacheFileList->addCategory(i18n("Apache Log Files"), i18n("Add Apache File..."));
+        apacheAccessPathsId
+            = apacheFileList->addCategory(i18n("Apache Access Log Files"), i18n("Add Apache Access File..."));
+
+        connect(apacheFileList, &MultipleFileList::fileListChanged, this, &LogModeConfigurationWidget::configurationChanged);
+
+        layout->addWidget(apacheFileList);
     }
 
-public Q_SLOTS:
+    ~ApacheConfigurationWidget() {}
 
-    void saveConfig() override;
+public slots:
 
-    void defaultConfig() override;
+    void saveConfig() Q_DECL_OVERRIDE
+    {
+        logDebug() << "Saving config from Apache Options...";
 
-    void readConfig() override;
+        ApacheConfiguration *apacheConfiguration = Globals::instance()
+                                                       .findLogMode(QStringLiteral(APACHE_LOG_MODE_ID))
+                                                       ->logModeConfiguration<ApacheConfiguration *>();
+        apacheConfiguration->setApachePaths(apacheFileList->paths(apachePathsId));
+        apacheConfiguration->setApacheAccessPaths(apacheFileList->paths(apacheAccessPathsId));
+    }
+
+    void defaultConfig() Q_DECL_OVERRIDE
+    {
+        // TODO Find a way to read the configuration per default
+        readConfig();
+    }
+
+    void readConfig() Q_DECL_OVERRIDE
+    {
+        ApacheConfiguration *apacheConfiguration = Globals::instance()
+                                                       .findLogMode(QStringLiteral(APACHE_LOG_MODE_ID))
+                                                       ->logModeConfiguration<ApacheConfiguration *>();
+
+        apacheFileList->removeAllItems();
+
+        apacheFileList->addPaths(apachePathsId, apacheConfiguration->apachePaths());
+        apacheFileList->addPaths(apacheAccessPathsId, apacheConfiguration->apacheAccessPaths());
+    }
 
 protected:
-    bool isValid() const override;
+    bool isValid() const Q_DECL_OVERRIDE
+    {
+        if (apacheFileList->isOneOfCategoryEmpty() == true) {
+            logDebug() << "Apache configuration not valid";
+            return false;
+        }
+
+        logDebug() << "Apache configuration valid";
+        return true;
+    }
 
 private:
-    MultipleFileList *mApacheFileList = nullptr;
+    MultipleFileList *apacheFileList;
 
-    int mApachePathsId = -1;
-    int mApacheAccessPathsId = -1;
+    int apachePathsId;
+    int apacheAccessPathsId;
 };
 
+#endif // _APACHE_CONFIGURATION_WIDGET_H_

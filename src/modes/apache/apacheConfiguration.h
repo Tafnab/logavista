@@ -19,39 +19,65 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _APACHE_CONFIGURATION_H_
+#define _APACHE_CONFIGURATION_H_
 
 #include <QStringList>
 
 #include "logModeConfiguration.h"
 
-#include "defaults.h"
 #include "logging.h"
+#include "defaults.h"
 
 #include "apacheLogMode.h"
 
 #include "ksystemlogConfig.h"
+
+class ApacheConfigurationPrivate
+{
+public:
+    QStringList apachePaths;
+
+    QStringList apacheAccessPaths;
+};
 
 class ApacheConfiguration : public LogModeConfiguration
 {
     Q_OBJECT
 
 public:
-    ApacheConfiguration();
+    ApacheConfiguration()
+        : d(new ApacheConfigurationPrivate())
+    {
+        configuration->setCurrentGroup(QStringLiteral("ApacheLogMode"));
 
-    ~ApacheConfiguration() override;
+        QStringList defaultApachePaths;
+        defaultApachePaths << QStringLiteral("/var/log/apache2/error.log");
+        configuration->addItemStringList(QStringLiteral("ApacheLogFilesPaths"), d->apachePaths,
+                                         defaultApachePaths, QStringLiteral("ApacheLogFilesPaths"));
 
-    QStringList apachePaths() const;
+        QStringList defaultApacheAccessPaths;
+        defaultApacheAccessPaths << QStringLiteral("/var/log/apache2/access.log");
+        configuration->addItemStringList(QStringLiteral("ApacheAccessLogFilesPaths"), d->apacheAccessPaths,
+                                         defaultApacheAccessPaths,
+                                         QStringLiteral("ApacheAccessLogFilesPaths"));
+    }
 
-    QStringList apacheAccessPaths() const;
+    virtual ~ApacheConfiguration() { delete d; }
 
-    void setApachePaths(const QStringList &apachePaths);
+    QStringList apachePaths() const { return d->apachePaths; }
 
-    void setApacheAccessPaths(const QStringList &apacheAccessPaths);
+    QStringList apacheAccessPaths() const { return d->apacheAccessPaths; }
+
+    void setApachePaths(const QStringList &apachePaths) { d->apachePaths = apachePaths; }
+
+    void setApacheAccessPaths(const QStringList &apacheAccessPaths)
+    {
+        d->apacheAccessPaths = apacheAccessPaths;
+    }
 
 private:
-    QStringList mApachePaths;
-
-    QStringList mApacheAccessPaths;
+    ApacheConfigurationPrivate *const d;
 };
 
+#endif // _APACHE_CONFIGURATION_H_

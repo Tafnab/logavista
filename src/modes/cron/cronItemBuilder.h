@@ -19,9 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CRON_ITEM_BUILDER_H_
+#define _CRON_ITEM_BUILDER_H_
 
 #include <QString>
+#include <QDebug>
 
 #include "logModeItemBuilder.h"
 
@@ -30,20 +32,36 @@
 #include "logging.h"
 
 #include "logLine.h"
-#include "logMode.h"
 #include "logViewWidgetItem.h"
+#include "logMode.h"
 
 class CronItemBuilder : public LogModeItemBuilder
 {
 public:
-    CronItemBuilder()
-    {
-    }
+    CronItemBuilder() {}
 
-    ~CronItemBuilder() override
-    {
-    }
+    virtual ~CronItemBuilder() {}
 
-    QString createFormattedText(LogLine *line) const override;
+    QString createFormattedText(LogLine *line) const Q_DECL_OVERRIDE
+    {
+        //qDebug() << "Enter CronItemBuilder constructor";
+        QString result;
+
+        result.append(QLatin1String("<table>"));
+
+        QListIterator<QString> it(line->logItems());
+
+        result.append(labelMessageFormat(i18n("Date:"), formatDate(line->time())));
+        result.append(labelMessageFormat(i18n("Hostname:"), it.next()));
+        result.append(labelMessageFormat(i18n("Process:"), it.next()));
+        result.append(labelMessageFormat(i18n("User:"), it.next()));
+        result.append(labelMessageFormat(i18n("Level:"), line->logLevel()->name()));
+        result.append(labelMessageFormat(i18n("Original file:"), line->sourceFileName()));
+
+        result.append(QLatin1String("</table>"));
+
+        return result;
+    }
 };
 
+#endif // _CRON_ITEM_BUILDER_H_

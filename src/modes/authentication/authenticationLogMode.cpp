@@ -21,17 +21,21 @@
 
 #include "authenticationLogMode.h"
 
+#include <QList>
+
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
-#include "authenticationAnalyzer.h"
-#include "authenticationConfiguration.h"
+#include "syslogAnalyzer.h"
 #include "authenticationConfigurationWidget.h"
+#include "authenticationConfiguration.h"
+
 #include "logModeItemBuilder.h"
 
 AuthenticationLogMode::AuthenticationLogMode()
-    : LogMode(QStringLiteral(AUTHENTICATION_LOG_MODE_ID), i18n("Authentication Log"), QStringLiteral(AUTHENTICATION_MODE_ICON))
+    : LogMode(QStringLiteral(AUTHENTICATION_LOG_MODE_ID), i18n("Authentication"), QStringLiteral(AUTHENTICATION_MODE_ICON))
 {
     d->logModeConfiguration = QSharedPointer<AuthenticationConfiguration>(new AuthenticationConfiguration());
 
@@ -40,13 +44,15 @@ AuthenticationLogMode::AuthenticationLogMode()
     d->itemBuilder = new LogModeItemBuilder();
 
     d->action = createDefaultAction();
-    d->action->setToolTip(i18n("Display the authentication log."));
-    d->action->setWhatsThis(
-        i18n("Displays the authentication log in the current tab. This log displays all logins made by each user "
-             "of the system, and can help you to know if someone tried to crack your system."));
+    d->action->setToolTip(i18n("Authentication security audit logs /var/log/authentication/security.report.*"));
+    d->action->setWhatsThis(i18n(
+        "The Authentication UNIX security tool looks for vulnerabilities in your installed OS. The summary logs give "
+        "recommendations about vulnerabilities and fixes. Other Authentication logs contained in /var/log/authentication are "
+        " not displayed."
+        ));
 
-    auto *configuration = logModeConfiguration<AuthenticationConfiguration *>();
-    checkLogFilesPresence(QStringList() << configuration->authenticationPath());
+    AuthenticationConfiguration *configuration = logModeConfiguration<AuthenticationConfiguration *>();
+    checkLogFilesPresence(configuration->authenticationPaths());
 }
 
 AuthenticationLogMode::~AuthenticationLogMode()
@@ -56,13 +62,11 @@ AuthenticationLogMode::~AuthenticationLogMode()
 Analyzer *AuthenticationLogMode::createAnalyzer(const QVariant &options)
 {
     Q_UNUSED(options)
-    return new AuthenticationAnalyzer(this);
+    return new SyslogAnalyzer(this);
 }
 
-QVector<LogFile> AuthenticationLogMode::createLogFiles()
+QList<LogFile> AuthenticationLogMode::createLogFiles()
 {
-    auto *configuration = logModeConfiguration<AuthenticationConfiguration *>();
-
-    const QVector<LogFile> logFiles{configuration->findGenericLogFile(configuration->authenticationPath())};
-    return logFiles;
+    AuthenticationConfiguration *configuration = logModeConfiguration<AuthenticationConfiguration *>();
+    return configuration->findGenericLogFiles(configuration->authenticationPaths());
 }

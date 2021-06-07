@@ -20,61 +20,94 @@
  ***************************************************************************/
 
 #include "fileList.h"
+#include "../merger/mergerConfiguration.h"
+#include "../merger/mergerConfigurationWidget.h"
 
 #include <QListWidget>
 
-#include <QDesktopServices>
 #include <QPushButton>
+#include <QDebug>
 
-#include <QFileInfo>
+#include <kactioncollection.h>
+#include <kmessagebox.h>
 #include <QIcon>
+#include <QMenu>
+#include <QFileInfo>
 
 #include "defaults.h"
+#include "globals.h"
 
 #include "logging.h"
 
 FileList::FileList(QWidget *parent, const QString &descriptionText)
     : QWidget(parent)
-    , mFileListHelper(this)
+    , fileListHelper(this)
 {
     logDebug() << "Initializing file list...";
 
     setupUi(this);
 
-    mWarningBox = new KMessageWidget(this);
-    mWarningBox->setVisible(false);
-    mWarningBox->setMessageType(KMessageWidget::Warning);
-    mWarningBox->setText(
-        i18n("Some log files do not exist.\n"
-             "If all log files are missing, this mode will be unavailable."));
-    mWarningBox->setCloseButtonVisible(false);
-    mWarningBox->setIcon(QIcon::fromTheme(QStringLiteral("dialog-warning")));
-    vboxLayout->insertWidget(1, mWarningBox);
+    warningBox = new KMessageWidget(this);
+    warningBox->setVisible(false);
+    warningBox->setMessageType(KMessageWidget::Warning);
+    warningBox->setText(i18n("Some log files do not exist.\n"
+                             "If all log files are missing, this mode will be unavailable."));
+    warningBox->setCloseButtonVisible(false);
+    warningBox->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/dialog-warning.svg")));
+    vboxLayout->insertWidget(1, warningBox);
 
     description->setText(descriptionText);
-    connect(description, &QLabel::linkActivated, this, &FileList::slotLinkClicked);
 
-    mFileListHelper.prepareButton(add, QIcon::fromTheme(QStringLiteral("document-new")), this, SLOT(addItem()), fileList);
+    fileListHelper.prepareButton(add, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/document-new.svg")), this, SLOT(addItem()),
+                                 fileList);
 
-    mFileListHelper.prepareButton(modify, QIcon::fromTheme(QStringLiteral("document-open")), this, SLOT(modifyItem()), fileList);
+    fileListHelper.prepareButton(modify, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/document-open.svg")), this,
+                                 SLOT(modifyItem()), fileList);
 
     // Add a separator in the FileList
-    auto separator = new QAction(this);
+    QAction *separator = new QAction(this);
     separator->setSeparator(true);
     fileList->addAction(separator);
 
-    mFileListHelper.prepareButton(remove, QIcon::fromTheme(QStringLiteral("list-remove")), this, SLOT(removeSelectedItem()), fileList);
+    fileListHelper.prepareButton(remove, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/list-remove-all-symbolic.svg")), this,
+                                 SLOT(removeSelectedItem()), fileList);
 
-    mFileListHelper.prepareButton(up, QIcon::fromTheme(QStringLiteral("go-up")), this, SLOT(moveUpItem()), fileList);
+    
+    fileListHelper.prepareButton(merge, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/merge.png")), this,
+                                 SLOT(mergeSelectedItem()), fileList);
+    
+    fileListHelper.prepareButton(up, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/go-up.svg")), this, SLOT(moveUpItem()),
+                                 fileList);
 
-    mFileListHelper.prepareButton(down, QIcon::fromTheme(QStringLiteral("go-down")), this, SLOT(moveDownItem()), fileList);
+    fileListHelper.prepareButton(down, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/go-down.svg")), this, SLOT(moveDownItem()),
+                                 fileList);
 
-    mFileListHelper.prepareButton(removeAll, QIcon::fromTheme(QStringLiteral("trash-empty")), this, SLOT(removeAllItems()), fileList);
+    fileListHelper.prepareButton(removeAll, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/trash-empty.png")), this,
+                                 SLOT(removeAllItems()), fileList);
+
+    fileListHelper.prepareButton(mergeAll, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/merge.png")), this,
+                                 SLOT(mergeAllItems()), fileList);
 
     connect(fileList, &QListWidget::itemSelectionChanged, this, &FileList::updateButtons);
-    connect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(modifyItem(QListWidgetItem *)));
+    connect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this,
+            SLOT(modifyItem(QListWidgetItem *)));
     connect(this, &FileList::fileListChanged, this, &FileList::updateButtons);
+    
+    // Trying to connect whatever FileList object this is to a slot on MergerLogModeWidget.
+    // To that end, I have stuffed a pointer to MergerLogModeWidget (there's only one) into the base class, LogMode
+    //  LogMode can't call any functions on the derived classes (no access to the data).
+    //  However, MergerLogMode has a private data member that knows about MergerConfigurationWidget.
+    //  So, I make the slot on MergerLogMode, which then uses the pointer at LogMode::merger (MergerConfiguartionWidget*)
+    //    to call the appendPaths() member function.
 
+    //connect(this, SIGNAL(appendMergePaths), 
+    //        Globals::instance().findLogMode(QString("MergerLogMode")), SLOT(appendPaths));
+    //LogMode* tmp_logmode = Globals::instance().findLogMode(QStringLiteral(MERGER_LOG_MODE_ID));
+    //MergerConfigurationWidget* tmp_widget = (MergerConfigurationWidget*)tmp_logmode->merger;
+    // connect(this, &FileList::appendMergePaths, tmp_logmode, &MergerLogMode::updateWidget);
+    //connect(this, &FileList::appendMergePaths, &MergerConfigurationWidget::appendPaths);
+    // Giving up on Qt's ability to use signals. Maybe get a new GUI library. Piece of Garbage.
+    
     updateButtons();
 
     logDebug() << "File list initialized";
@@ -82,6 +115,7 @@ FileList::FileList(QWidget *parent, const QString &descriptionText)
 
 FileList::~FileList()
 {
+    
 }
 
 int FileList::count() const
@@ -91,26 +125,32 @@ int FileList::count() const
 
 bool FileList::isEmpty() const
 {
-    return fileList->count() == 0;
-}
-
-void FileList::slotLinkClicked(const QString &link)
-{
-    QDesktopServices::openUrl(QUrl::fromUserInput(link));
+    return (fileList->count() == 0);
 }
 
 void FileList::addItem()
 {
     // Open a standard Filedialog
-    const QList<QUrl> urls = mFileListHelper.openUrls();
+    QList<QUrl> urls = fileListHelper.openUrls();
 
-    const QStringList paths = mFileListHelper.findPaths(urls);
-    for (const QString &path : paths) {
+    QStringList paths = fileListHelper.findPaths(urls);
+    foreach (const QString &path, paths) {
         fileList->addItem(path);
     }
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
+
+    void FileList::addQStringList(QStringList charlie) 
+    {
+
+    if (charlie.isEmpty()) return;
+    foreach (const QString &path, charlie) {
+        fileList->addItem(path);
+    }
+
+    emit fileListChanged();
+    }   
 
 void FileList::modifyItem()
 {
@@ -119,50 +159,65 @@ void FileList::modifyItem()
 
 void FileList::modifyItem(QListWidgetItem *item)
 {
-    const QString previousPath = item->text();
+    QString previousPath = item->text();
 
     // Open a standard Filedialog
-    const QUrl url = mFileListHelper.openUrl(previousPath);
+    QUrl url = fileListHelper.openUrl(previousPath);
 
-    const QList<QUrl> urls{url};
-    const QStringList paths = mFileListHelper.findPaths(urls);
+    QList<QUrl> urls;
+    urls.append(url);
+    QStringList paths = fileListHelper.findPaths(urls);
 
     // We only take the first path
-    if (!paths.isEmpty()) {
+    if (paths.count() >= 1) {
         item->setText(paths.at(0));
     }
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void FileList::removeSelectedItem()
 {
-    const QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+    QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
 
-    for (QListWidgetItem *item : selectedItems) {
+    foreach (QListWidgetItem *item, selectedItems) {
         delete fileList->takeItem(fileList->row(item));
     }
 
-    // fileList->setCurrentRow(fileList->count()-1);
+    fileList->setCurrentRow(fileList->count()-1);
 
-    Q_EMIT fileListChanged();
+
+    emit fileListChanged();
 }
+
+
+void FileList::mergeSelectedItem()
+{
+    QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+    QStringList added_files;
+    foreach (QListWidgetItem *item, selectedItems) {
+        MergerConfiguration::static_mergerPaths << item->text();
+    }
+    //qDebug() << "FileList::mergeSelectedItem complete";
+
+}
+
 
 void FileList::unselectAllItems()
 {
-    const QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
-    for (QListWidgetItem *item : selectedItems) {
+    QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+    foreach (QListWidgetItem *item, selectedItems) {
         item->setSelected(false);
     }
 }
 
 void FileList::moveItem(int direction)
 {
-    const QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+    QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
 
     QListWidgetItem *item = selectedItems.at(0);
 
-    const int itemIndex = fileList->row(item);
+    int itemIndex = fileList->row(item);
 
     fileList->takeItem(itemIndex);
 
@@ -172,7 +227,7 @@ void FileList::moveItem(int direction)
 
     fileList->setCurrentRow(fileList->row(item));
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void FileList::moveUpItem()
@@ -189,44 +244,56 @@ void FileList::removeAllItems()
 {
     fileList->clear();
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
+
+void FileList::mergeAllItems()
+{
+    uint count = fileList->count();
+    for (uint i = 0; i < count; ++i) {
+        MergerConfiguration::static_mergerPaths << fileList->item(i)->text();
+    };
+
+    //qDebug() << "FileList::mergeAllItems complete";
+
+}
+
 
 void FileList::updateButtons()
 {
-    if (fileList->count() == 0) {
-        mFileListHelper.setEnabledAction(removeAll, false);
-    } else {
-        mFileListHelper.setEnabledAction(removeAll, true);
-    }
+    if (fileList->count() == 0)
+        fileListHelper.setEnabledAction(removeAll, false);
+    else
+        fileListHelper.setEnabledAction(removeAll, true);
 
-    const QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
-    if (!selectedItems.isEmpty()) {
-        mFileListHelper.setEnabledAction(remove, true);
-        mFileListHelper.setEnabledAction(modify, true);
+    QList<QListWidgetItem *> selectedItems = fileList->selectedItems();
+    if (selectedItems.isEmpty() == false) {
+        fileListHelper.setEnabledAction(remove, true);
+        fileListHelper.setEnabledAction(merge, true);
+        fileListHelper.setEnabledAction(mergeAll, true);
+        fileListHelper.setEnabledAction(modify, true);
 
         QListWidgetItem *selection = selectedItems.at(0);
 
         // If the item is at the top of the list, it could not be upped anymore
-        if (fileList->row(selection) == 0) {
-            mFileListHelper.setEnabledAction(up, false);
-        } else {
-            mFileListHelper.setEnabledAction(up, true);
-        }
+        if (fileList->row(selection) == 0)
+            fileListHelper.setEnabledAction(up, false);
+        else
+            fileListHelper.setEnabledAction(up, true);
 
         // If the item is at bottom of the list, it could not be downed anymore
-        if (fileList->row(selection) == fileList->count() - 1) {
-            mFileListHelper.setEnabledAction(down, false);
-        } else {
-            mFileListHelper.setEnabledAction(down, true);
-        }
+        if (fileList->row(selection) == fileList->count() - 1)
+            fileListHelper.setEnabledAction(down, false);
+        else
+            fileListHelper.setEnabledAction(down, true);
     }
     // If nothing is selected, disabled special buttons
     else {
-        mFileListHelper.setEnabledAction(remove, false);
-        mFileListHelper.setEnabledAction(modify, false);
-        mFileListHelper.setEnabledAction(up, false);
-        mFileListHelper.setEnabledAction(down, false);
+        fileListHelper.setEnabledAction(remove, false);
+        fileListHelper.setEnabledAction(merge, false);
+        fileListHelper.setEnabledAction(modify, false);
+        fileListHelper.setEnabledAction(up, false);
+        fileListHelper.setEnabledAction(down, false);
     }
 }
 
@@ -238,24 +305,23 @@ QVBoxLayout *FileList::buttonsLayout()
 void FileList::addPaths(const QStringList &paths)
 {
     bool missingFiles = false;
-    for (const QString &path : paths) {
-        auto item = new QListWidgetItem(path);
-        const QFileInfo checkFile(path);
+    foreach (const QString &path, paths) {
+        QListWidgetItem *item = new QListWidgetItem(path);
+        QFileInfo checkFile(path);
         if (!checkFile.exists()) {
             item->setForeground(Qt::red);
             missingFiles = true;
         }
         fileList->addItem(item);
     }
-    mWarningBox->setVisible(missingFiles);
+    warningBox->setVisible(missingFiles);
 
     updateButtons();
 }
 
-QStringList FileList::paths() const
+QStringList FileList::paths()
 {
     QStringList paths;
-    paths.reserve(fileList->count());
     for (int i = 0; i < fileList->count(); i++) {
         paths.append(fileList->item(i)->text());
     }

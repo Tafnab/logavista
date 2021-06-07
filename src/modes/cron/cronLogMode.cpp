@@ -21,13 +21,17 @@
 
 #include "cronLogMode.h"
 
+#include <QList>
+#include <QDebug>
+
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "cronAnalyzer.h"
-#include "cronConfiguration.h"
 #include "cronConfigurationWidget.h"
+#include "cronConfiguration.h"
 #include "cronItemBuilder.h"
 
 CronLogMode::CronLogMode()
@@ -41,12 +45,12 @@ CronLogMode::CronLogMode()
 
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the planned tasks log (Cron log)."));
-    d->action->setWhatsThis(
-        i18n("Displays the planned tasks log in the current tab. Cron process is a program in charge of launching "
-             "planned tasks on your system, like security checks, or auto-restarting of some services. Use this "
-             "menu to see the recently launched processes."));
+    d->action->setWhatsThis(i18n(
+        "Displays the planned tasks log in the current tab. Cron process is a program in charge of launching "
+        "planned tasks on your system, like security checks, or auto-restarting of some services. Use this "
+        "menu to see the recently launched processes."));
 
-    auto *cronConfiguration = logModeConfiguration<CronConfiguration *>();
+    CronConfiguration *cronConfiguration = logModeConfiguration<CronConfiguration *>();
     checkLogFilesPresence(cronConfiguration->cronPaths());
 }
 
@@ -60,8 +64,8 @@ Analyzer *CronLogMode::createAnalyzer(const QVariant &options)
     return new CronAnalyzer(this);
 }
 
-QVector<LogFile> CronLogMode::createLogFiles()
+QList<LogFile> CronLogMode::createLogFiles()
 {
-    auto *cronConfiguration = logModeConfiguration<CronConfiguration *>();
+    CronConfiguration *cronConfiguration = logModeConfiguration<CronConfiguration *>();
     return cronConfiguration->findNoModeLogFiles(cronConfiguration->cronPaths());
 }

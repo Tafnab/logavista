@@ -19,39 +19,62 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CRON_CONFIGURATION_H_
+#define _CRON_CONFIGURATION_H_
 
 #include <QStringList>
+#include <QDebug>
 
 #include "logModeConfiguration.h"
 
-#include "defaults.h"
 #include "logging.h"
+#include "defaults.h"
 
 #include "cronLogMode.h"
 
 #include "ksystemlogConfig.h"
+
+class CronConfigurationPrivate
+{
+public:
+    QStringList cronPaths;
+
+    QString processFilter;
+};
 
 class CronConfiguration : public LogModeConfiguration
 {
     Q_OBJECT
 
 public:
-    CronConfiguration();
+    CronConfiguration()
+        : d(new CronConfigurationPrivate())
+    {
+        //qDebug() << "Enter CronConfiguration constructor";
+        configuration->setCurrentGroup(QStringLiteral("CronLogMode"));
 
-    ~CronConfiguration() override;
+        QStringList defaultCronPaths;
+        defaultCronPaths << QStringLiteral("/var/log/syslog");
+        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->cronPaths, defaultCronPaths,
+                                         QStringLiteral("LogFilesPaths"));
 
-    QString processFilter() const;
+        QString defaultProcessFilter(QStringLiteral("/usr/sbin/cron"));
+        configuration->addItemString(QStringLiteral("ProcessFilter"), d->processFilter, defaultProcessFilter,
+                                     QStringLiteral("ProcessFilter"));
+    }
 
-    void setProcessFilter(const QString &processFilter);
+    virtual ~CronConfiguration() { delete d; }
 
-    QStringList cronPaths() const;
+    QString processFilter() const { return d->processFilter; }
 
-    void setCronPaths(const QStringList &cronPaths);
+    void setProcessFilter(const QString &processFilter) { d->processFilter = processFilter; }
+
+    QStringList cronPaths() const { return d->cronPaths; }
+
+    void setCronPaths(const QStringList &cronPaths) { d->cronPaths = cronPaths; }
 
 private:
-    QStringList mCronPaths;
-
-    QString mProcessFilter;
+    CronConfigurationPrivate *const d;
 };
 
+#endif // _CRON_CONFIGURATION_H_

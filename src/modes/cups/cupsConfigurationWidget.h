@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_CONFIGURATION_WIDGET_H_
+#define _CUPS_CONFIGURATION_WIDGET_H_
 
 #include "logModeConfigurationWidget.h"
 
@@ -39,29 +40,85 @@ class CupsConfigurationWidget : public LogModeConfigurationWidget
     Q_OBJECT
 
 public:
-    CupsConfigurationWidget();
-
-    ~CupsConfigurationWidget() override
+    CupsConfigurationWidget()
+        : LogModeConfigurationWidget(i18n("Cups Log"), QStringLiteral(CUPS_MODE_ICON),
+                                     i18n("Cups &amp; Cups Web Server Log"))
     {
+        QHBoxLayout *layout = new QHBoxLayout();
+        this->setLayout(layout);
+
+        cupsFileList = new MultipleFileList(this, i18n(
+                                                      "<p>These files will be analyzed to show the <b>Cups "
+                                                      "log</b> and the <b>Cups Web Access log</b>.</p>"));
+
+        cupsPathsId = cupsFileList->addCategory(i18n("Cups Log Files"), i18n("Add Cups File..."));
+        cupsAccessPathsId
+            = cupsFileList->addCategory(i18n("Cups Access Log Files"), i18n("Add Cups Access File..."));
+        cupsPagePathsId
+            = cupsFileList->addCategory(i18n("Cups Page Log Files"), i18n("Add Cups Page File..."));
+        cupsPdfPathsId = cupsFileList->addCategory(i18n("Cups PDF Log Files"), i18n("Add Cups PDF File..."));
+
+        connect(cupsFileList, &MultipleFileList::fileListChanged, this, &LogModeConfigurationWidget::configurationChanged);
+
+        layout->addWidget(cupsFileList);
     }
 
-public Q_SLOTS:
+    ~CupsConfigurationWidget() {}
 
-    void saveConfig() override;
+public slots:
 
-    void defaultConfig() override;
+    void saveConfig() Q_DECL_OVERRIDE
+    {
+        logDebug() << "Saving config from Cups Options...";
 
-    void readConfig() override;
+        CupsConfiguration *cupsConfiguration = Globals::instance()
+                                                   .findLogMode(QStringLiteral(CUPS_LOG_MODE_ID))
+                                                   ->logModeConfiguration<CupsConfiguration *>();
+        cupsConfiguration->setCupsPaths(cupsFileList->paths(cupsPathsId));
+        cupsConfiguration->setCupsAccessPaths(cupsFileList->paths(cupsAccessPathsId));
+        cupsConfiguration->setCupsPagePaths(cupsFileList->paths(cupsPagePathsId));
+        cupsConfiguration->setCupsPdfPaths(cupsFileList->paths(cupsPdfPathsId));
+    }
+
+    void defaultConfig() Q_DECL_OVERRIDE
+    {
+        // TODO Find a way to read the configuration per default
+        readConfig();
+    }
+
+    void readConfig() Q_DECL_OVERRIDE
+    {
+        CupsConfiguration *cupsConfiguration = Globals::instance()
+                                                   .findLogMode(QStringLiteral(CUPS_LOG_MODE_ID))
+                                                   ->logModeConfiguration<CupsConfiguration *>();
+
+        cupsFileList->removeAllItems();
+
+        cupsFileList->addPaths(cupsPathsId, cupsConfiguration->cupsPaths());
+        cupsFileList->addPaths(cupsAccessPathsId, cupsConfiguration->cupsAccessPaths());
+        cupsFileList->addPaths(cupsPagePathsId, cupsConfiguration->cupsPagePaths());
+        cupsFileList->addPaths(cupsPdfPathsId, cupsConfiguration->cupsPdfPaths());
+    }
 
 protected:
-    bool isValid() const override;
+    bool isValid() const Q_DECL_OVERRIDE
+    {
+        if (cupsFileList->isOneOfCategoryEmpty() == true) {
+            logDebug() << "Cups configuration not valid";
+            return false;
+        }
+
+        logDebug() << "Cups configuration valid";
+        return true;
+    }
 
 private:
-    MultipleFileList *mCupsFileList = nullptr;
+    MultipleFileList *cupsFileList;
 
-    int mCupsPathsId;
-    int mCupsAccessPathsId;
-    int mCupsPagePathsId;
-    int mCupsPdfPathsId;
+    int cupsPathsId;
+    int cupsAccessPathsId;
+    int cupsPagePathsId;
+    int cupsPdfPathsId;
 };
 
+#endif // _CUPS_CONFIGURATION_WIDGET_H_

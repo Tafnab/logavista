@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_ACCESS_ANALYZER_H_
+#define _CUPS_ACCESS_ANALYZER_H_
 
 #include <KLocalizedString>
 
@@ -36,23 +37,41 @@ class CupsAccessAnalyzer : public FileAnalyzer
     Q_OBJECT
 
 public:
-    explicit CupsAccessAnalyzer(LogMode *logMode);
-
-    ~CupsAccessAnalyzer() override
+    explicit CupsAccessAnalyzer(LogMode *logMode)
+        : FileAnalyzer(logMode)
+        , cupsAccessRegex(
+              QStringLiteral("(\\S*) (\\S*) (\\S*) \\[(.*)\\] \"(.*)\" (\\S*) (\\S*) (\\S*) (\\S*)"))
     {
     }
 
-    LogViewColumns initColumns() override;
+    virtual ~CupsAccessAnalyzer() {}
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+
+        columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Host"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Group"), true, true));
+        columns.addColumn(LogViewColumn(i18n("User"), true, true));
+        columns.addColumn(LogViewColumn(i18n("HTTP Request"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Status"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Bytes"), true, false));
+        columns.addColumn(LogViewColumn(i18n("IPP Operation"), true, false));
+        columns.addColumn(LogViewColumn(i18n("IPP Status"), true, false));
+
+        return columns;
+    }
 
 protected:
-    const QRegExp mCupsAccessRegex;
+    QRegExp cupsAccessRegex;
 
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE { return new LocalLogFileReader(logFile); }
 
-    Analyzer::LogFileSortMode logFileSortMode() override;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE { return Analyzer::AscendingSortedLogFile; }
 
     /*
-     * https://www.cups.org/doc/man-cupsd-logs.html
+     * http://www.cups.org/documentation.php/ref-access_log.html
      *
      * host group user date-time \"method resource version\" status bytes ipp-operation ipp-status
      * 10.0.1.2 - - [01/Dec/2005:21:50:28 +0000] "POST / HTTP/1.1" 200 317 CUPS-Get-Printers
@@ -64,17 +83,39 @@ protected:
      * localhost - - [01/Dec/2005:21:50:32 +0000] "GET /admin HTTP/1.1" 200 6667 - -
      *
      */
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) override;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) Q_DECL_OVERRIDE
+    {
+        int firstPosition = cupsAccessRegex.indexIn(logLine);
+        if (firstPosition == -1) {
+            logDebug() << "Unable to parse line " << logLine;
+            return NULL;
+        }
+
+        QStringList capturedTexts = cupsAccessRegex.capturedTexts();
+
+        // Remove full line
+        capturedTexts.removeAt(0);
+
+        capturedTexts.replace(5, ParsingHelper::instance()->parseHttpResponse(capturedTexts.at(5)));
+        capturedTexts.replace(6, ParsingHelper::instance()->parseSize(capturedTexts.at(6)));
+
+        QDateTime dateTime = ParsingHelper::instance()->parseHttpDateTime(capturedTexts.takeAt(3));
+
+        LogLevel *logLevel = findLevel(capturedTexts.at(capturedTexts.count() - 1));
+
+        return new LogLine(logLineInternalIdGenerator++, dateTime, capturedTexts,
+                           originalLogFile.url().path(), logLevel, logMode);
+    }
 
     inline LogLevel *findLevel(const QString &status) const
     {
-        if (status == QLatin1String("successful-ok")) {
+        if (status == QLatin1String("successful-ok"))
             return Globals::instance().informationLogLevel();
-        } else if (status == QLatin1String("ignored")) {
+        else if (status == QLatin1String("ignored"))
             return Globals::instance().warningLogLevel();
-        }
 
         return Globals::instance().noticeLogLevel();
     }
 };
 
+#endif // _CUPS_ACCESS_ANALYZER_H_

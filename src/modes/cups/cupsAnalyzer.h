@@ -19,14 +19,17 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_ANALYZER_H_
+#define _CUPS_ANALYZER_H_
+
+#include <KLocalizedString>
 
 #include "fileAnalyzer.h"
 
 #include "logging.h"
 
-#include "cupsLogMode.h"
 #include "localLogFileReader.h"
+#include "cupsLogMode.h"
 #include "parsingHelper.h"
 
 #define DEBUG2_LOG_LEVEL_ICON "source"
@@ -38,18 +41,18 @@ class CupsAnalyzer : public FileAnalyzer
 public:
     explicit CupsAnalyzer(LogMode *logMode);
 
-    ~CupsAnalyzer() override;
+    virtual ~CupsAnalyzer();
 
-    LogViewColumns initColumns() override;
+    LogViewColumns initColumns() Q_DECL_OVERRIDE;
 
 protected:
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE;
 
-    Analyzer::LogFileSortMode logFileSortMode() override;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE;
 
     /*
      * Also sees :
-     * https://www.cups.org/doc/man-cupsd-logs.html
+     * http://www.cups.org/documentation.php/ref-error_log.html
      * level date-time message
      *
      * Levels :
@@ -68,13 +71,14 @@ protected:
      * E [15/Feb/2004:01:43:15 +0100] Scheduler shutting down due to SIGTERM.
      *
      */
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) override;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) Q_DECL_OVERRIDE;
 
 private:
-    QMap<QChar, LogLevel *> mMapTypeLevels;
+    QMap<QChar, LogLevel *> mapTypeLevels;
 
     void initializeTypeLevels();
 
-    LogLevel *findLogLevel(QChar type);
+    LogLevel *findLogLevel(const QChar &type);
 };
 
+#endif // _CUPS_ANALYZER_H_

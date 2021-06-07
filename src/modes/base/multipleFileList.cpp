@@ -20,15 +20,21 @@
  ***************************************************************************/
 
 #include "multipleFileList.h"
+#include "../merger/mergerConfiguration.h"
+#include "../merger/mergerConfigurationWidget.h"
 
 #include <QAction>
-#include <QHeaderView>
 #include <QPushButton>
+#include <QHeaderView>
+#include <QDebug>
 
 #include <KLocalizedString>
+#include <kactioncollection.h>
+#include <kmessagebox.h>
 
-#include <QFileInfo>
 #include <QIcon>
+#include <QMenu>
+#include <QFileInfo>
 
 #include "defaults.h"
 
@@ -36,46 +42,59 @@
 
 MultipleFileList::MultipleFileList(QWidget *parent, const QString &descriptionText)
     : QWidget(parent)
-    , mFileListHelper(this)
+    , fileListHelper(this)
 {
     logDebug() << "Initializing multiple file list...";
 
     setupUi(this);
 
-    mWarningBox = new KMessageWidget(this);
-    mWarningBox->setVisible(false);
-    mWarningBox->setMessageType(KMessageWidget::Warning);
-    mWarningBox->setText(
-        i18n("Some log files do not exist.\n"
-             "Modes with missing log files will be unavailable."));
-    mWarningBox->setCloseButtonVisible(false);
-    mWarningBox->setIcon(QIcon::fromTheme(QStringLiteral("dialog-warning")));
-    vboxLayout->insertWidget(1, mWarningBox);
+    missingFiles = false;
+    warningBox = new KMessageWidget(this);
+    warningBox->setVisible(false);
+    warningBox->setMessageType(KMessageWidget::Warning);
+    warningBox->setText(i18n("Some log files do not exist.\n"
+                             "Modes with missing log files will be unavailable."));
+    warningBox->setCloseButtonVisible(false);
+    warningBox->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/dialog-warning.svg")));
+    vboxLayout->insertWidget(1, warningBox);
 
     description->setText(descriptionText);
 
-    mFileListHelper.prepareButton(modify, QIcon::fromTheme(QStringLiteral("document-open")), this, SLOT(modifyItem()), fileList);
+    fileListHelper.prepareButton(modify, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/document-open.svg")), this,
+                                 SLOT(modifyItem()), fileList);
 
     fileList->header()->setVisible(false);
 
     // Add a separator in the MultipleFileList
-    auto separator = new QAction(this);
+    QAction *separator = new QAction(this);
     separator->setSeparator(true);
     fileList->addAction(separator);
 
-    mFileListHelper.prepareButton(remove, QIcon::fromTheme(QStringLiteral("list-remove")), this, SLOT(removeSelectedItem()), fileList);
+    fileListHelper.prepareButton(remove, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/list-remove-all-symbolic.svg")), this,
+                                 SLOT(removeSelectedItem()), fileList);
+    
+    // I'm cloning the Remove button to send to merge
+    fileListHelper.prepareButton(merge, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/merge.png")), this,
+                                 SLOT(mergeSelectedItem()), fileList);
 
-    mFileListHelper.prepareButton(up, QIcon::fromTheme(QStringLiteral("go-up")), this, SLOT(moveUpItem()), fileList);
+    fileListHelper.prepareButton(up, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/go-up.svg")), this, SLOT(moveUpItem()),
+                                 fileList);
 
-    mFileListHelper.prepareButton(down, QIcon::fromTheme(QStringLiteral("go-down")), this, SLOT(moveDownItem()), fileList);
+    fileListHelper.prepareButton(down, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/go-down.svg")), this, SLOT(moveDownItem()),
+                                 fileList);
 
-    mFileListHelper.prepareButton(removeAll, QIcon::fromTheme(QStringLiteral("trash-empty")), this, SLOT(removeAllItems()), fileList);
+    fileListHelper.prepareButton(removeAll, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/trash-empty.png")), this,
+                                 SLOT(removeAllItems()), fileList);
+
+    fileListHelper.prepareButton(mergeAll, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/merge.png")), this,
+                                 SLOT(mergeAllItems()), fileList);
 
     connect(fileList, &QTreeWidget::itemSelectionChanged, this, &MultipleFileList::updateButtons);
-    connect(fileList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(modifyItem(QTreeWidgetItem *)));
+    connect(fileList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
+            SLOT(modifyItem(QTreeWidgetItem *)));
     connect(this, &MultipleFileList::fileListChanged, this, &MultipleFileList::updateButtons);
 
-    connect(&mAddButtons, SIGNAL(buttonClicked(int)), this, SLOT(addItem(int)));
+    connect(&addButtons, SIGNAL(buttonClicked(int)), this, SLOT(addItem(int)));
 
     updateButtons();
 
@@ -90,48 +109,48 @@ void MultipleFileList::updateButtons()
 {
     logDebug() << "Updating buttons...";
 
-    if (isFileListsEmpty()) {
-        mFileListHelper.setEnabledAction(removeAll, false);
-    } else {
-        mFileListHelper.setEnabledAction(removeAll, true);
-    }
+    if (isFileListsEmpty() == true)
+        fileListHelper.setEnabledAction(removeAll, false);
+    else
+        fileListHelper.setEnabledAction(removeAll, true);
 
-    const QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
+    QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
 
     // If the selection is not empty and a empty item is not selected
-    QTreeWidgetItem *categoryItem = nullptr;
-    if (!selectedItems.isEmpty() && !isEmptyItem(selectedItems.at(0))) {
+    QTreeWidgetItem *categoryItem = NULL;
+    if (selectedItems.isEmpty() == false && isEmptyItem(selectedItems.at(0)) == false) {
         categoryItem = findCategoryOfChild(selectedItems.at(0));
     }
 
-    if (categoryItem) {
-        const int categoryIndex = fileList->indexOfTopLevelItem(categoryItem);
+    if (categoryItem != NULL) {
+        int categoryIndex = fileList->indexOfTopLevelItem(categoryItem);
 
-        mFileListHelper.setEnabledAction(remove, true);
-        mFileListHelper.setEnabledAction(modify, true);
+        fileListHelper.setEnabledAction(remove, true);
+        fileListHelper.setEnabledAction(merge, true);
+        fileListHelper.setEnabledAction(modify, true);
 
         QTreeWidgetItem *selectedItem = selectedItems.at(0);
 
         // If the item is at the top of the list, it could not be upped anymore
-        if (categoryItem->indexOfChild(selectedItem) == 0) {
-            mFileListHelper.setEnabledAction(up, false);
-        } else {
-            mFileListHelper.setEnabledAction(up, true);
-        }
+        if (categoryItem->indexOfChild(selectedItem) == 0)
+            fileListHelper.setEnabledAction(up, false);
+        else
+            fileListHelper.setEnabledAction(up, true);
 
         // If the item is at bottom of the list, it could not be downed anymore
-        if (categoryItem->indexOfChild(selectedItem) == categoryCount(categoryIndex) - 1) {
-            mFileListHelper.setEnabledAction(down, false);
-        } else {
-            mFileListHelper.setEnabledAction(down, true);
-        }
+        if (categoryItem->indexOfChild(selectedItem) == categoryCount(categoryIndex) - 1)
+            fileListHelper.setEnabledAction(down, false);
+        else
+            fileListHelper.setEnabledAction(down, true);
+
     }
     // If nothing is selected, disabled special buttons
     else {
-        mFileListHelper.setEnabledAction(remove, false);
-        mFileListHelper.setEnabledAction(modify, false);
-        mFileListHelper.setEnabledAction(up, false);
-        mFileListHelper.setEnabledAction(down, false);
+        fileListHelper.setEnabledAction(remove, false);
+        fileListHelper.setEnabledAction(merge, false);
+        fileListHelper.setEnabledAction(modify, false);
+        fileListHelper.setEnabledAction(up, false);
+        fileListHelper.setEnabledAction(down, false);
     }
 
     logDebug() << "Buttons updated";
@@ -139,7 +158,7 @@ void MultipleFileList::updateButtons()
 
 bool MultipleFileList::isFileListsEmpty() const
 {
-    for (int i = 0, total = fileList->topLevelItemCount(); i < total; ++i) {
+    for (int i = 0; i < fileList->topLevelItemCount(); ++i) {
         if (categoryCount(i) != 0) {
             logDebug() << "Is not empty";
             return false;
@@ -152,7 +171,7 @@ bool MultipleFileList::isFileListsEmpty() const
 
 bool MultipleFileList::isOneOfCategoryEmpty() const
 {
-    for (int i = 0, total = fileList->topLevelItemCount(); i < total; ++i) {
+    for (int i = 0; i < fileList->topLevelItemCount(); ++i) {
         if (categoryCount(i) == 0) {
             logDebug() << "A category is empty";
             return true;
@@ -166,17 +185,16 @@ bool MultipleFileList::isOneOfCategoryEmpty() const
 int MultipleFileList::categoryCount(int index) const
 {
     QTreeWidgetItem *item = fileList->topLevelItem(index);
-    if (!item) {
+    if (item == NULL) {
         logCritical() << "Index out of range" << index;
         return 0;
     }
 
     int count = 0;
-    for (int i = 0, total = item->childCount(); i < total; ++i) {
+    for (int i = 0; i < item->childCount(); ++i) {
         QTreeWidgetItem *childItem = item->child(i);
-        if (!isEmptyItem(childItem)) {
+        if (isEmptyItem(childItem) == false)
             count++;
-        }
     }
 
     return count;
@@ -184,7 +202,7 @@ int MultipleFileList::categoryCount(int index) const
 
 int MultipleFileList::addCategory(const QString &itemName, const QString &buttonName)
 {
-    auto item = new QTreeWidgetItem(fileList, QStringList(itemName));
+    QTreeWidgetItem *item = new QTreeWidgetItem(fileList, QStringList(itemName));
     item->setExpanded(true);
     QFont font = item->font(0);
     font.setBold(true);
@@ -192,13 +210,14 @@ int MultipleFileList::addCategory(const QString &itemName, const QString &button
 
     int index = fileList->indexOfTopLevelItem(item);
 
-    auto addButton = new QPushButton(buttonName, this);
-    QAction *action = mFileListHelper.prepareButtonAndAction(addButton, QIcon::fromTheme(QStringLiteral("document-new")));
+    QPushButton *addButton = new QPushButton(buttonName, this);
+    QAction *action
+        = fileListHelper.prepareButtonAndAction(addButton, QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/document-new.svg")));
 
     // Insert the action in first position
-    fileList->insertAction(fileList->actions().at(mAddButtons.buttons().size()), action);
+    fileList->insertAction(fileList->actions().at(addButtons.buttons().size()), action);
 
-    mAddButtons.addButton(addButton, index);
+    addButtons.addButton(addButton, index);
 
     vboxLayout1->insertWidget(index, addButton);
 
@@ -214,28 +233,28 @@ void MultipleFileList::addItem(int category)
     logDebug() << "Adding item" << category;
 
     // Open a standard Filedialog
-    const QList<QUrl> urls = mFileListHelper.openUrls();
+    QList<QUrl> urls = fileListHelper.openUrls();
 
     QTreeWidgetItem *categoryItem = fileList->topLevelItem(category);
 
-    const QStringList paths = mFileListHelper.findPaths(urls);
-    for (const QString &path : paths) {
+    QStringList paths = fileListHelper.findPaths(urls);
+    foreach (const QString &path, paths) {
         addItemInternal(categoryItem, path);
     }
 
     updateEmptyItems();
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void MultipleFileList::addItemInternal(QTreeWidgetItem *categoryItem, const QString &path)
 {
     logDebug() << "Adding" << path << "to" << categoryItem->text(0);
-    auto item = new QTreeWidgetItem(QStringList(path));
+    QTreeWidgetItem *item = new QTreeWidgetItem(QStringList(path));
 
     QFileInfo checkFile(path);
     if (!checkFile.exists()) {
-        mMissingFiles = true;
+        missingFiles = true;
         item->setForeground(0, Qt::red);
     }
 
@@ -247,7 +266,7 @@ QTreeWidgetItem *MultipleFileList::findCategoryOfChild(QTreeWidgetItem *childIte
 {
     logDebug() << "Finding Category of" << childItem->text(0);
 
-    for (int i = 0, total = fileList->topLevelItemCount(); i < total; ++i) {
+    for (int i = 0; i < fileList->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = fileList->topLevelItem(i);
 
         if (item->indexOfChild(childItem) != -1) {
@@ -257,55 +276,67 @@ QTreeWidgetItem *MultipleFileList::findCategoryOfChild(QTreeWidgetItem *childIte
     }
 
     logDebug() << "No Category of" << childItem->text(0);
-    return nullptr;
+    return NULL;
 }
 
 void MultipleFileList::modifyItem()
 {
-    const QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
+    QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
     modifyItem(selectedItems.at(0));
 }
 
 void MultipleFileList::modifyItem(QTreeWidgetItem *item)
 {
     // If the user tries to modify a category item, we do nothing
-    if (!findCategoryOfChild(item) || isEmptyItem(item)) {
+    if (findCategoryOfChild(item) == NULL || isEmptyItem(item) == true)
         return;
-    }
 
-    const QString previousPath = item->text(0);
+    QString previousPath = item->text(0);
 
     // Open a standard Filedialog
-    const QUrl url = mFileListHelper.openUrl(previousPath);
-    if (url.isEmpty()) {
+    QUrl url = fileListHelper.openUrl(previousPath);
+    if (url.isEmpty())
         return;
-    }
 
     QList<QUrl> urls;
     urls.append(url);
-    const QStringList paths = mFileListHelper.findPaths(urls);
+    QStringList paths = fileListHelper.findPaths(urls);
 
     // We only take the first path
     if (paths.count() >= 1) {
         item->setText(0, paths.at(0));
     }
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void MultipleFileList::removeSelectedItem()
 {
-    const QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
+    QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
 
-    for (QTreeWidgetItem *item : selectedItems) {
+    foreach (QTreeWidgetItem *item, selectedItems) {
         QTreeWidgetItem *categoryItem = findCategoryOfChild(item);
         delete categoryItem->takeChild(categoryItem->indexOfChild(item));
     }
 
     updateEmptyItems();
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
+
+
+void MultipleFileList::mergeSelectedItem()
+{
+    QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
+ 
+    foreach (QTreeWidgetItem *item, selectedItems) {
+        MergerConfiguration::static_mergerPaths << item->text(0);
+    }
+    //qDebug() << "FileList::mergeSelectedItem complete";
+
+}
+
+
 
 void MultipleFileList::moveItem(int direction)
 {
@@ -325,7 +356,7 @@ void MultipleFileList::moveItem(int direction)
     fileList->setCurrentItem(item);
     // item->setSelected(true);
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
 
 void MultipleFileList::moveUpItem()
@@ -341,11 +372,11 @@ void MultipleFileList::moveDownItem()
 void MultipleFileList::removeAllItems()
 {
     QTreeWidgetItemIterator it(fileList, QTreeWidgetItemIterator::All);
-    while (*it) {
+    while (*it != NULL) {
         QTreeWidgetItem *item = *it;
 
-        const QList<QTreeWidgetItem *> children = item->takeChildren();
-        for (QTreeWidgetItem *childItem : children) {
+        QList<QTreeWidgetItem *> children = item->takeChildren();
+        foreach (QTreeWidgetItem *childItem, children) {
             delete childItem;
         }
 
@@ -354,13 +385,55 @@ void MultipleFileList::removeAllItems()
 
     updateEmptyItems();
 
-    Q_EMIT fileListChanged();
+    emit fileListChanged();
 }
+
+void MultipleFileList::mergeAllItems()
+{
+    
+    QTreeWidgetItemIterator it(fileList);
+    while (*it) {
+        QTreeWidgetItemIterator it2(it);
+            while (*it2) {
+                QFile tmp_file = QFile((*it2)->text(0));
+                if (tmp_file.exists()) MergerConfiguration::static_mergerPaths << (*it2)->text(0);
+                if ((*it2)->text(0)=="searched") break;
+                ++it2;
+            };
+        ++it;
+    }
+    
+/*
+    QTreeWidgetItemIterator it(fileList, QTreeWidgetItemIterator::All);
+    qDebug() << "Multiple mergeAllItems fileList->size() = " << fileList->size() << " children next" ;
+    
+    QTreeWidgetItem *item;
+    
+    for (int i = 0; i < fileList->topLevelItemCount(); ++i, ++it) {
+        item = *it;  // Grabbing the QTreeWidgetItem from top level
+ 
+
+        QList<QTreeWidgetItem *> children = item->takeChildren();
+            foreach (QTreeWidgetItem *childItem, children) {
+                qDebug() << childItem->text(0);
+                if (childItem->text(0) == "") break;
+                QFile tmp_file = QFile(childItem->text(0));
+
+                if (tmp_file.exists()) MergerConfiguration::static_mergerPaths << childItem->text(0);
+            }
+
+        };
+
+        ++it;*/
+        qDebug() << "FileList::mergeAllItems complete";
+
+};
+
 
 void MultipleFileList::unselectAllItems()
 {
-    const QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
-    for (QTreeWidgetItem *item : selectedItems) {
+    QList<QTreeWidgetItem *> selectedItems = fileList->selectedItems();
+    foreach (QTreeWidgetItem *item, selectedItems) {
         item->setSelected(false);
     }
 }
@@ -371,7 +444,7 @@ void MultipleFileList::updateEmptyItems()
 
     logDebug() << "Adding empty items...";
 
-    for (int i = 0, total = fileList->topLevelItemCount(); i < total; ++i) {
+    for (int i = 0; i < fileList->topLevelItemCount(); ++i) {
         QTreeWidgetItem *categoryItem = fileList->topLevelItem(i);
 
         // If it's a category item and it's empty
@@ -398,7 +471,7 @@ void MultipleFileList::removeEmptyItems()
         for (int i = 0; i < categoryItem->childCount(); ++i) {
             QTreeWidgetItem *childItem = categoryItem->child(i);
 
-            if (isEmptyItem(childItem) && categoryItem->childCount() > 1) {
+            if (isEmptyItem(childItem) == true && categoryItem->childCount() > 1) {
                 logDebug() << "Remove a child item";
                 delete categoryItem->takeChild(i);
                 break;
@@ -411,18 +484,17 @@ void MultipleFileList::removeEmptyItems()
 
 bool MultipleFileList::isEmptyItem(QTreeWidgetItem *item) const
 {
-    if (item->font(0).italic()) {
+    if (item->font(0).italic() == true)
         return true;
-    } else {
+    else
         return false;
-    }
 }
 
 void MultipleFileList::addEmptyItem(QTreeWidgetItem *item)
 {
     logDebug() << "Adding an empty item...";
 
-    auto emptyItem = new QTreeWidgetItem(item, QStringList(i18n("No log file...")));
+    QTreeWidgetItem *emptyItem = new QTreeWidgetItem(item, QStringList(i18n("No log file...")));
     item->setExpanded(true);
     QFont font = emptyItem->font(0);
     font.setItalic(true);
@@ -431,10 +503,10 @@ void MultipleFileList::addEmptyItem(QTreeWidgetItem *item)
 
 void MultipleFileList::addPaths(int category, const QStringList &paths)
 {
-    mMissingFiles = false;
+    missingFiles = false;
     QTreeWidgetItem *categoryItem = fileList->topLevelItem(category);
 
-    for (const QString &path : paths) {
+    foreach (const QString &path, paths) {
         addItemInternal(categoryItem, path);
     }
 
@@ -442,7 +514,7 @@ void MultipleFileList::addPaths(int category, const QStringList &paths)
 
     updateButtons();
 
-    mWarningBox->setVisible(mMissingFiles);
+    warningBox->setVisible(missingFiles);
 }
 
 QStringList MultipleFileList::paths(int category)
@@ -451,7 +523,7 @@ QStringList MultipleFileList::paths(int category)
     QTreeWidgetItemIterator it(fileList, QTreeWidgetItemIterator::All);
 
     QStringList paths;
-    while (*it) {
+    while (*it != NULL) {
         QTreeWidgetItem *item = *it;
 
         if (categoryItem->indexOfChild(item) != -1) {

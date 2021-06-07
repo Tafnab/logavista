@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _APACHE_LOG_MODE_H_
+#define _APACHE_LOG_MODE_H_
 
 /**
  * Apache Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Apache Log Icon
  */
-#define APACHE_MODE_ICON "preferences-system-network"
+#define APACHE_MODE_ICON "/usr/local/share/icons/logavista/network-server.png"
 
 #include <QList>
 
@@ -45,12 +46,14 @@ class ApacheLogMode : public LogMode
     Q_OBJECT
 
 public:
-    explicit ApacheLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration, ApacheConfigurationWidget *apacheConfigurationWidget);
+    explicit ApacheLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration,
+                           ApacheConfigurationWidget *apacheConfigurationWidget);
 
-    ~ApacheLogMode() override;
+    ~ApacheLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _APACHE_LOG_MODE_H_

@@ -19,12 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _PARSING_HELPER_H_
+#define _PARSING_HELPER_H_
 
 #include <QDateTime>
 
-#include <QMap>
 #include <QString>
+#include <QMap>
 
 /**
  * TODO Fork this class in SyslogParsingHelper and HttpParsingHelper
@@ -48,7 +49,7 @@ public:
      * of trying to search it in string
      */
     QDateTime parseSyslogDateTime(const QString &dateTime);
-    QString syslogDateTimeRegexp() const;
+    QString syslogDateTimeRegexp();
 
     QString parseSize(const QString &size);
 
@@ -61,8 +62,9 @@ private:
 
     static ParsingHelper *self;
 
-    QMap<QString, int> mMapMonths;
+    QMap<QString, int> mapMonths;
 
-    QMap<QString, QString> mMapHTTPResponse;
+    QMap<QString, QString> mapHTTPResponse;
 };
 
+#endif

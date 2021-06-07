@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CUPS_PAGE_ANALYZER_H_
+#define _CUPS_PAGE_ANALYZER_H_
 
 #include <KLocalizedString>
 
@@ -36,28 +37,61 @@ class CupsPageAnalyzer : public FileAnalyzer
     Q_OBJECT
 
 public:
-    explicit CupsPageAnalyzer(LogMode *logMode);
-
-    ~CupsPageAnalyzer() override
+    explicit CupsPageAnalyzer(LogMode *logMode)
+        : FileAnalyzer(logMode)
+        , cupsPageRegex(QStringLiteral("(\\S*) (\\S*) (\\S*) \\[(.*)\\] (\\S*) (\\S*) (\\S*)"))
     {
     }
 
-    LogViewColumns initColumns() override;
+    virtual ~CupsPageAnalyzer() {}
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+
+        columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Printer"), true, true));
+        columns.addColumn(LogViewColumn(i18n("User"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Job Id"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Page Number"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Num Copies"), true, true));
+        columns.addColumn(LogViewColumn(i18n("Job Billing"), true, false));
+
+        return columns;
+    }
 
 protected:
-    const QRegExp mCupsPageRegex;
+    QRegExp cupsPageRegex;
 
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE { return new LocalLogFileReader(logFile); }
 
-    Analyzer::LogFileSortMode logFileSortMode() override;
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE { return Analyzer::AscendingSortedLogFile; }
 
     /*
-     * https://www.cups.org/doc/man-cupsd-logs.html
+     * http://www.cups.org/documentation.php/ref-page_log.html
      * Format : printer user job-id date-time page-number num-copies job-billing
      *
      * DeskJet root 2 [20/May/1999:19:21:05 +0000] 1 1 acme-123
      * DeskJet root 2 [20/May/1999:19:21:05 +0000] 2 1 acme-123
      */
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) override;
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) Q_DECL_OVERRIDE
+    {
+        int firstPosition = cupsPageRegex.indexIn(logLine);
+        if (firstPosition == -1) {
+            logDebug() << "Unable to parse line " << logLine;
+            return NULL;
+        }
+
+        QStringList capturedTexts = cupsPageRegex.capturedTexts();
+
+        // Remove full line
+        capturedTexts.removeAt(0);
+
+        QDateTime dateTime = ParsingHelper::instance()->parseHttpDateTime(capturedTexts.takeAt(3));
+
+        return new LogLine(logLineInternalIdGenerator++, dateTime, capturedTexts,
+                           originalLogFile.url().path(), Globals::instance().informationLogLevel(), logMode);
+    }
 };
 
+#endif // _CUPS_PAGE_ANALYZER_H_

@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _GENERIC_LOG_MODE_CONFIGURATION_H_
+#define _GENERIC_LOG_MODE_CONFIGURATION_H_
 
-#include <QList>
 #include <QStringList>
+#include <QList>
 
 #include "logFile.h"
 
@@ -35,8 +36,9 @@ class GenericLogModeConfiguration : public LogModeConfiguration
     Q_OBJECT
 
 public:
-    GenericLogModeConfiguration(const QString &configurationGroup, const QStringList &defaultLogFilesPaths, const QList<int> &defaultLogFilesLevels);
-    ~GenericLogModeConfiguration() override;
+    GenericLogModeConfiguration(const QString &configurationGroup, const QStringList &defaultLogFilesPaths,
+                                const QList<int> &defaultLogFilesLevels);
+    virtual ~GenericLogModeConfiguration();
 
     QStringList logFilesPaths() const;
 
@@ -46,11 +48,10 @@ public:
 
     void setLogFilesLevels(const QList<int> &logFilesLevels);
 
-    QVector<LogFile> findGenericLogFiles() const;
+    QList<LogFile> findGenericLogFiles();
 
 private:
-    QStringList mLogFilesPaths;
-
-    QList<int> mLogFilesLevels;
+    GenericLogModeConfigurationPrivate *const d;
 };
 
+#endif // _GENERIC_LOG_MODE_CONFIGURATION_H_

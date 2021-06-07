@@ -22,17 +22,20 @@
 #include "apacheLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "apacheAnalyzer.h"
-#include "apacheConfiguration.h"
-#include "apacheConfigurationWidget.h"
 #include "apacheItemBuilder.h"
+#include "apacheConfigurationWidget.h"
+#include "apacheConfiguration.h"
 
-ApacheLogMode::ApacheLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration, ApacheConfigurationWidget *apacheConfigurationWidget)
+ApacheLogMode::ApacheLogMode(QSharedPointer<ApacheConfiguration> &apacheConfiguration,
+                             ApacheConfigurationWidget *apacheConfigurationWidget)
     : LogMode(QStringLiteral(APACHE_LOG_MODE_ID), i18n("Apache Log"), QStringLiteral(APACHE_MODE_ICON))
 {
     d->logModeConfiguration = apacheConfiguration;
@@ -43,7 +46,8 @@ ApacheLogMode::ApacheLogMode(QSharedPointer<ApacheConfiguration> &apacheConfigur
     // Apache Log Action
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the Apache log."));
-    d->action->setWhatsThis(i18n("Displays the Apache log in the current tab. Apache is the main used Web server in the world."));
+    d->action->setWhatsThis(
+        i18n("Displays the Apache log in the current tab. Apache is the main used Web server in the world."));
 
     checkLogFilesPresence(apacheConfiguration->apachePaths());
 }
@@ -58,8 +62,8 @@ Analyzer *ApacheLogMode::createAnalyzer(const QVariant &options)
     return new ApacheAnalyzer(this);
 }
 
-QVector<LogFile> ApacheLogMode::createLogFiles()
+QList<LogFile> ApacheLogMode::createLogFiles()
 {
-    auto *apacheConfiguration = logModeConfiguration<ApacheConfiguration *>();
+    ApacheConfiguration *apacheConfiguration = logModeConfiguration<ApacheConfiguration *>();
     return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apachePaths());
 }
