@@ -5,7 +5,7 @@
   <br>
 </h1>
 <p align="center">  
-<a href="https://gitter.im/Tafnab/community"><img src="https://https://badges.gitter.im/tafnab/Lobby.svg"></a>
+<a href="https://gitter.im/Tafnab/community"><img src="https://avatars.githubusercontent.com/u/19742500?s=60&v=4"></a>
  <a href="https://opensource.org/licenses/gpl-2.0"><img src="https://img.shields.io/badge/license-GPL-blue.svg"></a>
 </p>
 
@@ -28,7 +28,7 @@
 
 ## Key Features
 
-* >>> Software is in Beta Testing Currently <<<
+* >>> Software is in Beta Testing Currently >>>
 * Allows viewing of over 20 log file types
 * Can merge log files of different types providing they have a valid timestamp
 * Customized specifically for MX Linux (Debian)
@@ -46,7 +46,7 @@
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
 
-<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
+<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. <br>The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ScreenshotNoTabsOpen.png" alt="screenshot-no-tabs">
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbars.png" alt="">
 
