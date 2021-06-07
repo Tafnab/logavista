@@ -29,8 +29,8 @@
 
 ## Key Features
 
-* :warning: :eyes: Software is in Beta Testing Currently 
-* Allows viewing of over 20 log file types
+* :warning: :eyes: <font color="red">Software is in Beta Testing Currently </font>
+* Monitor over 20 log file types
 * Can merge log files of different types providing they have a valid timestamp
 * Customized specifically for MX Linux (Debian)
 * Tabbed viewing (press Ctl-T) to monitor multiple logs
@@ -42,7 +42,7 @@
 
 <p>You can <a href="https://github.com/Tafnab/logavista/blob/master/logavista_0.9-1_amd64.deb">download the .deb binary file</a> or <a href="#build-instructions">build your own</a>.</p>
 
-<p>On MX Linux, just run from the graphical menu System/Logavista option. On other Linux(es), the graphical option won't work because you need to launch with mx-pkexec or gksu. If you have either of those installed, edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
+<p>On MX Linux, just run from the graphical menu System/Logavista option. On other Linux(es), the graphical option won't work because you need to launch with <a href="https://github.com/MX-Linux/mx-pkexec/blob/master/mx-pkexec"></a>mx-pkexec or gksu. If you have either of those installed, edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
 
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
@@ -80,7 +80,7 @@
 
 <p>In particular, I have not had the chance to test against modern Samba, Apache, CUPS, mail transport programs, and Acpid log file types. </p>
 
-<p>I am also looking for different log file types to monitor that aren't currently listed, but are in common use. Please open an Issue feature request if you have some worthy candidate. I would like sample log files, and would prefer difficult ones indicating errors so that I can make sure the error priority classification scheme is working.</p>
+<p>I am also looking for different log file types to monitor that aren't currently listed, but are in common use. Please open an Issue feature request if you have some worthy candidate. I would like sample log files, and would prefer difficult ones indicating errors so that I can make sure the error priority classification scheme is working. If you are a member of the MX Linux community, you can PM me.</p>
 
 ## Build Instructions
 
