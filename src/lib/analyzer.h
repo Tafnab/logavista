@@ -19,11 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _ANALYZER_H_
+#define _ANALYZER_H_
 
 #include <QList>
 #include <QMutex>
 #include <QString>
+#include <QStringList>
 
 #include "globals.h"
 
@@ -34,6 +36,7 @@
 #include "logViewColumns.h"
 
 class LogViewModel;
+class LogFileReader;
 class LogMode;
 
 class Analyzer : public QObject
@@ -49,22 +52,26 @@ public:
 
     explicit Analyzer(LogMode *mode);
 
-    ~Analyzer() override;
+    virtual ~Analyzer();
 
     virtual void watchLogFiles(bool enabled) = 0;
 
-    virtual void setLogFiles(const QVector<LogFile> &logFiles) = 0;
+    virtual void setLogFiles(const QList<LogFile> &logFiles) = 0;
 
     virtual LogViewColumns initColumns() = 0;
 
     void setLogViewModel(LogViewModel *logViewModel);
 
     bool isParsingPaused() const;
+    
+    QDateTime previousDate;
+    QString previousHostName;
+    
 
-public Q_SLOTS:
+public slots:
     void setParsingPaused(bool paused);
 
-Q_SIGNALS:
+signals:
     void statusBarChanged(const QString &message);
     void errorOccured(const QString &title, const QString &message);
     void statusChanged(const QString &status);
@@ -79,10 +86,11 @@ Q_SIGNALS:
 protected:
     void informOpeningProgress(int currentPosition, int total);
 
-    bool mParsingPaused = false;
-    LogViewModel *mLogViewModel = nullptr;
-    LogMode *const mLogMode;
-    QRecursiveMutex mInsertionLocking;
-    long mLogLineInternalIdGenerator = 0;
+    bool parsingPaused;
+    LogViewModel *logViewModel;
+    LogMode *logMode;
+    QMutex insertionLocking;
+    long logLineInternalIdGenerator;
 };
 
+#endif

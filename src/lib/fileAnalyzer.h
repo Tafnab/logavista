@@ -19,11 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _FILEANALYZER_H_
+#define _FILEANALYZER_H_
 
 #include <QList>
+#include <QMutex>
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #include "globals.h"
 
@@ -35,6 +40,7 @@
 
 #include "analyzer.h"
 
+class LogViewModel;
 class LogFileReader;
 class LogMode;
 
@@ -45,17 +51,25 @@ class FileAnalyzer : public Analyzer
 public:
     explicit FileAnalyzer(LogMode *logMode);
 
-    ~FileAnalyzer() override;
+    virtual ~FileAnalyzer();
 
-    void watchLogFiles(bool enabled) override;
+    void watchLogFiles(bool enabled) Q_DECL_OVERRIDE;
 
-    void setLogFiles(const QVector<LogFile> &logFiles) override;
+    void setLogFiles(const QList<LogFile> &logFiles) Q_DECL_OVERRIDE;
+    
+    static LogLine logLinePrevious;
+    
+    QString tmp_filename;
+    QRegularExpressionMatch hostname_match;
+    
+        QMap<QString, int> mapMonths;
 
 protected:
     virtual LogFileReader *createLogFileReader(const LogFile &logFile) = 0;
     virtual Analyzer::LogFileSortMode logFileSortMode() = 0;
 
     virtual LogLine *parseMessage(const QString &logLine, const LogFile &originalFile) = 0;
+    // virtual LogLine *adv_parseMessage(const QString &logLine, const LogFile &originalFile) = 0;
 
 private:
     void deleteLogFiles();
@@ -65,17 +79,25 @@ private:
      * Returns the count of inserted lines
      */
     int insertLines(const QStringList &bufferedLines, const LogFile &logFile, ReadingMode readingMode);
+    
 
     /**
      * Parse and insert a line in the model
      * Returns false if it was not inserted, true if it was
      */
     bool insertLine(const QString &buffer, const LogFile &originalFile, ReadingMode readingMode);
+    
+    inline QString undefinedHostName();
+    inline QString undefinedProcess();
+    inline LogLine *undefinedLogLine(const QString &message, const LogFile &originalFile);
 
-private Q_SLOTS:
-    void logFileChanged(LogFileReader *logFileReader, Analyzer::ReadingMode readingMode, const QStringList &content);
+private slots:
+    void logFileChanged(LogFileReader *logFileReader, Analyzer::ReadingMode readingMode,
+                        const QStringList &content);
 
 protected:
-    QList<LogFileReader *> mLogFileReaders;
+    QList<LogFileReader *> logFileReaders;
 };
 
+
+#endif // _FILEANALYZER_H_

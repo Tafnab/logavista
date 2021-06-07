@@ -19,15 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_MODE_H
+#define LOG_MODE_H
 
-#include <QIcon>
-#include <QList>
 #include <QObject>
+#include <QPixmap>
 #include <QString>
-#include <QVector>
+#include <QList>
 
 #include "logFile.h"
+#include "../modes/base/fileList.h"
 
 class Analyzer;
 class LogModeItemBuilder;
@@ -44,6 +45,9 @@ struct ActionData {
 Q_DECLARE_METATYPE(ActionData)
 
 // TODO Do not let this class visible to other classes (except sub-classes)
+// Or not! What an idiotic idea. I hear that whole operating systems have been written 
+// where data is available to the entire program. Too bad they didn't have OO to guide them 
+// in the proper ways of lunacy.
 class LogModePrivate
 {
 public:
@@ -53,13 +57,13 @@ public:
 
     QString iconName;
 
-    QIcon icon;
+    QPixmap icon;
 
-    QAction *action = nullptr;
+    QAction *action;
 
-    LogModeItemBuilder *itemBuilder = nullptr;
+    LogModeItemBuilder *itemBuilder;
 
-    LogModeConfigurationWidget *logModeConfigurationWidget = nullptr;
+    LogModeConfigurationWidget *logModeConfigurationWidget;
 
     QSharedPointer<LogModeConfiguration> logModeConfiguration;
 
@@ -73,13 +77,13 @@ class LogMode : public QObject
 public:
     LogMode(const QString &id, const QString &name, const QString &iconName);
 
-    ~LogMode() override;
+    virtual ~LogMode();
 
     QString id() const;
 
     QString name() const;
 
-    QIcon icon() const;
+    QPixmap icon() const;
 
     QAction *action() const;
 
@@ -95,11 +99,7 @@ public:
      */
     LogModeConfigurationWidget *logModeConfigurationWidget() const;
 
-    template<typename T> T logModeConfiguration()
-    {
-        return static_cast<T>(innerConfiguration());
-    }
-
+    template <typename T> T logModeConfiguration() { return static_cast<T>(innerConfiguration()); }
     /**
      * Create the Analyzer used to parse the log file
      */
@@ -108,9 +108,12 @@ public:
     /**
      * Create the log file list which will be read
      */
-    virtual QVector<LogFile> createLogFiles() = 0;
+    virtual QList<LogFile> createLogFiles() = 0;
+    
+    
+    static inline LogMode* merger ;  
 
-Q_SIGNALS:
+signals:
     void menuChanged();
 
 protected:
@@ -120,7 +123,10 @@ protected:
      * Initializes the flag returned by filesExist().
      */
     void checkLogFilesPresence(const QStringList &paths);
-
+    friend class FileList;
+  
+    
+    
     LogModePrivate *const d;
 
 private:
@@ -128,5 +134,8 @@ private:
      * Log Mode Configuration
      */
     LogModeConfiguration *innerConfiguration() const;
+    
+
 };
 
+#endif // LOG_MODE_H

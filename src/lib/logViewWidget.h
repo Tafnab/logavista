@@ -19,26 +19,29 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_VIEW_WIDGET_H
+#define LOG_VIEW_WIDGET_H
 
-#include <QList>
 #include <QTreeWidget>
+#include <QList>
 
 #include "logViewColumns.h"
 
 class LogViewWidgetItem;
 class LogViewModel;
 class LogLine;
-class QActionGroup;
+
+class LogViewWidgetPrivate;
+
 class LogViewWidget : public QTreeWidget
 {
     Q_OBJECT
 
 public:
-    explicit LogViewWidget(QWidget *parent = nullptr);
+    LogViewWidget(QWidget *parent = NULL);
 
-    ~LogViewWidget() override;
-    void selectAll() override;
+    virtual ~LogViewWidget();
+    void selectAll() Q_DECL_OVERRIDE;
     void setColumns(const LogViewColumns &columns);
 
     int itemCount() const;
@@ -67,18 +70,17 @@ public:
 
     void resizeColumns();
 
-public Q_SLOTS:
+public slots:
     void toggleToolTip(bool enabled);
 
-Q_SIGNALS:
+signals:
     void columnsChanged(const LogViewColumns &columns);
 
-private Q_SLOTS:
+private slots:
     void toggleHeader(QAction *action);
 
 private:
-    LogViewModel *mLogViewModel = nullptr;
-
-    QActionGroup *mHeadersTogglingActions = nullptr;
+    LogViewWidgetPrivate *const d;
 };
 
+#endif // LOG_VIEW_WIDGET_H

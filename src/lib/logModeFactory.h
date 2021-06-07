@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_MODE_FACTORY_H_
+#define _LOG_MODE_FACTORY_H_
 
-#include <QList>
 #include <QObject>
+#include <QList>
 
 class LogModeAction;
 class LogMode;
@@ -34,7 +35,7 @@ class LogModeFactory : public QObject
 public:
     explicit LogModeFactory();
 
-    ~LogModeFactory() override;
+    virtual ~LogModeFactory();
 
     virtual LogModeAction *createLogModeAction() const = 0;
 
@@ -44,3 +45,4 @@ public:
     virtual QList<LogMode *> createLogModes() const = 0;
 };
 
+#endif // _LOG_MODE_FACTORY_H_

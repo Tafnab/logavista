@@ -19,28 +19,31 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_VIEW_SEARCH_WIDGET_H_
+#define _LOG_VIEW_SEARCH_WIDGET_H_
 
-#include <QTreeWidgetItemIterator>
 #include <QWidget>
+#include <QTreeWidgetItemIterator>
 
 #include "ui_logViewSearchWidgetBase.h"
 
 class LogViewWidget;
 class LogViewWidgetItem;
 
+class LogViewSearchWidgetPrivate;
+
 class LogViewSearchWidget : public QWidget, public Ui::LogViewSearchWidgetBase
 {
     Q_OBJECT
 
 public:
-    explicit LogViewSearchWidget(QWidget *parent = nullptr);
+    LogViewSearchWidget();
 
-    ~LogViewSearchWidget() override;
+    ~LogViewSearchWidget();
 
     void setTreeWidget(LogViewWidget *logViewWidget);
 
-public Q_SLOTS:
+public slots:
     void displaySearch();
 
     void findFirst();
@@ -49,7 +52,7 @@ public Q_SLOTS:
     void findNext();
     void findPrevious();
 
-private Q_SLOTS:
+private slots:
     void hideMessage();
 
     void highlightAll();
@@ -72,11 +75,8 @@ private:
 
     inline void initIterator(QTreeWidgetItemIterator &it, Direction direction);
     inline void iteratorJump(QTreeWidgetItemIterator &it, Direction direction);
-    LogViewWidget *mLogViewWidget = nullptr;
 
-    QColor mSearchLineBaseColor;
-    QColor mSearchLineTextColor;
-
-    QTimer *mMessageHidingTimer = nullptr;
+    LogViewSearchWidgetPrivate *const d;
 };
 
+#endif //_LOG_VIEW_SEARCH_WIDGET_H_

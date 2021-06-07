@@ -19,12 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_VIEW_EXPORT_H_
+#define _LOG_VIEW_EXPORT_H_
 
 #include <QObject>
 #include <QPainter>
 #include <QRect>
-class QPrinter;
 
 class LogViewWidget;
 
@@ -33,9 +33,9 @@ class LogViewExport : public QObject
     Q_OBJECT
 
 public:
-    explicit LogViewExport(QWidget *parent, LogViewWidget *logViewWidget);
+    LogViewExport(QWidget *parent, LogViewWidget *logViewWidget);
 
-    ~LogViewExport() override;
+    virtual ~LogViewExport();
 
     void copyToClipboard();
 
@@ -45,16 +45,15 @@ public:
 
     void printSelection();
 
-    void printPreview();
-Q_SIGNALS:
+signals:
     void statusBarChanged(const QString &message);
 
 private:
-    void printPageNumber(QPainter &painter, QRect &printView, int movement, int page, int margin);
+    void printPageNumber(QPainter &painter, QRect &printView, int movement, int page);
 
-    QWidget *const mParent;
+    QWidget *parent;
 
-    LogViewWidget *const mLogViewWidget;
-    void print(QPrinter *printer);
+    LogViewWidget *logViewWidget;
 };
 
+#endif //_LOG_VIEW_EXPORT_H_

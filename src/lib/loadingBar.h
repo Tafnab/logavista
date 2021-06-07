@@ -19,15 +19,17 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOADING_BAR_H_
+#define _LOADING_BAR_H_
 
 #include <QWidget>
 
-#include "logFile.h"
 #include "logMode.h"
+#include "logFile.h"
 
 class QProgressBar;
-class QLabel;
+class LoadingBarPrivate;
+
 /**
  * TODO Try to have a working Cancel button (for the moment, it only hide the Loading Dialog)
  */
@@ -36,27 +38,24 @@ class LoadingBar : public QWidget
     Q_OBJECT
 
 public:
-    explicit LoadingBar(QWidget *parent = nullptr);
+    LoadingBar(QWidget *parent = NULL);
 
-    ~LoadingBar() override;
+    ~LoadingBar();
 
-    QProgressBar *progressBar() const;
+    QProgressBar *progressBar();
 
-public Q_SLOTS:
+public slots:
 
     void startLoading(const LogMode &logMode, const LogFile &logFile, int fileIndex, int fileCount);
     void endLoading();
 
     void progressLoading();
 
-Q_SIGNALS:
+signals:
     void displayed(bool displayed);
 
 private:
-    bool mFirstLoading = true;
-
-    QLabel *mLabel = nullptr;
-
-    QProgressBar *mProgressBar = nullptr;
+    LoadingBarPrivate *const d;
 };
 
+#endif // _LOADING_BAR_H_

@@ -24,8 +24,8 @@
 #include <KLocalizedString>
 #include <KMessageBox>
 
-#include "analyzer.h"
 #include "logging.h"
+#include "analyzer.h"
 #include "view.h"
 
 #include "logViewWidget.h"
@@ -36,24 +36,26 @@ class LogManagerPrivate
 {
     friend class LogManager;
 
-    QTime mLastUpdate;
+    QTime lastUpdate;
 
-    LogMode *mLogMode = nullptr;
+    LogMode *logMode;
 
-    Analyzer *mAnalyzer = nullptr;
-    View *mUsedView = nullptr;
-    QString mAnalyzerStatus;
-    QVariant mAnalyzerOptions;
+    Analyzer *analyzer;
+    View *usedView;
+    QString analyzerStatus;
+    QVariant analyzerOptions;
 };
 
 LogManager::LogManager(View *view)
-    : QObject(view)
-    , d(new LogManagerPrivate())
+    : d(new LogManagerPrivate())
 {
-    d->mLastUpdate = QTime::currentTime();
+    d->lastUpdate = QTime::currentTime();
 
-    d->mUsedView = view;
-    connect(d->mUsedView, &View::droppedUrls, this, &LogManager::loadDroppedUrls);
+    d->logMode = NULL;
+    d->analyzer = NULL;
+
+    d->usedView = view;
+    connect(d->usedView, &View::droppedUrls, this, &LogManager::loadDroppedUrls);
 }
 
 LogManager::~LogManager()
@@ -68,104 +70,103 @@ LogManager::~LogManager()
 
 View *LogManager::usedView() const
 {
-    return d->mUsedView;
+    return d->usedView;
 }
 
 void LogManager::reload()
 {
-    if (!d->mLogMode) {
+    if (d->logMode == NULL) {
         logWarning() << "Log manager is not yet initialized";
         return;
     }
 
-    logDebug() << "Reloading with log mode " << d->mLogMode->name() << "...";
+    logDebug() << "Reloading with log mode " << d->logMode->name() << "...";
+    
 
-    Q_EMIT statusBarChanged(i18n("Loading log..."));
+    
+    emit statusBarChanged(i18n("Loading log..."));
 
     // Change part of the main interface
-    Q_EMIT tabTitleChanged(d->mUsedView, d->mLogMode->icon(), d->mLogMode->name());
-    Q_EMIT windowTitleChanged(d->mLogMode->name());
+    emit tabTitleChanged(d->usedView, d->logMode->icon(), d->logMode->name());
+    emit windowTitleChanged(d->logMode->name());
 
     logDebug() << "Emptying view...";
 
     // Empty the current list, to better fill it
-    d->mUsedView->logViewWidget()->model()->clear();
+    d->usedView->logViewWidget()->model()->clear();
 
     logDebug() << "Initializing view...";
 
     // Init the Log View
     logDebug() << "Initializing columns view...";
 
-    d->mUsedView->logViewWidget()->setColumns(d->mAnalyzer->initColumns());
+    d->usedView->logViewWidget()->setColumns(d->analyzer->initColumns());
 
     logDebug() << "Reading log...";
 
     // Read the log files
-    d->mAnalyzer->watchLogFiles(false);
-    d->mAnalyzer->watchLogFiles(true);
+    d->analyzer->watchLogFiles(false);
+    d->analyzer->watchLogFiles(true);
 
-    Q_EMIT statusBarChanged(i18n("Log successfully loaded."));
+    emit statusBarChanged(i18n("Log successfully loaded."));
 
     // Log List has been totally reloaded
-    Q_EMIT reloaded();
+    emit reloaded();
 
-    logDebug() << "Log mode " << d->mLogMode->name() << " reloaded";
+    logDebug() << "Log mode " << d->logMode->name() << " reloaded";
 }
 
 void LogManager::stopWatching()
 {
-    if (d->mAnalyzer) {
-        d->mAnalyzer->watchLogFiles(false);
-    }
+    if (d->analyzer)
+        d->analyzer->watchLogFiles(false);
 }
 
 const QVariant &LogManager::analyzerOptions() const
 {
-    return d->mAnalyzerOptions;
+    return d->analyzerOptions;
 }
 
 LogMode *LogManager::logMode()
 {
-    return d->mLogMode;
+    return d->logMode;
 }
 
 QString LogManager::title() const
 {
-    if (!d->mAnalyzerStatus.isEmpty()) {
-        return d->mLogMode->name() + QStringLiteral(" - ") + d->mAnalyzerStatus;
-    } else {
-        return d->mLogMode->name();
-    }
+    if (!d->analyzerStatus.isEmpty())
+        return d->logMode->name() + " - " + d->analyzerStatus;
+    else
+        return d->logMode->name();
 }
 
 const QTime &LogManager::lastUpdate() const
 {
-    return d->mLastUpdate;
+    return d->lastUpdate;
 }
 
 void LogManager::updateLog(int lineCount)
 {
     logDebug() << "Updating log " << lineCount << " new lines";
 
-    if (lineCount == 0) {
+    if (lineCount == 0)
         return;
-    }
 
-    d->mLastUpdate = QTime::currentTime();
+    d->lastUpdate = QTime::currentTime();
 
-    Q_EMIT logUpdated(d->mUsedView, lineCount);
+    emit logUpdated(d->usedView, lineCount);
 }
 
 void LogManager::cleanPreviousLogMode()
 {
     logDebug() << "Cleaning previous LogMode...";
 
-    d->mLogMode = nullptr;
+    d->logMode = NULL;
 
-    delete d->mAnalyzer;
-    d->mAnalyzer = nullptr;
+    delete d->analyzer;
+    d->analyzer = NULL;
 
-    d->mAnalyzerStatus.clear();
+    d->analyzerStatus.clear();
 }
 
 void LogManager::initialize(LogMode *mode, const QVariant &analyzerOptions)
@@ -173,7 +174,8 @@ void LogManager::initialize(LogMode *mode, const QVariant &analyzerOptions)
     internalInitialize(mode, mode->createLogFiles(), analyzerOptions);
 }
 
-void LogManager::internalInitialize(LogMode *mode, const QVector<LogFile> &logFiles, const QVariant &analyzerOptions)
+void LogManager::internalInitialize(LogMode *mode, const QList<LogFile> &logFiles,
+                                    const QVariant &analyzerOptions)
 {
     logDebug() << "Initializing LogManager...";
 
@@ -181,42 +183,44 @@ void LogManager::internalInitialize(LogMode *mode, const QVector<LogFile> &logFi
 
     cleanPreviousLogMode();
 
-    d->mAnalyzerOptions = analyzerOptions;
+    d->analyzerOptions = analyzerOptions;
 
     // Use the new mode
-    d->mLogMode = mode;
+    d->logMode = mode;
 
     // Find the Analyzer instance used for this new mode
-    d->mAnalyzer = mode->createAnalyzer(analyzerOptions);
-    d->mAnalyzer->setLogViewModel(d->mUsedView->logViewWidget()->model());
-    connect(d->mAnalyzer, &Analyzer::statusChanged, this, [this](const QString &status) {
-        d->mAnalyzerStatus = status;
-        Q_EMIT tabTitleChanged(d->mUsedView, d->mLogMode->icon(), title());
-        Q_EMIT windowTitleChanged(title());
+    d->analyzer = mode->createAnalyzer(analyzerOptions);
+    d->analyzer->setLogViewModel(d->usedView->logViewWidget()->model());
+    connect(d->analyzer, &Analyzer::statusChanged, this, [this](const QString &status) {
+        d->analyzerStatus = status;
+        emit tabTitleChanged(d->usedView, d->logMode->icon(), title());
+        emit windowTitleChanged(title());
     });
 
-    connect(d->mAnalyzer, &Analyzer::statusBarChanged, this, &LogManager::statusBarChanged);
-    connect(d->mAnalyzer, &Analyzer::errorOccured, this, &LogManager::showErrorMessage);
-    connect(d->mAnalyzer, &Analyzer::logUpdated, this, &LogManager::updateLog);
+    connect(d->analyzer, &Analyzer::statusBarChanged, this, &LogManager::statusBarChanged);
+    connect(d->analyzer, &Analyzer::errorOccured, this,
+            &LogManager::showErrorMessage);
+    connect(d->analyzer, &Analyzer::logUpdated, this, &LogManager::updateLog);
 
-    connect(d->mAnalyzer, &Analyzer::readFileStarted, d->mUsedView->loadingBar(), &LoadingBar::startLoading);
-    connect(d->mAnalyzer, &Analyzer::openingProgressed, d->mUsedView->loadingBar(), &LoadingBar::progressLoading);
-    connect(d->mAnalyzer, &Analyzer::readEnded, d->mUsedView->loadingBar(), &LoadingBar::endLoading);
+    connect(d->analyzer, &Analyzer::readFileStarted, d->usedView->loadingBar(),
+            &LoadingBar::startLoading);
+    connect(d->analyzer, &Analyzer::openingProgressed, d->usedView->loadingBar(), &LoadingBar::progressLoading);
+    connect(d->analyzer, &Analyzer::readEnded, d->usedView->loadingBar(), &LoadingBar::endLoading);
 
     // Find the log files used for this kind of mode, and set them to our log manager
-    d->mAnalyzer->setLogFiles(logFiles);
+    d->analyzer->setLogFiles(logFiles);
 
     logDebug() << "LogManager initialized";
 }
 
 void LogManager::showErrorMessage(const QString &title, const QString &message)
 {
-    KMessageBox::error(d->mUsedView, message, title, KMessageBox::Notify);
+    KMessageBox::error(d->usedView, message, title, KMessageBox::Notify);
 }
 
 void LogManager::setParsingPaused(bool paused)
 {
-    if (!d->mLogMode) {
+    if (d->logMode == NULL) {
         logWarning() << "Log manager is not yet initialized";
         return;
     }
@@ -224,34 +228,33 @@ void LogManager::setParsingPaused(bool paused)
     if (!paused) {
         // Current analyzer implementations just perform full reload when resuming.
         // Clear the log view to avoid duplicating entries.
-        d->mUsedView->logViewWidget()->model()->clear();
-        d->mUsedView->logViewWidget()->setColumns(d->mAnalyzer->initColumns());
+        d->usedView->logViewWidget()->model()->clear();
+        d->usedView->logViewWidget()->setColumns(d->analyzer->initColumns());
     }
-    d->mAnalyzer->setParsingPaused(paused);
+    d->analyzer->setParsingPaused(paused);
 }
 
 bool LogManager::isParsingPaused() const
 {
-    if (!d->mLogMode) {
+    if (d->logMode == NULL) {
         logWarning() << "Log manager is not yet initialized";
         return false;
     }
 
-    return d->mAnalyzer->isParsingPaused();
+    return d->analyzer->isParsingPaused();
 }
 
 void LogManager::loadDroppedUrls(const QList<QUrl> &urls)
 {
     logDebug() << "Drop " << urls;
 
-    QVector<LogFile> logFiles;
-    logFiles.reserve(urls.count());
+    QList<LogFile> logFiles;
 
-    for (const QUrl &url : urls) {
+    foreach (const QUrl &url, urls) {
         logFiles.append(LogFile(url, Globals::instance().informationLogLevel()));
     }
 
-    if (!logFiles.isEmpty()) {
+    if (logFiles.isEmpty() == false) {
         internalInitialize(Globals::instance().findLogMode(QStringLiteral("openLogMode")), logFiles);
 
         reload();

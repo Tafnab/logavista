@@ -25,61 +25,84 @@
 
 #include <kio/filejob.h>
 #include <kio/job.h>
-#include <kio_version.h>
 
-#include <KDirWatch>
+#include <kdirwatch.h>
 
+#include "logFile.h"
 #include "logging.h"
 
 #define READ_SIZE 10
 
-KioLogFileReader::KioLogFileReader(const LogFile &logFile)
-    : mLogFile(logFile)
-    , mFileWatch(new KDirWatch(this))
+class KioLogFileReaderPrivate
 {
-    connect(mFileWatch, &KDirWatch::dirty, this, &KioLogFileReader::watchFile);
-    mFileWatch->addFile(logFile.url().toLocalFile());
+public:
+    KioLogFileReaderPrivate(const LogFile &file)
+        : logFile(file)
+        , fileJob(nullptr)
+        , fileWatch(nullptr)
+    {
+    }
+
+    LogFile logFile;
+
+    KIO::FileJob *fileJob;
+
+    QString buffer;
+    qulonglong totalRead;
+
+    KDirWatch *fileWatch;
+};
+
+KioLogFileReader::KioLogFileReader(const LogFile &logFile)
+    : d(new KioLogFileReaderPrivate(logFile))
+{
+    d->fileJob = NULL;
+    d->totalRead = 0;
+
+    d->fileWatch = new KDirWatch(this);
+
+    connect(d->fileWatch, &KDirWatch::dirty, this, &KioLogFileReader::watchFile);
+    d->fileWatch->addFile(logFile.url().path());
     /*
-    fileWatch.setInterval(1000);
-    connect(& (fileWatch), SIGNAL(timeout()), this, SLOT(watchFile()));
+    d->fileWatch.setInterval(1000);
+    connect(& (d->fileWatch), SIGNAL(timeout()), this, SLOT(watchFile()));
     */
 
-    logDebug() << "Starting " << logFile.url().toLocalFile();
+    logDebug() << "Starting " << logFile.url().path();
 }
 
 KioLogFileReader::~KioLogFileReader()
 {
+    delete d;
 }
 
 void KioLogFileReader::open()
 {
     logDebug() << "Opening...";
-    mFileJob = KIO::open(mLogFile.url(), QIODevice::ReadOnly | QIODevice::Text);
+    d->fileJob = KIO::open(d->logFile.url(), QIODevice::ReadOnly | QIODevice::Text);
 
-    connect(mFileJob, &KIO::FileJob::open, this, &KioLogFileReader::openDone);
-    connect(mFileJob, SIGNAL(close(KIO::Job *)), this, SLOT(closeDone(KIO::Job *)));
+    connect(d->fileJob, &KIO::FileJob::open, this, &KioLogFileReader::openDone);
+    connect(d->fileJob, SIGNAL(close(KIO::Job *)), this, SLOT(closeDone(KIO::Job *)));
 
-    connect(mFileJob, &KIO::FileJob::data, this, &KioLogFileReader::dataReceived);
-#if KIO_VERSION < QT_VERSION_CHECK(5, 78, 0)
-    connect(mFileJob, &KIO::FileJob::mimetype, this, &KioLogFileReader::mimetypeReceived);
-#else
-    connect(mFileJob, &KIO::FileJob::mimeTypeFound, this, &KioLogFileReader::mimetypeReceived);
-#endif
+    connect(d->fileJob, &KIO::FileJob::data, this,
+            &KioLogFileReader::dataReceived);
+    connect(d->fileJob, &KIO::FileJob::mimetype, this,
+            &KioLogFileReader::mimetypeReceived);
+
     logDebug() << "File opened.";
 }
 
 void KioLogFileReader::close()
 {
-    mFileJob->close();
+    d->fileJob->close();
 }
 
 void KioLogFileReader::openDone(KIO::Job * /*job*/)
 {
     logDebug() << "Opening done...";
 
-    mFileJob->read(READ_SIZE);
+    d->fileJob->read(READ_SIZE);
 }
-
 void KioLogFileReader::closeDone(KIO::Job * /*job*/)
 {
     logDebug() << "Closing done...";
@@ -87,7 +110,7 @@ void KioLogFileReader::closeDone(KIO::Job * /*job*/)
 
 void KioLogFileReader::dataReceived(KIO::Job *job, const QByteArray &data)
 {
-    if (job != mFileJob) {
+    if (job != d->fileJob) {
         logDebug() << "Not the good job";
         return;
     }
@@ -96,45 +119,44 @@ void KioLogFileReader::dataReceived(KIO::Job *job, const QByteArray &data)
         return;
     }
 
-    // logDebug() << "Receiving data... (" << totalRead << ")";
-    mBuffer.append(QLatin1String(data));
-    mTotalRead += data.size();
+    // logDebug() << "Receiving data... (" << d->totalRead << ")";
+    d->buffer.append(QLatin1String(data));
+    d->totalRead += data.size();
 
     emitCompleteLines();
 
-    logDebug() << "Total read : " << mTotalRead << " of " << mFileJob->size();
-    if (mTotalRead < mFileJob->size()) {
-        mFileJob->read(READ_SIZE);
+    logDebug() << "Total read : " << d->totalRead << " of " << d->fileJob->size();
+    if (d->totalRead < d->fileJob->size()) {
+        d->fileJob->read(READ_SIZE);
     } else {
         logDebug() << "Entire file read, beginning file watching...";
-        mFileWatch->startScan();
+        d->fileWatch->startScan();
     }
 
-    // logDebug() << "Data received : " << buffer;
+    // logDebug() << "Data received : " << d->buffer;
 
-    // totalRead++;
+    // d->totalRead++;
 }
 
 void KioLogFileReader::emitCompleteLines()
 {
-    int endLinePos = mBuffer.indexOf(QLatin1String("\n"));
-    while (true) {
-        if (endLinePos == -1) {
+    int endLinePos = d->buffer.indexOf(QLatin1String("\n"));
+    forever {
+        if (endLinePos == -1)
             break;
-        }
 
-        Q_EMIT lineRead(mBuffer.left(endLinePos));
+        emit lineRead(d->buffer.left(endLinePos));
 
         // Remove the emitted line and the end line character
-        mBuffer.remove(0, endLinePos + 1);
+        d->buffer.remove(0, endLinePos + 1);
 
-        endLinePos = mBuffer.indexOf(QLatin1String("\n"));
+        endLinePos = d->buffer.indexOf(QLatin1String("\n"));
     }
 
     // If this is the end line and it does not terminate by a \n, we return it
-    if (mTotalRead == mFileJob->size()) {
-        Q_EMIT lineRead(mBuffer);
-        mBuffer.clear();
+    if (d->totalRead == d->fileJob->size()) {
+        emit lineRead(d->buffer);
+        d->buffer.clear();
     }
 }
 

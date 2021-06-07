@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef VIEW_H
+#define VIEW_H
 
 // Qt includes
 #include <QWidget>
@@ -36,7 +37,6 @@ class LoadingBar;
 
 class LogViewWidget;
 class LogViewSearchWidget;
-class LogViewFilterWidget;
 
 class ViewPrivate;
 
@@ -47,7 +47,7 @@ class View : public QWidget
 public:
     explicit View(QWidget *parent);
 
-    ~View() override;
+    virtual ~View();
 
     LogViewWidget *logViewWidget() const;
 
@@ -55,9 +55,9 @@ public:
 
     LogViewSearchWidget *logViewSearch() const;
 
-    QSize sizeHint() const override;
+    QSize sizeHint() const Q_DECL_OVERRIDE;
 
-public Q_SLOTS:
+public slots:
     void displayLoadingBar(bool display);
 
     void toggleLogViewFilter(bool display);
@@ -67,37 +67,23 @@ protected:
     /**
      * Method which contains the action to do when receiving a drag and drop event
      */
-    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) Q_DECL_OVERRIDE;
 
     /**
      * Method which accepts
      */
-    void dropEvent(QDropEvent *event) override;
+    void dropEvent(QDropEvent *event) Q_DECL_OVERRIDE;
 
-private Q_SLOTS:
+private slots:
     void unselectHiddenItems();
 
-Q_SIGNALS:
+signals:
     void searchFilterChanged();
 
     void droppedUrls(const QList<QUrl> &urls);
 
 private:
-    /*
-     * Log view
-     */
-    LogViewWidget *mLogViewWidget = nullptr;
-
-    /**
-     * Filter widget
-     */
-    LogViewFilterWidget *mLogViewFilterWidget = nullptr;
-
-    /**
-     * Search widget
-     */
-    LogViewSearchWidget *mLogViewSearchWidget = nullptr;
-
-    LoadingBar *mLoadingBar = nullptr;
+    ViewPrivate *const d;
 };
 
+#endif // VIEW_H

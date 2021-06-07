@@ -21,19 +21,28 @@
 
 #include "analyzer.h"
 
-#include "ksystemlogConfig.h"
+#include <KLocalizedString>
+
 #include "logging.h"
+#include "ksystemlogConfig.h"
 
 #include "logViewModel.h"
 
-#include "logFileReader.h"
 #include "logMode.h"
+#include "logFileReader.h"
+
+#include "logFile.h"
 
 Analyzer::Analyzer(LogMode *mode)
-    : QObject(nullptr)
-    , mLogMode(mode)
-    , mInsertionLocking()
+    : QObject(NULL)
+    , logViewModel(NULL)
+    , logMode(mode)
+    , insertionLocking(QMutex::Recursive)
+    , logLineInternalIdGenerator(0)
 {
+    parsingPaused = false;
+    QDateTime previousDate = QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0));
+    QString previousHostName = "";
 }
 
 Analyzer::~Analyzer()
@@ -44,16 +53,16 @@ Analyzer::~Analyzer()
 
 bool Analyzer::isParsingPaused() const
 {
-    return mParsingPaused;
+    return parsingPaused;
 }
 
 void Analyzer::setParsingPaused(bool paused)
 {
-    mParsingPaused = paused;
+    parsingPaused = paused;
 
     bool watching;
     // If we resume the parsing, then parse files to know if new lines have been appended.
-    if (mParsingPaused) {
+    if (parsingPaused == true) {
         logDebug() << "Pausing reading";
         watching = false;
     } else {
@@ -66,17 +75,17 @@ void Analyzer::setParsingPaused(bool paused)
 
 void Analyzer::setLogViewModel(LogViewModel *logViewModel)
 {
-    mLogViewModel = logViewModel;
+    this->logViewModel = logViewModel;
 }
 
 void Analyzer::informOpeningProgress(int currentPosition, int total)
 {
-    const int each = total / 100;
+    int each = total / 100;
     if (each == 0) {
         return;
     }
 
     if (currentPosition % each == 0) {
-        Q_EMIT openingProgressed();
+        emit openingProgressed();
     }
 }

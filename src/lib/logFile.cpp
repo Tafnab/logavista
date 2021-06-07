@@ -23,62 +23,76 @@
 
 #include "logging.h"
 
+class LogFilePrivate
+{
+public:
+    QUrl url;
+
+    LogLevel *defaultLogLevel;
+};
+
 LogFile::LogFile()
+    : d(new LogFilePrivate())
 {
     // Nothing to do
 }
 
 LogFile::LogFile(const LogFile &logFile)
+    : QObject()
+    , d(new LogFilePrivate())
 {
-    mUrl = logFile.url();
-    mDefaultLogLevel = logFile.defaultLogLevel();
+    d->url = logFile.url();
+    d->defaultLogLevel = logFile.defaultLogLevel();
 }
 
 LogFile::LogFile(const QUrl &url, LogLevel *defaultLogLevel)
+    : d(new LogFilePrivate())
 {
-    mUrl = url;
-    mDefaultLogLevel = defaultLogLevel;
+    d->url = url;
+    d->defaultLogLevel = defaultLogLevel;
 }
 
 LogFile::~LogFile()
 {
+    // defaultLogLevel is managed by Globals
+
+    delete d;
 }
 
-bool LogFile::operator==(const LogFile &other) const
+bool LogFile::operator==(const LogFile &other)
 {
-    if (mUrl == other.url() && mDefaultLogLevel == other.defaultLogLevel()) {
+    if (d->url == other.url() && d->defaultLogLevel == other.defaultLogLevel())
         return true;
-    }
 
     return false;
 }
 
 LogFile &LogFile::operator=(const LogFile &logFile)
 {
-    mUrl = logFile.url();
-    mDefaultLogLevel = logFile.defaultLogLevel();
+    d->url = logFile.url();
+    d->defaultLogLevel = logFile.defaultLogLevel();
 
     return *this;
 }
 
 QUrl LogFile::url() const
 {
-    return mUrl;
+    return d->url;
 }
 
 LogLevel *LogFile::defaultLogLevel() const
 {
-    return mDefaultLogLevel;
+    return d->defaultLogLevel;
 }
 
 QDataStream &operator<<(QDataStream &out, const LogFile &logFile)
 {
-    out << logFile.url().toLocalFile();
+    out << logFile.url().path();
     return out;
 }
 
 QDebug &operator<<(QDebug &out, const LogFile &logFile)
 {
-    out << logFile.url().toLocalFile();
+    out << logFile.url().path();
     return out;
 }

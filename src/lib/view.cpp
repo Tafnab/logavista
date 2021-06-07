@@ -21,8 +21,10 @@
 
 #include "view.h"
 
-#include <QDragEnterEvent>
+#include <QWidget>
+
 #include <QDropEvent>
+#include <QDragEnterEvent>
 #include <QFileInfo>
 #include <QMimeData>
 
@@ -38,45 +40,75 @@
 #include "logViewSearchWidget.h"
 
 #include "logLine.h"
+#include "logViewColumn.h"
+#include "logViewColumns.h"
 
 #include "ksystemlogConfig.h"
 
 #include "loadingBar.h"
 
+class ViewPrivate
+{
+public:
+    /*
+     * Log view
+     */
+    LogViewWidget *logViewWidget;
+
+    /**
+     * Filter widget
+     */
+    LogViewFilterWidget *logViewFilterWidget;
+
+    /**
+     * Search widget
+     */
+    LogViewSearchWidget *logViewSearchWidget;
+
+    LoadingBar *loadingBar;
+};
+
 View::View(QWidget *parent)
     : QWidget(parent)
+    , d(new ViewPrivate())
 {
-    auto topLayout = new QVBoxLayout(this);
-    topLayout->setContentsMargins(2, 2, 2, 2);
+    d->logViewWidget = NULL;
+
+    QVBoxLayout *topLayout = new QVBoxLayout();
+    topLayout->setMargin(2);
     topLayout->setSpacing(2);
+    this->setLayout(topLayout);
 
-    mLogViewFilterWidget = new LogViewFilterWidget(this);
-    connect(mLogViewFilterWidget->filterLine(), &LogViewWidgetSearchLine::treeWidgetUpdated, this, &View::searchFilterChanged);
-    connect(mLogViewFilterWidget->filterLine(), &LogViewWidgetSearchLine::treeWidgetUpdated, this, &View::unselectHiddenItems);
+    d->logViewFilterWidget = new LogViewFilterWidget();
+    connect(d->logViewFilterWidget->filterLine(), &LogViewWidgetSearchLine::treeWidgetUpdated, this,
+            &View::searchFilterChanged);
+    connect(d->logViewFilterWidget->filterLine(), &LogViewWidgetSearchLine::treeWidgetUpdated, this,
+            &View::unselectHiddenItems);
 
-    mLogViewFilterWidget->setVisible(KSystemLogConfig::toggleFilterBar());
+    d->logViewFilterWidget->setVisible(KSystemLogConfig::toggleFilterBar());
 
-    topLayout->addWidget(mLogViewFilterWidget);
+    topLayout->addWidget(d->logViewFilterWidget);
 
-    mLogViewWidget = new LogViewWidget(this);
-    connect(mLogViewWidget, &LogViewWidget::columnsChanged, mLogViewFilterWidget, &LogViewFilterWidget::updateFilterColumns);
+    d->logViewWidget = new LogViewWidget(this);
+    connect(d->logViewWidget, &LogViewWidget::columnsChanged, d->logViewFilterWidget,
+            &LogViewFilterWidget::updateFilterColumns);
 
-    mLogViewFilterWidget->filterLine()->setTreeWidget(mLogViewWidget);
-    topLayout->addWidget(mLogViewWidget);
+    d->logViewFilterWidget->filterLine()->setTreeWidget(d->logViewWidget);
+    topLayout->addWidget(d->logViewWidget);
 
-    mLogViewSearchWidget = new LogViewSearchWidget();
-    mLogViewSearchWidget->setTreeWidget(mLogViewWidget);
+    d->logViewSearchWidget = new LogViewSearchWidget();
+    d->logViewSearchWidget->setTreeWidget(d->logViewWidget);
 
     // The search line is hidden by default
-    mLogViewSearchWidget->hide();
+    d->logViewSearchWidget->hide();
 
-    topLayout->addWidget(mLogViewSearchWidget);
+    topLayout->addWidget(d->logViewSearchWidget);
 
-    mLoadingBar = new LoadingBar(this);
-    connect(mLoadingBar, &LoadingBar::displayed, this, &View::displayLoadingBar);
+    d->loadingBar = new LoadingBar();
+    connect(d->loadingBar, &LoadingBar::displayed, this, &View::displayLoadingBar);
 
-    topLayout->addWidget(mLoadingBar);
-    mLoadingBar->hide();
+    topLayout->addWidget(d->loadingBar);
+    d->loadingBar->hide();
 
     // Accept Drag and Drop
     setAcceptDrops(true);
@@ -84,65 +116,67 @@ View::View(QWidget *parent)
 
 View::~View()
 {
+    // All widgets are deleted automatically by Qt
+
+    delete d;
 }
 
 LogViewWidget *View::logViewWidget() const
 {
-    return mLogViewWidget;
+    return d->logViewWidget;
 }
 
 LoadingBar *View::loadingBar() const
 {
-    return mLoadingBar;
+    return d->loadingBar;
 }
 
 void View::displayLoadingBar(bool display)
 {
-    if (display) {
-        mLogViewWidget->hide();
-        mLogViewSearchWidget->hide();
-        mLogViewFilterWidget->hide();
+    if (display == true) {
+        d->logViewWidget->hide();
+        d->logViewSearchWidget->hide();
+        d->logViewFilterWidget->hide();
 
-        mLoadingBar->show();
+        d->loadingBar->show();
     } else {
-        mLogViewWidget->show();
-        mLogViewFilterWidget->setVisible(KSystemLogConfig::toggleFilterBar());
-        mLogViewFilterWidget->filterLine()->updateSearch();
+        d->logViewWidget->show();
+        d->logViewFilterWidget->setVisible(KSystemLogConfig::toggleFilterBar());
+        d->logViewFilterWidget->filterLine()->updateSearch();
         // No need to redisplay the search bar
 
-        mLoadingBar->hide();
+        d->loadingBar->hide();
     }
 }
 
 void View::toggleLogViewFilter(bool display)
 {
-    if (display) {
-        mLogViewFilterWidget->show();
+    if (display == true) {
+        d->logViewFilterWidget->show();
     } else {
-        mLogViewFilterWidget->filterLine()->clear();
-        mLogViewFilterWidget->hide();
+        d->logViewFilterWidget->filterLine()->clear();
+        d->logViewFilterWidget->hide();
     }
 }
 
 void View::toggleLogViewSearch(bool display)
 {
-    if (display) {
-        mLogViewSearchWidget->displaySearch();
-    } else {
-        mLogViewSearchWidget->hide();
-    }
+    if (display == true)
+        d->logViewSearchWidget->displaySearch();
+    else
+        d->logViewSearchWidget->hide();
 }
 
 LogViewSearchWidget *View::logViewSearch() const
 {
-    return mLogViewSearchWidget;
+    return d->logViewSearchWidget;
 }
 
 void View::unselectHiddenItems()
 {
-    QTreeWidgetItemIterator it(mLogViewWidget, QTreeWidgetItemIterator::Selected);
+    QTreeWidgetItemIterator it(d->logViewWidget, QTreeWidgetItemIterator::Selected);
 
-    while (*it) {
+    while (*it != NULL) {
         QTreeWidgetItem *item = *it;
 
         if (item->isHidden()) {
@@ -155,22 +189,22 @@ void View::unselectHiddenItems()
 
 QSize View::sizeHint() const
 {
-    return {500, 500};
+    return QSize(500, 500);
 }
 
 void View::dropEvent(QDropEvent *event)
 {
-    const QList<QUrl> urls = event->mimeData()->urls();
+    QList<QUrl> urls = event->mimeData()->urls();
 
     // If URLs have been dropped
     if (!urls.isEmpty()) {
-        Q_EMIT droppedUrls(urls);
+        emit droppedUrls(urls);
     }
 }
 
 void View::dragEnterEvent(QDragEnterEvent *event)
 {
-    const QList<QUrl> urls = event->mimeData()->urls();
+    QList<QUrl> urls = event->mimeData()->urls();
 
     // If URLs have been dropped
     if (urls.isEmpty()) {
@@ -178,12 +212,12 @@ void View::dragEnterEvent(QDragEnterEvent *event)
         return;
     }
 
-    for (const QUrl &url : urls) {
-        const QFileInfo fileInfo(url.toLocalFile());
+    foreach (const QUrl &url, urls) {
+        QFileInfo fileInfo(url.toLocalFile());
 
         // TODO Add a recognition of binary files (using the Url mimetype) and refuse them
 
-        if (!fileInfo.isReadable()) {
+        if (fileInfo.isReadable() == false) {
             logWarning() << "The drag and dropped file is not readable " << url.path();
             return;
         }

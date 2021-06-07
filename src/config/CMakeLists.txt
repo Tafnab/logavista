@@ -1,3 +1,8 @@
+include_directories( 
+	${KDE4_INCLUDE_DIR} 
+	${QT_INCLUDES}  
+)
+
 set(ksystemlog_config_SRCS
 	dummyConfig.cpp
 )

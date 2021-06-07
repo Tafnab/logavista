@@ -26,8 +26,8 @@
 #include "logging.h"
 
 #include "logLine.h"
-#include "logMode.h"
 #include "logViewWidgetItem.h"
+#include "logMode.h"
 
 #include "ksystemlogConfig.h"
 
@@ -52,13 +52,12 @@ void LogModeItemBuilder::prepareItem(LogViewWidgetItem *item) const
     item->setData(0, Qt::UserRole, line->logLevel()->id());
 
     int i = 1;
-    const QStringList logItems = line->logItems();
-    for (const QString &label : logItems) {
+    foreach (const QString &label, line->logItems()) {
         item->setText(i, label);
         i++;
     }
 
-    item->setIcon(0, line->logLevel()->icon());
+    item->setIcon(0, line->logLevel()->pixmap());
 }
 
 QString LogModeItemBuilder::createFormattedText(LogLine *line) const
@@ -97,15 +96,15 @@ QString LogModeItemBuilder::createToolTipText(LogLine *line) const
 
 QString LogModeItemBuilder::labelMessageFormat(const QString &label, const QString &value) const
 {
-    return QLatin1String("<tr><td align='right'><b><nobr>") + label + QLatin1String("</nobr></b></td><td>") + messageFormat(value)
-        + QLatin1String("</td></tr>");
+    return (QLatin1String("<tr><td align='right'><b><nobr>") + label + QLatin1String("</nobr></b></td><td>")
+            + messageFormat(value) + QLatin1String("</td></tr>"));
 }
 
 QString LogModeItemBuilder::messageFormat(const QString &message) const
 {
     QString transformation(message);
-    transformation.replace(QStringLiteral("&"), QStringLiteral("&amp;"));
-    transformation.replace(QStringLiteral("<"), QStringLiteral("&lt;"));
-    transformation.replace(QStringLiteral(">"), QStringLiteral("&gt;"));
+    transformation.replace(QRegExp(QStringLiteral("&")), QStringLiteral("&amp;"));
+    transformation.replace(QRegExp(QStringLiteral("<")), QStringLiteral("&lt;"));
+    transformation.replace(QRegExp(QStringLiteral(">")), QStringLiteral("&gt;"));
     return transformation;
 }

@@ -11,12 +11,12 @@
 	<group name="KSystemLogGeneral">
 		<entry name="StartupLogMode" type="String">
 			<label>Load this log mode at startup.</label>
-			<default>journaldLogMode</default>
+			<default>systemLogMode</default>
 		</entry>
 
 		<entry name="MaxLines" type="Int">
 			<label>The log view line count limit.</label>
-			<default>1000</default>
+			<default>1000000</default>
 		</entry>
 		
 		<entry name="DeleteDuplicatedLines" type="Bool">

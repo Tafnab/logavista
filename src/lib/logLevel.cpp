@@ -21,35 +21,57 @@
 
 #include "logLevel.h"
 
-LogLevel::LogLevel(int id, const QString &nm, const QString &ic, const QColor &col, QObject *parent)
-    : QObject(parent)
-    , mId(id)
-    , mName(nm)
-    , mColor(col)
-    , mIcon(QIcon::fromTheme(ic))
+#include <kiconloader.h>
+
+class LogLevelPrivate
 {
+public:
+    int id;
+    QString name;
+
+    QString icon;
+
+    QColor color;
+
+    QPixmap pixmap;
+};
+
+LogLevel::LogLevel(int id, const QString &nm, const QString &ic, const QColor &col, QObject *parent)
+    : QObject(parent), d(new LogLevelPrivate())
+{
+    d->id = id;
+    d->name = nm;
+    d->icon = ic;
+    d->color = col;
+    d->pixmap = SmallIcon(ic);
 }
 
 LogLevel::~LogLevel()
 {
+    delete d;
 }
 
-int LogLevel::id() const
+int LogLevel::id()
 {
-    return mId;
+    return d->id;
 }
 
-QString LogLevel::name() const
+QString LogLevel::name()
 {
-    return mName;
+    return d->name;
 }
 
-QColor LogLevel::color() const
+QString LogLevel::icon()
 {
-    return mColor;
+    return d->icon;
 }
 
-QIcon LogLevel::icon() const
+QColor LogLevel::color()
 {
-    return mIcon;
+    return d->color;
+}
+
+QPixmap LogLevel::pixmap()
+{
+    return d->pixmap;
 }

@@ -19,17 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_MANAGER_H
+#define LOG_MANAGER_H
 
 #include <QList>
 
 #include "globals.h"
 
-#include "logFile.h"
 #include "logMode.h"
+#include "logFile.h"
 
-#include "logViewColumns.h"
 #include "logViewModel.h"
+#include "logViewColumns.h"
 
 class View;
 
@@ -42,7 +43,7 @@ class LogManager : public QObject
 public:
     explicit LogManager(View *view);
 
-    ~LogManager() override;
+    ~LogManager();
 
     View *usedView() const;
 
@@ -62,13 +63,13 @@ public:
 
     const QVariant &analyzerOptions() const;
 
-protected Q_SLOTS:
+protected slots:
 
     void updateLog(int lineCount);
 
     void showErrorMessage(const QString &title, const QString &message);
 
-Q_SIGNALS:
+signals:
     void tabTitleChanged(View *view, const QIcon &icon, const QString &label);
 
     void windowTitleChanged(const QString &caption);
@@ -77,14 +78,16 @@ Q_SIGNALS:
     void reloaded();
     void logUpdated(View *view, int addedLines);
 
-private Q_SLOTS:
+private slots:
     void loadDroppedUrls(const QList<QUrl> &urls);
 
 private:
-    void internalInitialize(LogMode *mode, const QVector<LogFile> &logFiles, const QVariant &analyzerOptions = QVariant());
+    void internalInitialize(LogMode *mode, const QList<LogFile> &logFiles,
+                            const QVariant &analyzerOptions = QVariant());
 
     void cleanPreviousLogMode();
 
     LogManagerPrivate *d;
 };
 
+#endif // LOG_MANAGER_H

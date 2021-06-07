@@ -19,22 +19,28 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_LINE_H
+#define LOG_LINE_H
 
-#include <QDateTime>
 #include <QStringList>
+#include <QDateTime>
 
 #include "globals.h"
 
 #include "logLevel.h"
 
 class LogViewWidget;
+class QDateTime;
+class QStringList;
 class LogViewWidgetItem;
+
+class LogLinePrivate;
 
 class LogLine
 {
 public:
-    LogLine(long internalId, const QDateTime &dateTime, const QStringList &logItems, const QString &originalFile, LogLevel *level, LogMode *logMode);
+    LogLine(long internalId, const QDateTime &dateTime, const QStringList &logItems,
+            const QString &originalFile, LogLevel *level, LogMode *logMode);
 
     virtual ~LogLine();
 
@@ -48,11 +54,13 @@ public:
     LogLevel *logLevel() const;
 
     long internalId() const;
-    QDateTime time() const;
+    QDateTime time() const ;
     QStringList logItems() const;
     QString sourceFileName() const;
 
     LogMode *logMode() const;
+
+    bool itemExists() const;
 
     void setLogItems(const QStringList &logItems);
     void setLogLevel(LogLevel *level);
@@ -66,23 +74,10 @@ public:
     QString exportToText() const;
 
 protected:
-    long mInternalId;
-
-    QDateTime mTime;
-
-    QStringList mLogItems;
-
-    QString mOriginalFile;
-
-    LogLevel *mLogLevel = nullptr;
-
-    LogMode *mLogMode = nullptr;
-
-    bool mRecent = false;
-
-    LogViewWidgetItem *mItem = nullptr;
+    LogLinePrivate *const d;
 
 private:
     void initializeItem();
 };
 
+#endif

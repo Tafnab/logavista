@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _KIO_LOG_FILE_READER_H_
+#define _KIO_LOG_FILE_READER_H_
 
-#include <QByteArray>
 #include <QObject>
+#include <QByteArray>
 #include <QString>
 
 #include "logFile.h"
@@ -30,9 +31,10 @@
 namespace KIO
 {
 class Job;
-class FileJob;
 }
-class KDirWatch;
+
+class KioLogFileReaderPrivate;
+
 /**
  * TODO Inherits from LogFileReader
  */
@@ -41,17 +43,17 @@ class KioLogFileReader : public QObject
     Q_OBJECT
 
 public:
-    explicit KioLogFileReader(const LogFile &logFile);
+    KioLogFileReader(const LogFile &logFile);
 
-    ~KioLogFileReader() override;
+    virtual ~KioLogFileReader();
 
     void open();
     void close();
 
-Q_SIGNALS:
+signals:
     void lineRead(const QString &);
 
-private Q_SLOTS:
+private slots:
     void openDone(KIO::Job *job);
     void closeDone(KIO::Job *job);
     void dataReceived(KIO::Job *job, const QByteArray &data);
@@ -61,13 +63,8 @@ private Q_SLOTS:
 
 private:
     void emitCompleteLines();
-    const LogFile mLogFile;
 
-    KIO::FileJob *mFileJob = nullptr;
-
-    QString mBuffer;
-    qulonglong mTotalRead = 0;
-
-    KDirWatch *const mFileWatch;
+    KioLogFileReaderPrivate *const d;
 };
 
+#endif // _KIO_LOG_FILE_READER_H_

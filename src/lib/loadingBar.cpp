@@ -22,91 +22,107 @@
 #include "loadingBar.h"
 
 #include <QApplication>
-#include <QHBoxLayout>
+#include <QWidget>
+#include <QPushButton>
 #include <QLabel>
 #include <QProgressBar>
-#include <QPushButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <KLocalizedString>
+#include <kiconloader.h>
+
+class LoadingBarPrivate
+{
+public:
+    // Attributes managing the position in the files loading of each log
+    int fileCount;
+    int currentFileIndex;
+
+    bool firstLoading;
+
+    QLabel *label;
+
+    QProgressBar *progressBar;
+};
+
 LoadingBar::LoadingBar(QWidget *parent)
     : QWidget(parent)
+    , d(new LoadingBarPrivate())
 {
-    auto widgetLayout = new QHBoxLayout(this);
+    d->firstLoading = true;
+
+    QHBoxLayout *widgetLayout = new QHBoxLayout();
+    setLayout(widgetLayout);
 
     widgetLayout->addStretch();
 
-    auto layout = new QVBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
     widgetLayout->addLayout(layout);
 
     widgetLayout->addStretch();
 
-    mLabel = new QLabel(i18n("Loading Progress..."), this);
-    mLabel->setMinimumWidth(250);
-    layout->addWidget(mLabel, 1, Qt::AlignBottom);
+    d->label = new QLabel(i18n("Loading Progress..."));
+    d->label->setMinimumWidth(250);
+    layout->addWidget(d->label, 1, Qt::AlignBottom);
 
-    mProgressBar = new QProgressBar(this);
-    mProgressBar->setRange(0, 100);
-    mProgressBar->setMinimumWidth(250);
-    layout->addWidget(mProgressBar, 1, Qt::AlignCenter | Qt::AlignTop);
+    d->progressBar = new QProgressBar();
+    d->progressBar->setRange(0, 100);
+    d->progressBar->setMinimumWidth(250);
+    layout->addWidget(d->progressBar, 1, Qt::AlignCenter | Qt::AlignTop);
 }
 
 LoadingBar::~LoadingBar()
 {
+    delete d;
 }
 
-QProgressBar *LoadingBar::progressBar() const
+QProgressBar *LoadingBar::progressBar()
 {
-    return mProgressBar;
+    return d->progressBar;
 }
 
 void LoadingBar::startLoading(const LogMode &logMode, const LogFile &logFile, int fileIndex, int fileCount)
 {
-    Q_EMIT displayed(true);
+    emit displayed(true);
 
-    mProgressBar->setValue(0);
+    d->progressBar->setValue(0);
 
     // Several files to load
     if (fileCount > 1 && fileIndex >= 1) {
-        if (mFirstLoading) {
-            mLabel->setText(i18np("Loading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>)",
-                                  "Loading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>/%1 files)",
-                                  fileCount,
-                                  logMode.name(),
-                                  logFile.url().toLocalFile(),
-                                  fileIndex));
-        } else {
-            mLabel->setText(i18np("Reloading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>)",
-                                  "Reloading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>/%1 files)",
-                                  fileCount,
-                                  logMode.name(),
-                                  logFile.url().toLocalFile(),
-                                  fileIndex));
-        }
+        if (d->firstLoading)
+            d->label->setText(i18np("Loading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>)",
+                                    "Loading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>/%1 files)", fileCount,
+                                    logMode.name(), logFile.url().path(), fileIndex));
+        else
+            d->label->setText(i18np("Reloading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>)",
+                                    "Reloading <b>%2</b>...<br /><i>%3</i> - (<b>%4</b>/%1 files)", fileCount,
+                                    logMode.name(), logFile.url().path(), fileIndex));
     }
     // Only one file
     else {
-        if (mFirstLoading) {
-            mLabel->setText(i18n("Loading <b>%1</b>...<br /><i>%2</i>", logMode.name(), logFile.url().toLocalFile()));
-        } else {
-            mLabel->setText(i18n("Reloading <b>%1</b>...<br /><i>%2</i>", logMode.name(), logFile.url().toLocalFile()));
-        }
+        if (d->firstLoading)
+            d->label->setText(
+                i18n("Loading <b>%1</b>...<br /><i>%2</i>", logMode.name(), logFile.url().path()));
+        else
+            d->label->setText(
+                i18n("Reloading <b>%1</b>...<br /><i>%2</i>", logMode.name(), logFile.url().path()));
     }
 }
 
 void LoadingBar::endLoading()
 {
-    Q_EMIT displayed(false);
+    emit displayed(false);
 
-    mProgressBar->setValue(100);
+    d->progressBar->setValue(100);
 
     // If the endLoading has been called one time, it means it has already been loaded
-    mFirstLoading = false;
+    d->firstLoading = false;
 }
 
 void LoadingBar::progressLoading()
 {
-    mProgressBar->setValue(mProgressBar->value() + 1);
+    d->progressBar->setValue(d->progressBar->value() + 1);
 
     // kapp->processEvents();
     qApp->processEvents();

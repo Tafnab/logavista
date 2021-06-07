@@ -19,32 +19,33 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_LEVEL_H_
+#define _LOG_LEVEL_H_
 
 #include <QColor>
-#include <QIcon>
-#include <QObject>
 #include <QString>
+#include <QPixmap>
+
+class LogLevelPrivate;
+
 class LogLevel : QObject
 {
 public:
     explicit LogLevel(int id, const QString &name, const QString &icon, const QColor &color, QObject *parent = nullptr);
 
-    ~LogLevel() override;
+    virtual ~LogLevel();
 
-    int id() const;
-    QString name() const;
+    int id();
+    QString name();
 
-    QColor color() const;
+    QString icon();
 
-    QIcon icon() const;
+    QColor color();
+
+    QPixmap pixmap();
 
 private:
-    int mId;
-    QString mName;
-
-    QColor mColor;
-
-    QIcon mIcon;
+    LogLevelPrivate *const d;
 };
 
+#endif

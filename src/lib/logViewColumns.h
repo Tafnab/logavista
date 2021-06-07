@@ -19,12 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_VIEW_COLUMNS_H_
+#define _LOG_VIEW_COLUMNS_H_
 
 #include <QList>
 
 class LogViewColumn;
 class QStringList;
+class LogViewColumnsPrivate;
 
 class LogViewColumns
 {
@@ -44,7 +46,7 @@ public:
     void setGroupByHour(bool value);
     void setGroupByLogFile(bool value);
 
-    QVector<LogViewColumn> columns() const;
+    QList<LogViewColumn> columns() const;
 
     void addColumn(const LogViewColumn &column);
     QStringList toStringList() const;
@@ -52,13 +54,10 @@ public:
     LogViewColumns &operator=(const LogViewColumns &columns);
 
 private:
-    QVector<LogViewColumn> mColumns;
-    bool mGroupByLogLevel = true;
-    bool mGroupByDay = true;
-    bool mGroupByHour = true;
-    bool mGroupByLogFile = true;
+    LogViewColumnsPrivate *const d;
 };
 
 QDataStream &operator<<(QDataStream &out, const LogViewColumns &columns);
 QDebug &operator<<(QDebug &out, const LogViewColumns &columns);
 
+#endif

@@ -23,10 +23,10 @@
 
 #include <KLocalizedString>
 
-#include <QButtonGroup>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QButtonGroup>
 
 #include "logLevel.h"
 #include "logViewWidgetItem.h"
@@ -39,15 +39,16 @@ LevelPrintPage::LevelPrintPage(QWidget *parent)
 {
     setWindowTitle(i18n("Log Level Printing"));
 
-    mPageLayout = new QVBoxLayout(this);
+    // m_pageLayout = new QVBoxLayout(this, 3, 3);
+    m_pageLayout = new QVBoxLayout(this);
 
-    mLblChoose = new QLabel(this);
+    m_lblChoose = new QLabel(this);
     // m_lblChoose->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0,
     // m_lblChoose->sizePolicy().hasHeightForWidth() ) );
-    mLblChoose->setText(i18n("Choose which log levels you wish to print in color."));
-    mPageLayout->addWidget(mLblChoose);
+    m_lblChoose->setText(i18n("Choose which log levels you wish to print in color."));
+    m_pageLayout->addWidget(m_lblChoose);
 
-    mBtnGroup = new QButtonGroup(this);
+    m_btnGroup = new QButtonGroup(this);
     /*
     i18n("Log Levels"),
     m_btnGroup->setColumnLayout(0, Qt::Vertical );
@@ -58,14 +59,13 @@ LevelPrintPage::LevelPrintPage(QWidget *parent)
     */
 
     int row = 0, col = 0;
-    const auto logLevels = Globals::instance().logLevels();
-    mLevelCheckBoxes.reserve(logLevels.count());
-    for (LogLevel *level : logLevels) {
-        auto button = new QCheckBox(level->name(), this); //, m_btnGroup, 0
 
-        mLevelCheckBoxes.append(button);
-        mBtnGroup->addButton(button, level->id());
-        mBtnGroupLayout->addWidget(button, row, col);
+    foreach (LogLevel *level, Globals::instance().logLevels()) {
+        QCheckBox *button = new QCheckBox(level->name()); //, m_btnGroup, 0
+
+        levelCheckBoxes.append(button);
+        m_btnGroup->addButton(button, level->id());
+        m_btnGroupLayout->addWidget(button, row, col);
 
         logDebug() << "name: " << level->name() << " id: " << level->id();
 

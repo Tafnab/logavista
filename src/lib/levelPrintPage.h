@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LEVELPRINTPAGE_H
+#define LEVELPRINTPAGE_H
 
-#include <QString>
 #include <QWidget>
+#include <QString>
 
 class QButtonGroup;
 class QVBoxLayout;
@@ -36,16 +37,17 @@ class QLabel;
 class LevelPrintPage : public QWidget
 {
 public:
-    explicit LevelPrintPage(QWidget *parent = nullptr);
-    ~LevelPrintPage() override;
+    explicit LevelPrintPage(QWidget *parent = 0);
+    ~LevelPrintPage();
 
     bool isValid(QString &msg);
 
 private:
-    QButtonGroup *mBtnGroup = nullptr;
-    QGridLayout *mBtnGroupLayout = nullptr;
-    QVBoxLayout *mPageLayout = nullptr;
-    QLabel *mLblChoose = nullptr;
-    QList<QCheckBox *> mLevelCheckBoxes;
+    QButtonGroup *m_btnGroup;
+    QGridLayout *m_btnGroupLayout;
+    QVBoxLayout *m_pageLayout;
+    QLabel *m_lblChoose;
+    QList<QCheckBox *> levelCheckBoxes;
 };
 
+#endif

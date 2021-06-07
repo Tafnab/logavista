@@ -19,26 +19,31 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_FILE_H_
+#define _LOG_FILE_H_
 
+#include <QObject>
 #include <QDataStream>
 #include <QDebug>
-#include <QObject>
 #include <QUrl>
 
 class LogLevel;
 
-class LogFile
+class LogFilePrivate;
+
+class LogFile : public QObject
 {
+    Q_OBJECT
+
 public:
     LogFile();
 
     LogFile(const LogFile &logFile);
     LogFile(const QUrl &url, LogLevel *defaultLogLevel);
 
-    ~LogFile();
+    virtual ~LogFile();
 
-    bool operator==(const LogFile &other) const;
+    bool operator==(const LogFile &other);
 
     LogFile &operator=(const LogFile &column);
 
@@ -47,11 +52,10 @@ public:
     LogLevel *defaultLogLevel() const;
 
 private:
-    QUrl mUrl;
-
-    LogLevel *mDefaultLogLevel = nullptr;
+    LogFilePrivate *const d;
 };
 
 QDataStream &operator<<(QDataStream &out, const LogFile &column);
 QDebug &operator<<(QDebug &out, const LogFile &column);
 
+#endif // _LOG_FILE_H_

@@ -21,21 +21,32 @@
 
 #include "logModeAction.h"
 
-LogModeAction::LogModeAction(QObject *parent)
-    : QObject(parent)
+class LogModeActionPrivate
 {
+public:
+    bool inToolBar;
+
+    LogModeAction::Category category;
+};
+
+LogModeAction::LogModeAction()
+    : d(new LogModeActionPrivate())
+{
+    d->inToolBar = true;
+    d->category = LogModeAction::RootCategory;
 }
 
 LogModeAction::~LogModeAction()
 {
+    delete d;
 }
 
 void LogModeAction::setCategory(LogModeAction::Category category)
 {
-    mCategory = category;
+    d->category = category;
 }
 
-LogModeAction::Category LogModeAction::category() const
+LogModeAction::Category LogModeAction::category()
 {
-    return mCategory;
+    return d->category;
 }

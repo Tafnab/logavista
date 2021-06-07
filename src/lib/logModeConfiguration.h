@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_MODE_CONFIGURATION_H_
+#define _LOG_MODE_CONFIGURATION_H_
 
-#include <QList>
 #include <QObject>
+#include <QList>
 #include <QStringList>
 
 #include "logFile.h"
@@ -34,16 +35,17 @@ class LogModeConfiguration : public QObject
     Q_OBJECT
 
 public:
-    explicit LogModeConfiguration(QObject *parent = nullptr);
+    LogModeConfiguration();
 
-    ~LogModeConfiguration() override;
+    virtual ~LogModeConfiguration();
 
     LogFile findGenericLogFile(const QString &file);
-    QVector<LogFile> findGenericLogFiles(const QStringList &files);
+    QList<LogFile> findGenericLogFiles(const QStringList &files);
 
-    QVector<LogFile> findNoModeLogFiles(const QStringList &stringList);
+    QList<LogFile> findNoModeLogFiles(const QStringList &stringList);
 
 protected:
-    KSystemLogConfig *mConfiguration = nullptr;
+    KSystemLogConfig *configuration;
 };
 
+#endif // _LOG_MODE_CONFIGURATION_H_

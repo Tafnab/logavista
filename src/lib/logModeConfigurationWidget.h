@@ -19,10 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_MODE_CONFIGURATION_WIDGET_H_
+#define _LOG_MODE_CONFIGURATION_WIDGET_H_
 
-#include <QString>
 #include <QWidget>
+#include <QString>
+#include <QMap>
+#include <QStringList>
+
+class LogModeConfigurationWidgetPrivate;
 
 class LogModeConfigurationWidget : public QWidget
 {
@@ -31,7 +36,7 @@ class LogModeConfigurationWidget : public QWidget
 public:
     LogModeConfigurationWidget(const QString &itemName, const QString &iconName, const QString &header);
 
-    ~LogModeConfigurationWidget() override;
+    virtual ~LogModeConfigurationWidget();
 
     virtual bool isValid() const;
 
@@ -39,17 +44,18 @@ public:
     virtual void defaultConfig() = 0;
     virtual void readConfig() = 0;
 
-Q_SIGNALS:
+signals:
     void configurationChanged();
 
 public:
     QString itemName() const;
     QString iconName() const;
     QString header() const;
+    
+    QMap<QString, QStringList> all_paths;
 
 private:
-    QString mItemName;
-    QString mIconName;
-    QString mHeader;
+    LogModeConfigurationWidgetPrivate *const d;
 };
 
+#endif // _LOG_MODE_CONFIGURATION_WIDGET_H_

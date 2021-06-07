@@ -19,13 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_VIEW_COLUMN_H
+#define LOG_VIEW_COLUMN_H
 
+#include <QString>
 #include <QDataStream>
 #include <QDebug>
-#include <QString>
 
 #include "globals.h"
+
+class LogViewColumnPrivate;
 
 class LogViewColumn
 {
@@ -46,12 +49,10 @@ public:
     LogViewColumn &operator=(const LogViewColumn &column);
 
 private:
-    QString mColumnName;
-
-    bool mFiltered;
-    bool mGrouped;
+    LogViewColumnPrivate *const d;
 };
 
 QDataStream &operator<<(QDataStream &out, const LogViewColumn &column);
 QDebug &operator<<(QDebug &out, const LogViewColumn &column);
 
+#endif // LOG_VIEW_COLUMN_H

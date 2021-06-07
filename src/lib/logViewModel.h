@@ -19,24 +19,27 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_VIEW_MODEL_H_
+#define _LOG_VIEW_MODEL_H_
 
 #include <QObject>
 
-#include "analyzer.h"
 #include "globals.h"
+#include "analyzer.h"
 
 class LogLine;
 class LogViewWidget;
+
+class LogViewModelPrivate;
 
 class LogViewModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit LogViewModel(LogViewWidget *logViewWidget);
+    LogViewModel(LogViewWidget *logViewWidget);
 
-    ~LogViewModel() override;
+    virtual ~LogViewModel();
 
     /**
      * Clear the model
@@ -53,9 +56,9 @@ public:
     void startingMultipleInsertions();
     void endingMultipleInsertions(Analyzer::ReadingMode readingMode, int insertedLogLineCount);
 
-    QList<LogLine *> logLines() const;
+    QList<LogLine *> logLines();
 
-Q_SIGNALS:
+signals:
     void processingMultipleInsertions(bool currentlyInserting);
 
 private:
@@ -63,6 +66,8 @@ private:
      * Prevent crossed multiple insertions between each LogFileReaders
      */
     bool lockMultipleInsertions();
+
+    void setFirstReadProcessed();
 
     bool logLineAlreadyExists(LogLine *line) const;
 
@@ -83,10 +88,7 @@ private:
      */
     void removeRecentStatusOfLogLines();
 
-    LogViewWidget *mLogViewWidget = nullptr;
-
-    LogViewWidgetItem *mOldestItem = nullptr;
-
-    int mConcurrentMultipleInsertions = 0;
+    LogViewModelPrivate *const d;
 };
 
+#endif //_LOG_VIEW_MODEL_H_

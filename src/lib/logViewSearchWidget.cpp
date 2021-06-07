@@ -21,45 +21,59 @@
 
 #include "logViewSearchWidget.h"
 
-#include <QCheckBox>
-#include <QColor>
-#include <QPalette>
 #include <QPushButton>
 #include <QString>
+#include <QCheckBox>
+#include <QPalette>
+#include <QColor>
 #include <QTimer>
 
-#include <KLocalizedString>
+#include <kiconloader.h>
 #include <QIcon>
+#include <KLocalizedString>
 
+#include "logging.h"
 #include "logViewWidget.h"
 #include "logViewWidgetItem.h"
-#include "logging.h"
 
-LogViewSearchWidget::LogViewSearchWidget(QWidget *parent)
-    : QWidget(parent)
+class LogViewSearchWidgetPrivate
 {
+public:
+    LogViewWidget *logViewWidget;
+
+    QColor searchLineBaseColor;
+    QColor searchLineTextColor;
+
+    QTimer *messageHidingTimer;
+};
+
+LogViewSearchWidget::LogViewSearchWidget()
+    : d(new LogViewSearchWidgetPrivate())
+{
+    d->logViewWidget = NULL;
+
     setupUi(this);
 
     // Get the searchLine base color to be able to restore it later
-    mSearchLineBaseColor = searchLine->palette().color(QPalette::Base);
-    mSearchLineTextColor = searchLine->palette().color(QPalette::Text);
+    d->searchLineBaseColor = searchLine->palette().color(QPalette::Base);
+    d->searchLineTextColor = searchLine->palette().color(QPalette::Text);
 
     // Default configuration of the hiding message timer
-    mMessageHidingTimer = new QTimer(this);
-    mMessageHidingTimer->setSingleShot(true);
-    mMessageHidingTimer->setInterval(2000);
-    connect(mMessageHidingTimer, &QTimer::timeout, this, &LogViewSearchWidget::hideMessage);
+    d->messageHidingTimer = new QTimer(this);
+    d->messageHidingTimer->setSingleShot(true);
+    d->messageHidingTimer->setInterval(2000);
+    connect(d->messageHidingTimer, &QTimer::timeout, this, &LogViewSearchWidget::hideMessage);
 
     // The message widget is hidden by default
     hideMessage();
 
-    closeButton->setIcon(QIcon::fromTheme(QStringLiteral("dialog-close")));
+    closeButton->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/dialog-close.svg")));
     connect(closeButton, &QAbstractButton::clicked, this, &QWidget::hide);
 
-    next->setIcon(QIcon::fromTheme(QStringLiteral("arrow-down")));
+    next->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/arrow-down.svg")));
     connect(next, &QAbstractButton::clicked, this, &LogViewSearchWidget::findNext);
 
-    previous->setIcon(QIcon::fromTheme(QStringLiteral("arrow-up")));
+    previous->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/arrow-up.svg")));
     connect(previous, &QAbstractButton::clicked, this, &LogViewSearchWidget::findPrevious);
 
     searchLabel->setBuddy(searchLine);
@@ -79,6 +93,9 @@ LogViewSearchWidget::LogViewSearchWidget(QWidget *parent)
 
 LogViewSearchWidget::~LogViewSearchWidget()
 {
+    // widgets and timer are automatically deleted by Qt
+
+    delete d;
 }
 
 void LogViewSearchWidget::displaySearch()
@@ -90,29 +107,28 @@ void LogViewSearchWidget::displaySearch()
 
 void LogViewSearchWidget::setTreeWidget(LogViewWidget *logViewWidget)
 {
-    mLogViewWidget = logViewWidget;
+    d->logViewWidget = logViewWidget;
 }
 
 void LogViewSearchWidget::findFirst(const QString &text)
 {
-    const bool textIsNotEmpty = !text.isEmpty();
+    bool textIsNotEmpty = !text.isEmpty();
     next->setEnabled(textIsNotEmpty);
     previous->setEnabled(textIsNotEmpty);
-    if (textIsNotEmpty) {
+    if (textIsNotEmpty)
         findFirst();
-    }
 }
 
 void LogViewSearchWidget::findFirst()
 {
-    internalFind(nullptr, LogViewSearchWidget::Next);
+    internalFind(NULL, LogViewSearchWidget::Next);
 }
 
 void LogViewSearchWidget::findNext()
 {
     logDebug() << "Finding next";
 
-    LogViewWidgetItem *lastSelectedItem = mLogViewWidget->lastSelectedItem();
+    LogViewWidgetItem *lastSelectedItem = d->logViewWidget->lastSelectedItem();
     internalFind(lastSelectedItem, LogViewSearchWidget::Next);
 }
 
@@ -120,7 +136,7 @@ void LogViewSearchWidget::findPrevious()
 {
     logDebug() << "Finding previous";
 
-    LogViewWidgetItem *firstSelectedItem = mLogViewWidget->firstSelectedItem();
+    LogViewWidgetItem *firstSelectedItem = d->logViewWidget->firstSelectedItem();
     internalFind(firstSelectedItem, LogViewSearchWidget::Previous);
 }
 
@@ -130,13 +146,13 @@ void LogViewSearchWidget::internalFind(LogViewWidgetItem *fromItem, Direction di
         return;
     }
 
-    QTreeWidgetItemIterator it(mLogViewWidget, QTreeWidgetItemIterator::NotHidden);
+    QTreeWidgetItemIterator it(d->logViewWidget, QTreeWidgetItemIterator::NotHidden);
     initIterator(it, direction);
 
     // Go to the selected position + 1 (if we already found an item)
-    if (fromItem) {
-        while (*it) {
-            auto item = static_cast<LogViewWidgetItem *>(*it);
+    if (fromItem != NULL) {
+        while (*it != NULL) {
+            LogViewWidgetItem *item = static_cast<LogViewWidgetItem *>(*it);
 
             if (item == fromItem) {
                 iteratorJump(it, direction);
@@ -148,28 +164,27 @@ void LogViewSearchWidget::internalFind(LogViewWidgetItem *fromItem, Direction di
     }
 
     // Iterates to fromItem +1 to the last item of the list
-    while (*it) {
-        auto item = static_cast<LogViewWidgetItem *>(*it);
+    while (*it != NULL) {
+        LogViewWidgetItem *item = static_cast<LogViewWidgetItem *>(*it);
 
         bool found = findItem(item);
-        if (found) {
+        if (found == true)
             return;
-        }
 
         iteratorJump(it, direction);
     }
 
     // If we do not begin the search from the beginning, we do it now
-    if (fromItem) {
-        it = QTreeWidgetItemIterator(mLogViewWidget, QTreeWidgetItemIterator::NotHidden);
+    if (fromItem != NULL) {
+        it = QTreeWidgetItemIterator(d->logViewWidget, QTreeWidgetItemIterator::NotHidden);
         initIterator(it, direction);
 
-        LogViewWidgetItem *item = nullptr;
-        while (*it && item != fromItem) {
+        LogViewWidgetItem *item = NULL;
+        while (*it != NULL && item != fromItem) {
             item = static_cast<LogViewWidgetItem *>(*it);
 
             bool found = findItem(item);
-            if (found) {
+            if (found == true) {
                 showMessage(i18n("Reached end of list."), QStringLiteral("dialog-information"));
                 return;
             }
@@ -188,7 +203,7 @@ inline void LogViewSearchWidget::initIterator(QTreeWidgetItemIterator &it, Direc
         QTreeWidgetItemIterator testedIterator(it);
         while (true) {
             ++testedIterator;
-            if (!(*testedIterator)) {
+            if (*testedIterator == NULL) {
                 break;
             }
 
@@ -213,9 +228,8 @@ bool LogViewSearchWidget::compareItem(LogViewWidgetItem *item)
         caseSensitivity = Qt::CaseSensitive;
     }
 
-    if (searchLine->text().isEmpty()) {
+    if (searchLine->text().isEmpty())
         return false;
-    }
 
     if (item->logLine()->exportToText().contains(searchLine->text(), caseSensitivity)) {
         return true;
@@ -226,13 +240,13 @@ bool LogViewSearchWidget::compareItem(LogViewWidgetItem *item)
 
 bool LogViewSearchWidget::findItem(LogViewWidgetItem *item)
 {
-    if (compareItem(item)) {
+    if (compareItem(item) == true) {
         unselectAll();
 
         setSearchLineNotFound(false);
         item->setSelected(true);
-        mLogViewWidget->setCurrentItem(item);
-        mLogViewWidget->scrollToItem(item);
+        d->logViewWidget->setCurrentItem(item);
+        d->logViewWidget->scrollToItem(item);
         return true;
     }
 
@@ -242,27 +256,26 @@ bool LogViewSearchWidget::findItem(LogViewWidgetItem *item)
 void LogViewSearchWidget::setSearchLineNotFound(bool notFound)
 {
     QPalette palette = searchLine->palette();
-    if (notFound) {
+    if (notFound == true) {
         palette.setColor(QPalette::Base, QColor(255, 102, 102)); // or Qt::red or QColor(235, 0, 0)
         palette.setColor(QPalette::Text, QColor(255, 255, 255));
     } else {
-        palette.setColor(QPalette::Base, mSearchLineBaseColor);
-        palette.setColor(QPalette::Text, mSearchLineTextColor);
+        palette.setColor(QPalette::Base, d->searchLineBaseColor);
+        palette.setColor(QPalette::Text, d->searchLineTextColor);
     }
 
     searchLine->setPalette(palette);
 
-    if (notFound) {
+    if (notFound == true)
         showMessage(i18n("Phrase not found."), QStringLiteral("dialog-error"));
-    } else {
+    else
         hideMessage();
-    }
 }
 
 void LogViewSearchWidget::unselectAll()
 {
-    const QList<QTreeWidgetItem *> selectedItems = mLogViewWidget->selectedItems();
-    for (QTreeWidgetItem *item : selectedItems) {
+    QList<QTreeWidgetItem *> selectedItems = d->logViewWidget->selectedItems();
+    foreach (QTreeWidgetItem *item, selectedItems) {
         item->setSelected(false);
     }
 }
@@ -272,10 +285,10 @@ void LogViewSearchWidget::showMessage(const QString &text, const QString &iconTe
     message->setText(text);
     message->show();
 
-    messageIcon->setPixmap(QIcon::fromTheme(iconText).pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize)));
+    messageIcon->setPixmap(SmallIcon(iconText));
     messageIcon->show();
 
-    mMessageHidingTimer->start();
+    d->messageHidingTimer->start();
 }
 
 void LogViewSearchWidget::hideMessage()
@@ -283,7 +296,7 @@ void LogViewSearchWidget::hideMessage()
     message->hide();
     messageIcon->hide();
 
-    mMessageHidingTimer->stop();
+    d->messageHidingTimer->stop();
 }
 
 void LogViewSearchWidget::highlightAll()
@@ -292,16 +305,17 @@ void LogViewSearchWidget::highlightAll()
         unlightAll();
 
         logDebug() << "Highlighting all";
-        QTreeWidgetItemIterator it(mLogViewWidget, QTreeWidgetItemIterator::All);
-        while (*it) {
-            auto item = static_cast<LogViewWidgetItem *>(*it);
+        QTreeWidgetItemIterator it(d->logViewWidget, QTreeWidgetItemIterator::All);
+        while (*it != NULL) {
+            LogViewWidgetItem *item = static_cast<LogViewWidgetItem *>(*it);
 
-            if (compareItem(item)) {
-                item->setBackground(item->columnCount() - 1, QColor(255, 255, 16 * 8 + 11));
+            if (compareItem(item) == true) {
+                item->setBackgroundColor(item->columnCount() - 1, QColor(255, 255, 16 * 8 + 11));
             }
 
             ++it;
         }
+
     } else {
         unlightAll();
     }
@@ -311,13 +325,14 @@ void LogViewSearchWidget::unlightAll()
 {
     logDebug() << "Unlighting all";
 
-    QTreeWidgetItemIterator it(mLogViewWidget, QTreeWidgetItemIterator::All);
-    while (*it) {
-        auto item = static_cast<LogViewWidgetItem *>(*it);
+    QTreeWidgetItemIterator it(d->logViewWidget, QTreeWidgetItemIterator::All);
+    while (*it != NULL) {
+        LogViewWidgetItem *item = static_cast<LogViewWidgetItem *>(*it);
 
         // We retrieve the default column background using the first column data, where the background never
         // changes
-        item->setBackground(item->columnCount() - 1, qvariant_cast<QBrush>(item->data(0, Qt::BackgroundRole)));
+        item->setBackground(item->columnCount() - 1,
+                            qvariant_cast<QBrush>(item->data(0, Qt::BackgroundRole)));
 
         ++it;
     }

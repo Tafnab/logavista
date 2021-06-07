@@ -19,54 +19,49 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_VIEW_FILTER_WIDGET_H
+#define LOG_VIEW_FILTER_WIDGET_H
 
-#include <QStandardItem>
 #include <QWidget>
+#include <QStandardItem>
 
-#include <KTreeWidgetSearchLine>
+#include <ktreewidgetsearchline.h>
 
-#include "globals.h"
 #include "logViewColumns.h"
 
 class LogViewWidget;
 class LogViewWidgetSearchLine;
-class QComboBox;
+class KComboBox;
+
+class LogViewWidgetSearchLinePrivate;
+class LogViewFilterWidgetPrivate;
 
 class LogViewFilterWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit LogViewFilterWidget(QWidget *parent = nullptr);
+    LogViewFilterWidget();
 
-    ~LogViewFilterWidget() override;
+    ~LogViewFilterWidget();
 
-    QComboBox *filterList() const;
-    LogViewWidgetSearchLine *filterLine() const;
+    KComboBox *filterList();
+    LogViewWidgetSearchLine *filterLine();
 
-public Q_SLOTS:
+public slots:
     void updateFilterColumns(const LogViewColumns &list);
 
-private Q_SLOTS:
+private slots:
     void changeColumnFilter(int column);
     void prioritiesChanged(QStandardItem *item);
 
-Q_SIGNALS:
+signals:
     void treeWidgetUpdated();
 
 private:
     void initSearchListFilter();
-    LogViewWidgetSearchLine *mFilterLine = nullptr;
 
-    /**
-     * Filter of the column list
-     */
-    QComboBox *mFilterList = nullptr;
-
-    QComboBox *mPrioritiesComboBox = nullptr;
-
-    QStandardItemModel *mPrioritiesModel = nullptr;
+    LogViewFilterWidgetPrivate *const d;
 };
 
 class LogViewWidgetSearchLine : public KTreeWidgetSearchLine
@@ -74,25 +69,26 @@ class LogViewWidgetSearchLine : public KTreeWidgetSearchLine
     Q_OBJECT
 
 public:
-    explicit LogViewWidgetSearchLine(QWidget *parent = nullptr);
+    LogViewWidgetSearchLine();
 
-    ~LogViewWidgetSearchLine() override;
+    ~LogViewWidgetSearchLine();
 
     // Silence compiler warning
     using KTreeWidgetSearchLine::updateSearch;
 
     // Reimplemented just to send a signal _AFTER_ the tree updating
-    void updateSearch(const QString &pattern = QString()) override;
+    void updateSearch(const QString &pattern = QString()) Q_DECL_OVERRIDE;
 
     void setPriorityEnabled(int priority, bool enabled);
 
 protected:
-    bool itemMatches(const QTreeWidgetItem *item, const QString &pattern) const override;
+    bool itemMatches(const QTreeWidgetItem *item, const QString &pattern) const Q_DECL_OVERRIDE;
 
-Q_SIGNALS:
+signals:
     void treeWidgetUpdated();
 
 private:
-    bool mPriorities[Globals::LOG_LEVEL_NUM];
+    LogViewWidgetSearchLinePrivate *const d;
 };
 
+#endif // LOG_VIEW_FILTER_WIDGET_H

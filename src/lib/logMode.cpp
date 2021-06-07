@@ -24,15 +24,18 @@
 #include <QAction>
 #include <QFileInfo>
 
-#include "logModeItemBuilder.h"
+#include <kiconloader.h>
+
 #include "multipleActions.h"
+#include "logModeItemBuilder.h"
 
 LogMode::LogMode(const QString &id, const QString &name, const QString &iconName)
     : d(new LogModePrivate())
 {
     d->id = id;
     d->name = name;
-    d->icon = QIcon::fromTheme(iconName);
+    // d->icon = SmallIcon(iconName, KIconLoader::SizeLarge);
+    d->icon = DesktopIcon(iconName);
     d->logFilesExist = true;
 }
 
@@ -55,8 +58,9 @@ QString LogMode::name() const
     return d->name;
 }
 
-QIcon LogMode::icon() const
+QPixmap LogMode::icon() const
 {
+    
     return d->icon;
 }
 
@@ -87,7 +91,7 @@ LogModeConfiguration *LogMode::innerConfiguration() const
 
 QAction *LogMode::createDefaultAction()
 {
-    auto action = new QAction(d->icon, d->name, this);
+    QAction *action = new QAction(d->icon, d->name, this);
     ActionData data;
     data.id = d->id;
     action->setData(QVariant::fromValue(data));
@@ -100,8 +104,7 @@ void LogMode::checkLogFilesPresence(const QStringList &paths)
     d->logFilesExist = false;
     for (const QString &path : paths) {
         QFileInfo fileInfo(path);
-        if (fileInfo.exists()) {
+        if (fileInfo.exists())
             d->logFilesExist = true;
-        }
     }
 }

@@ -19,9 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _PROCESS_OUTPUT_LOG_FILE_READER_H_
+#define _PROCESS_OUTPUT_LOG_FILE_READER_H_
 
-#define PROCESS_OUTPUT_UPDATER_INTERVAL 10000
+#define PROCESS_OUTPUT_UPDATER_INTERVAL 20000
 
 #include <QProcess>
 
@@ -29,6 +30,7 @@
 
 #include "logFileReader.h"
 
+class QProcess;
 
 class ProcessOutputLogFileReaderPrivate;
 
@@ -37,15 +39,15 @@ class ProcessOutputLogFileReader : public LogFileReader
     Q_OBJECT
 
 public:
-    explicit ProcessOutputLogFileReader(const LogFile &logFile);
+    ProcessOutputLogFileReader(const LogFile &logFile);
 
-    ~ProcessOutputLogFileReader() override;
+    virtual ~ProcessOutputLogFileReader();
 
-    void watchFile(bool enable) override;
+    void watchFile(bool enable) Q_DECL_OVERRIDE;
 
     void setPreviousFilePosition(long previousFilePosition);
 
-private Q_SLOTS:
+private slots:
     void startProcess();
 
     void logFileModified();
@@ -66,3 +68,4 @@ private:
     Q_DECLARE_PRIVATE(ProcessOutputLogFileReader)
 };
 
+#endif // _PROCESS_OUTPUT_LOG_FILE_READER_H_

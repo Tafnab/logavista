@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef LOG_VIEW_WIDGET_ITEM_H
+#define LOG_VIEW_WIDGET_ITEM_H
 
 #include <QTreeWidgetItem>
 
@@ -36,9 +37,9 @@ class LogViewWidgetItem : public QTreeWidgetItem
 public:
     LogViewWidgetItem(LogViewWidget *logViewWidget, LogLine *line);
 
-    ~LogViewWidgetItem() override;
+    ~LogViewWidgetItem();
 
-    bool operator<(const QTreeWidgetItem &other) const override;
+    bool operator<(const QTreeWidgetItem &other) const Q_DECL_OVERRIDE;
 
     LogLine *logLine() const;
 
@@ -46,6 +47,7 @@ public:
 
 private:
     // TODO Move this log line to QTreeWidgetItem::data() method
-    LogLine *mLine = nullptr;
+    LogLine *line;
 };
 
+#endif // LOG_VIEW_WIDGET_ITEM_H

@@ -19,17 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DEFAULTS_H_
+#define _DEFAULTS_H_
 
 #define DEFAULT_LOG_FOLDER "/var/log"
 
 /**
  * Icon name of KSystemLog
  */
-#define KSYSTEMLOG_ICON "utilities-log-viewer"
+#define KSYSTEMLOG_ICON "/usr/local/share/icons/logavista/utilities-log-viewer.svg"
 
 /**
  * Icon name of No Mode icon
  */
-#define NO_MODE_ICON "text-x-generic"
+#define NO_MODE_ICON "/usr/local/share/icons/logavista/text-x-generic-template.svg"
 
+#endif // _DEFAULTS_H_

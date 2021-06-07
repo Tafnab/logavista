@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_FILE_READER_H_
+#define _LOG_FILE_READER_H_
 
 #include <QObject>
 #include <QString>
@@ -35,16 +36,17 @@ class LogFileReader : public QObject
     Q_OBJECT
 
 public:
-    explicit LogFileReader(const LogFile &logFile);
+    LogFileReader(const LogFile &logFile);
 
-    ~LogFileReader() override;
+    virtual ~LogFileReader();
 
     virtual void watchFile(bool enable) = 0;
 
     LogFile logFile() const;
 
-Q_SIGNALS:
-    void contentChanged(LogFileReader *origin, Analyzer::ReadingMode readingMode, const QStringList &newLines);
+signals:
+    void contentChanged(LogFileReader *origin, Analyzer::ReadingMode readingMode,
+                        const QStringList &newLines);
 
     void statusBarChanged(const QString &message);
     void errorOccured(const QString &title, const QString &message);
@@ -57,3 +59,4 @@ private:
     Q_DECLARE_PRIVATE(LogFileReader)
 };
 
+#endif // _LOG_FILE_READER_H_

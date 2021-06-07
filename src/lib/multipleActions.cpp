@@ -27,31 +27,29 @@
 
 MultipleActions::MultipleActions(const QIcon &icon, const QString &text, QObject *parent)
 {
-    mAction = new KActionMenu(icon, text, parent);
+    action = new KActionMenu(icon, text, parent);
 }
 
 MultipleActions::~MultipleActions()
 {
-    delete mAction;
+    delete action;
 }
 
 QList<QAction *> MultipleActions::innerActions()
 {
-    return mActions;
+    return actions;
 }
 
 QAction *MultipleActions::actionMenu()
 {
-    return mAction;
+    return action;
 }
 
 void MultipleActions::addInnerAction(QAction *innerAction, bool addToMenu, bool addToInnerActionsList)
 {
-    if (addToMenu) {
-        mAction->addAction(innerAction);
-    }
+    if (addToMenu)
+        action->addAction(innerAction);
 
-    if (addToInnerActionsList) {
-        mActions.append(innerAction);
-    }
+    if (addToInnerActionsList)
+        actions.append(innerAction);
 }

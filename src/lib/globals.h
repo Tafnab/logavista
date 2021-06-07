@@ -18,15 +18,18 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
-
 #pragma once
+#ifndef _GLOBALS_H_
+#define _GLOBALS_H_
 
 #include <QList>
-#include <QMetaEnum>
 #include <QString>
+#include <QMetaEnum>
+#include <QDateTime>
 
 #include "logMode.h"
 #include "logModeFactory.h"
+
 
 class LogModeFactory;
 
@@ -45,7 +48,7 @@ class Globals : QObject
 public:
     static Globals &instance();
 
-    ~Globals() override;
+    ~Globals();
 
     enum LogLevelIds {
         EMERGENCY_LOG_LEVEL_ID = 0,
@@ -66,17 +69,17 @@ public:
 
     QString formatDate(DateFormat format, const QDateTime &dateTime) const;
 
-    QHash<LogLevelIds, LogLevel *> logLevels() const;
+    QList<LogLevel *> logLevels();
 
-    LogLevel *noLogLevel() const;
-    LogLevel *debugLogLevel() const;
-    LogLevel *informationLogLevel() const;
-    LogLevel *noticeLogLevel() const;
-    LogLevel *warningLogLevel() const;
-    LogLevel *errorLogLevel() const;
-    LogLevel *criticalLogLevel() const;
-    LogLevel *alertLogLevel() const;
-    LogLevel *emergencyLogLevel() const;
+    LogLevel *noLogLevel();
+    LogLevel *debugLogLevel();
+    LogLevel *informationLogLevel();
+    LogLevel *noticeLogLevel();
+    LogLevel *warningLogLevel();
+    LogLevel *errorLogLevel();
+    LogLevel *criticalLogLevel();
+    LogLevel *alertLogLevel();
+    LogLevel *emergencyLogLevel();
 
     LogLevel *logLevelByPriority(int id);
 
@@ -87,13 +90,14 @@ public:
      */
     void registerLogModeFactory(LogModeFactory *logModeFactory);
 
-    QList<LogMode *> logModes() const;
+    QList<LogMode *> logModes();
 
-    QList<LogModeAction *> logModeActions() const;
+    QList<LogModeAction *> logModeActions();
 
     LogMode *findLogMode(const QString &logModeName);
 
     void recreateLogModeActions();
+    
 
 private:
     explicit Globals();
@@ -103,3 +107,6 @@ private:
     GlobalsPrivate *const d;
 };
 
+
+
+#endif

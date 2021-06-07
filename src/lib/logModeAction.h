@@ -19,24 +19,27 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_MODE_ACTION_H_
+#define _LOG_MODE_ACTION_H_
 
-#include <QAction>
-#include <QList>
 #include <QObject>
+#include <QList>
+#include <QAction>
+
+class LogModeActionPrivate;
 
 class LogModeAction : public QObject
 {
     Q_OBJECT
 
 public:
-    enum Category { RootCategory, ServicesCategory, OthersCategory };
+    enum Category { RootCategory, ServicesCategory, OthersCategory, MX_LinuxCategory };
 
     Q_DECLARE_FLAGS(Categories, Category)
 
-    explicit LogModeAction(QObject *parent = nullptr);
+    LogModeAction();
 
-    ~LogModeAction() override;
+    virtual ~LogModeAction();
 
     virtual QList<QAction *> innerActions() = 0;
 
@@ -44,10 +47,10 @@ public:
 
     void setCategory(Category category);
 
-    Category category() const;
+    Category category();
 
 private:
-    LogModeAction::Category mCategory = LogModeAction::RootCategory;
-    bool mInToolBar = true;
+    LogModeActionPrivate *const d;
 };
 
+#endif // _LOG_MODE_ACTION_H_

@@ -37,7 +37,6 @@ set(ksystemlog_lib_sources
     multipleActions.cpp
     levelPrintPage.cpp
 )
-ecm_qt_declare_logging_category(ksystemlog_lib_sources HEADER ksystemlog_debug.h IDENTIFIER KSYSTEMLOG CATEGORY_NAME log_ksystemlog DESCRIPTION "ksystemlog" EXPORT KSYSTEMLOG)
 
 ki18n_wrap_ui(ksystemlog_lib_sources logViewSearchWidgetBase.ui)
 
@@ -50,12 +49,13 @@ add_dependencies(
 
 target_link_libraries(ksystemlog_lib
     ksystemlog_config
-    Qt::Widgets
-    Qt::PrintSupport
+    Qt5::Widgets
+    Qt5::PrintSupport
     KF5::I18n
     KF5::Archive
-    KF5::WidgetsAddons
+    KF5::ConfigWidgets
     KF5::ItemViews
+    KF5::IconThemes
     KF5::KIOCore
     KF5::Completion
 )

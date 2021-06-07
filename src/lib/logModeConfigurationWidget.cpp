@@ -21,31 +21,47 @@
 
 #include "logModeConfigurationWidget.h"
 
-LogModeConfigurationWidget::LogModeConfigurationWidget(const QString &itemName, const QString &iconName, const QString &header)
-    : QWidget()
-    , mItemName(itemName)
-    , mIconName(iconName)
-    , mHeader(header)
+class LogModeConfigurationWidgetPrivate
 {
+public:
+    QString itemName;
+    QString iconName;
+    QString header;
+};
+
+LogModeConfigurationWidget::LogModeConfigurationWidget(const QString &itemName, const QString &iconName,
+                                                       const QString &header)
+    : QWidget()
+    , d(new LogModeConfigurationWidgetPrivate())
+{
+    d->itemName = itemName;
+    d->iconName = iconName;
+    d->header = header;
 }
 
 LogModeConfigurationWidget::~LogModeConfigurationWidget()
 {
+    delete d;
 }
 
 QString LogModeConfigurationWidget::itemName() const
 {
-    return mItemName;
+    return d->itemName;
 }
-
 QString LogModeConfigurationWidget::iconName() const
 {
-    return mIconName;
+    // KConfigDialog.addPage() is KBroken. It can't find generically named icons.
+    // So, we have to do it ourselves.
+    // If iconName exists as a file, then OK
+    
+    // Run a ls /usr/share/icons/*/*/*/*/<generic-name>
+    // Grep in order of preferred font name
+    // Naaaaaahhhhh, just give them all explicit names in <mode>LogMode.h
+    return d->iconName;
 }
-
 QString LogModeConfigurationWidget::header() const
 {
-    return mHeader;
+    return d->header;
 }
 
 /**

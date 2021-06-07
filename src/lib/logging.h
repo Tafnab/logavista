@@ -19,9 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _KSYSTEMLOG_LOGGING_H_
+#define _KSYSTEMLOG_LOGGING_H_
 
-#include "ksystemlog_debug.h"
+#include <QLoggingCategory>
 
 /**
  * Existing logging functions are :
@@ -33,6 +34,8 @@
  * Use it like kDebug() function :
  * logDebug() << "Debug message" << list.size();
  */
+
+Q_DECLARE_LOGGING_CATEGORY(KSYSTEMLOG)
 
 /**
  * Colored logging
@@ -76,3 +79,4 @@
 
 #define logFatal() qCFatal(KSYSTEMLOG) << LOG_PREFIX(LOG_FATAL_COLOR)
 
+#endif // _KSYSTEMLOG_LOGGING_H_

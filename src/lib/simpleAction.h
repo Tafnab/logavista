@@ -19,11 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SIMPLE_ACTIONS_H_
+#define _SIMPLE_ACTIONS_H_
 
-#include <QIcon>
-#include <QList>
 #include <QString>
+#include <QList>
+#include <QIcon>
 
 #include "globals.h"
 
@@ -40,13 +41,14 @@ public:
 
     SimpleAction(QAction *action, QObject *parent);
 
-    ~SimpleAction() override;
+    virtual ~SimpleAction();
 
-    QList<QAction *> innerActions() override;
+    QList<QAction *> innerActions() Q_DECL_OVERRIDE;
 
-    QAction *actionMenu() override;
+    QAction *actionMenu() Q_DECL_OVERRIDE;
 
 private:
-    QAction *mAction = nullptr;
+    QAction *action;
 };
 
+#endif // _SIMPLE_ACTIONS_H_

@@ -19,13 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _MULTIPLE_ACTIONS_H_
+#define _MULTIPLE_ACTIONS_H_
 
-#include <QList>
 #include <QObject>
 #include <QString>
+#include <QList>
 
-#include <KActionMenu>
+#include <kactionmenu.h>
 
 #include "globals.h"
 
@@ -45,11 +46,11 @@ class MultipleActions : public LogModeAction
 public:
     MultipleActions(const QIcon &icon, const QString &text, QObject *parent);
 
-    ~MultipleActions() override;
+    virtual ~MultipleActions();
 
-    QList<QAction *> innerActions() override;
+    QList<QAction *> innerActions() Q_DECL_OVERRIDE;
 
-    QAction *actionMenu() override;
+    QAction *actionMenu() Q_DECL_OVERRIDE;
 
     /**
      * This method is not called addAction() to avoid name collision with
@@ -58,8 +59,9 @@ public:
     void addInnerAction(QAction *action, bool addToMenu = true, bool addToInnerActionsList = true);
 
 private:
-    QList<QAction *> mActions;
+    QList<QAction *> actions;
 
-    KActionMenu *mAction = nullptr;
+    KActionMenu *action;
 };
 
+#endif // _MULTIPLE_ACTIONS_H_
