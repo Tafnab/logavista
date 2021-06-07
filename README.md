@@ -24,7 +24,8 @@
   <a href="#related">Related</a> •
   <a href="#license">License</a>
 </p>
-![screenshot](https://github.com/Tafnab/logavista/blob/master/screenshots/Screenshot.png)
+
+<img src="https://github.com/Tafnab/logavista/blob/master/screenshots/Screenshot.png" alt="">
 
 ## Key Features
 
