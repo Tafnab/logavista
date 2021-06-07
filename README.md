@@ -47,7 +47,7 @@
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
 
-<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. <br>The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
+<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. The default is to open the System Log (configurable). <br>The window title reflects the log modality currently being displayed. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ScreenshotNoTabsOpen.png" alt="screenshot-no-tabs">
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbarsDropdown.png" alt="">
 
@@ -70,7 +70,7 @@
 
 <p>The status bar at the bottom of the window has a popup listing of log update histories.</p>
 
-<p>If Logavista becomes hopelessly misconfigured, simply delete the /root/.config/logavistarc file, and the program will create a new one, forgetting all your previous changed. If your are running as a non-root user, the configuration file is in $HOME/.config/logavistarc.</p>
+<p>If Logavista becomes hopelessly misconfigured, simply delete the /root/.config/logavistarc file, and the program will create a new one, forgetting all your previous changes. If your are running as a non-root user, the configuration file is in $HOME/.config/logavistarc.</p>
 
 ## Soliciting Feedback
 
@@ -105,6 +105,7 @@
 * The Log menu occasionally flake out. Ksystemlog did that too. I haven't quite figured it out yet.
 * There are leftover links to the original project. These need to be removed.
 * Adding files to a Log Modality that currently has no files or invalid files doesn't activate the log until restart. This is possibly my fault. It happens most with MergedLogs. It's on my list to fix.
+* The current log icon should be highlighted when active. Currently, the only way to tell which log you're looking at in non-tabbed view is to look at the window frame title.
 
 ## Related
 
