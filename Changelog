@@ -1,7 +1,37 @@
 
-Current Development Version (0.4.1)
+Current Development Version (0.9)
 ===================================
 
+ - Ksystemlog has been forked.
+ - Logavista is the new name for this fork of KSystemlog 18.08. This was the
+ latest version available in the Debian repos for the stable release. Code base remains the same. Settings are shared
+ with Ksystemlog. Not associated with KDE at this time. 
+ - Added many new logs.
+ - Icons now come bundled.
+ - Secondary toolbar set to use larger icon in icons-only mode to start.
+ - Logs can now be merged using the MergedLogs mode. If there is no timestamp
+ associated with a log line, the merger will refuse to merge. 
+ - There are two ways to add items to the merge list: 
+	add them through Settings->Configure Logavista (the normal way) 
+	-OR- use the Settings dialog for some log mode and select files before clicking the new Merge button.
+	-OR- use the Settings dialog for some log mode and select the Merge
+	All button.
+	The items merged will automatically show up in the MergedLogs list.
+	That's technically 3 ways, but it's more like 2 1/2
+ - BUG: Modes only are present in the Logs menu (or the toolbar) when they
+ have a valid log file. Currently, once they are given a valid log file, they
+ won't appear until a restart. Sorry, this is a bug.
+ - Filtering by Priorities is now working. Most log file types don't actually
+ have priorities as part of their protocol. Thus, I am using a keyword search
+ to assign priorities. There may be false positives and negatives using this
+ method.
+
+Previous Releases
+===========================
+
+KSystemLog 0.4 Release
+----------------------
+ 
  - Compatibility with KDE 4 beta4
  - Fix icon position in search bar
  - Add test coverage for Kernel logs
@@ -9,9 +39,6 @@ Current Development Version (0.4.1)
  - Add joker to file list in configuration
  - Auto-recognizition of the opened files
 
-Previous Releases
-===========================
- 
 KSystemLog 0.4 Release
 ----------------------
 
