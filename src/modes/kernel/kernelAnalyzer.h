@@ -19,10 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _KERNEL_ANALYZER_H_
+#define _KERNEL_ANALYZER_H_
 
-#include <QFile>
 #include <QRegExp>
+#include <QFile>
+#include <QRegularExpression>
 
 #include <KLocalizedString>
 
@@ -30,9 +32,9 @@
 
 #include "fileAnalyzer.h"
 
-#include "kernelLogMode.h"
 #include "localLogFileReader.h"
 #include "processOutputLogFileReader.h"
+#include "kernelLogMode.h"
 
 class LogMode;
 
@@ -41,38 +43,143 @@ class KernelAnalyzer : public FileAnalyzer
     Q_OBJECT
 
 public:
-    explicit KernelAnalyzer(LogMode *logMode);
-
-    ~KernelAnalyzer() override
+    KernelAnalyzer(LogMode *logMode)
+        : FileAnalyzer(logMode)
     {
+        startupTime();
     }
 
-    LogViewColumns initColumns() override;
+    virtual ~KernelAnalyzer() {}
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+        columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Component"), true, false));
+        columns.addColumn(LogViewColumn(i18n("Message"), true, false));
+
+        return columns;
+    }
 
 protected:
-    LogFileReader *createLogFileReader(const LogFile &logFile) override;
+    
+       inline LogLevel* level_from_message(const QString &level_message) {
+        
+            if (level_message == "" || level_message.length() < 3) {Globals::instance().informationLogLevel(); };
 
-    Analyzer::LogFileSortMode logFileSortMode() override
+    const QRegularExpression* pattern_emergency = new QRegularExpression(R"Q(EMERG|EMRG|Emergency[:\ ]|emergency:|\ emerg\ |\.emerg[:\.\ ])Q");
+    const QRegularExpression* pattern_alert =  new QRegularExpression(R"Q(ALERT|ALRT|Alert[:\ ]|\.alert[:\.\ ])Q");
+    const QRegularExpression* pattern_critical =  new QRegularExpression(R"Q(CRIT|Critical[:\ ]|\ critical\ |\.crit[\.\ ]|\.critical[:\.\ ]| PANIC[:\ ]| panic[:\ ])Q");
+    const QRegularExpression* pattern_error = new  QRegularExpression(R"Q(ERR|\ Error[:\ ]|\ error\ |\ err\ |\.err[\.\ ]|\.error[:\.\ ])Q");
+    const QRegularExpression* pattern_warning = new  QRegularExpression(R"Q(WARN|WRN|\ Warning[:\ ]|\ warn\ |\ warning\ |\ warning:|\.warn[\.\ ]|\.warning[:\.\ ])Q");
+    const QRegularExpression* pattern_notice = new  QRegularExpression(R"Q(NOTICE|\ Notice[:\ ]|\ notice\ |\.notice[:\.\ ])Q");
+    const QRegularExpression* pattern_debug = new  QRegularExpression(R"Q(DBG|DEBUG|\ Debug[:\ ]|\.debug[:\.\ ])Q");
+    
+    // Massive screwup in Qt
+    if (level_message == "") { return(Globals::instance().informationLogLevel()); };
+        
+        if ((pattern_emergency->match(level_message).hasMatch())) {
+            return Globals::instance().emergencyLogLevel();
+        } else if ((pattern_critical->match(level_message).hasMatch())) {
+            return Globals::instance().criticalLogLevel();
+        } else if ((pattern_alert->match(level_message).hasMatch())) {
+            return Globals::instance().alertLogLevel();
+        } else if ((pattern_error->match(level_message).hasMatch())) {
+            return Globals::instance().errorLogLevel();
+        } else if ((pattern_warning->match(level_message).hasMatch())) {
+            return Globals::instance().warningLogLevel();
+        } else if ((pattern_notice->match(level_message).hasMatch())) {
+            return Globals::instance().noticeLogLevel();
+        } else if ((pattern_debug->match(level_message).hasMatch())) {
+            return Globals::instance().debugLogLevel();
+        }
+
+        return Globals::instance().informationLogLevel();
+    }    
+       
+    
+    LogFileReader *createLogFileReader(const LogFile &logFile) Q_DECL_OVERRIDE
     {
-        return Analyzer::AscendingSortedLogFile;
+        return new ProcessOutputLogFileReader(logFile);
     }
 
-    void startupTime();
+    Analyzer::LogFileSortMode logFileSortMode() Q_DECL_OVERRIDE { return Analyzer::AscendingSortedLogFile; }
 
-    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) override;
+    void startupTime()
+    {
+        QFile file(QStringLiteral(UPTIME_FILE));
+
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        QTextStream in(&file);
+        QString line = in.readLine();
+
+        // Format : 1618.72 1382.98 (uptime / something)
+        QStringList times = line.split(QStringLiteral(" "));
+
+        QString secondsString = times.at(0);
+        QString pureSecondsString = secondsString.left(secondsString.indexOf(QLatin1String(".")));
+        long updateSeconds = pureSecondsString.toLong();
+
+        startupDateTime = QDateTime::currentDateTime().addSecs(-updateSeconds);
+        logDebug() << "Startup time : " << startupDateTime;
+    }
+
+    LogLine *parseMessage(const QString &logLine, const LogFile &originalLogFile) Q_DECL_OVERRIDE
+    {
+        QRegExp timeRegex(QStringLiteral("\\[\\ *(\\d*)\\.(\\d*)\\]\\s+(.*)"));
+
+        //			QRegExp componentRegexp(timeRegex + "([^\\s:]{,20})[:\\s\\t]+(.*)");
+        //			QRegExp messageRegexp(timeRegex + "(.*)");
+
+        QDateTime dateTime(startupDateTime);
+        QStringList messages;
+
+        int timeExists = timeRegex.indexIn(logLine);
+
+        // If we have the date, we are able to update the start date
+        if (timeExists != -1) {
+            // logDebug() << componentRegexp.cap(1).toInt() << "and" << componentRegexp.cap(2).toInt();
+            dateTime = dateTime.addSecs(timeRegex.cap(1).toInt());
+            dateTime = dateTime.addMSecs(timeRegex.cap(2).toInt() / 1000);
+
+            parseComponentMessage(timeRegex.cap(3), messages);
+
+        }
+        // Else, the date will never change
+        else {
+            parseComponentMessage(logLine, messages);
+        }
+
+        /*
+  logDebug() << "--------------------------------";
+  logDebug() << logLine;
+  logDebug() << "Secs : " << dateTime.time().second();
+  logDebug() << "MSec : " << dateTime.time().msec();
+  logDebug() << "Comp : " << messages.at(0);
+  logDebug() << "Msg  : " << messages.at(1);
+  logDebug() << "--------------------------------";
+        */
+
+        LogLine *line
+            = new LogLine(logLineInternalIdGenerator++, dateTime, messages, originalLogFile.url().path(),
+                          level_from_message(logLine), logMode);
+
+        return line;
+    }
 
     inline void parseComponentMessage(const QString &logLine, QStringList &messages)
     {
         QString message(logLine);
         QString component;
 
-        int doublePointPosition = message.indexOf(QLatin1Char(':'));
+        int doublePointPosition = message.indexOf(QLatin1String(":"));
 
         // Estimate the max size of a component
         if (doublePointPosition != -1 && doublePointPosition < 20) {
             component = message.left(doublePointPosition);
             // Remove component length + ": "
-            message.remove(0, doublePointPosition + 2);
+            message = message.remove(0, doublePointPosition + 2);
         }
 
         messages.append(component);
@@ -80,6 +187,7 @@ protected:
     }
 
 protected:
-    QDateTime mStartupDateTime;
+    QDateTime startupDateTime;
 };
 
+#endif

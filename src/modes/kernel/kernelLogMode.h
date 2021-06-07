@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _KERNEL_LOG_MODE_H_
+#define _KERNEL_LOG_MODE_H_
 
 /**
  * Kernel Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Kernel Log Icon
  */
-#define KERNEL_MODE_ICON "preferences-system-linux"
+#define KERNEL_MODE_ICON "/usr/local/share/icons/logavista/tux.svg"
 
 #define UPTIME_FILE "/proc/uptime"
 
@@ -45,10 +46,11 @@ class KernelLogMode : public LogMode
 public:
     explicit KernelLogMode();
 
-    ~KernelLogMode() override;
+    ~KernelLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _KERNEL_LOG_MODE_H_

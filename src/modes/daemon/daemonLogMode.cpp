@@ -21,7 +21,18 @@
 
 #include "daemonLogMode.h"
 
+#include <QList>
+
 #include <KLocalizedString>
+
+#include "logging.h"
+#include "logMode.h"
+
+#include "syslogAnalyzer.h"
+#include "daemonConfigurationWidget.h"
+#include "daemonConfiguration.h"
+
+#include "logModeItemBuilder.h"
 
 DaemonLogMode::DaemonLogMode()
     : LogMode(QStringLiteral(DAEMON_LOG_MODE_ID), i18n("Daemons' Logs"), QStringLiteral(DAEMON_MODE_ICON))
@@ -34,12 +45,12 @@ DaemonLogMode::DaemonLogMode()
 
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the daemons' logs."));
-    d->action->setWhatsThis(
-        i18n("Displays the daemons' logs in the current tab. The daemons are all processes launched in the "
-             "background of the system. See this log if you want to know what occurs in the background of your "
-             "system."));
+    d->action->setWhatsThis(i18n(
+        "Displays the daemons' logs in the current tab. The daemons are all processes launched in the "
+        "background of the system. See this log if you want to know what occurs in the background of your "
+        "system."));
 
-    auto *configuration = logModeConfiguration<DaemonConfiguration *>();
+    DaemonConfiguration *configuration = logModeConfiguration<DaemonConfiguration *>();
     checkLogFilesPresence(configuration->daemonPaths());
 }
 
@@ -53,8 +64,8 @@ Analyzer *DaemonLogMode::createAnalyzer(const QVariant &options)
     return new SyslogAnalyzer(this);
 }
 
-QVector<LogFile> DaemonLogMode::createLogFiles()
+QList<LogFile> DaemonLogMode::createLogFiles()
 {
-    auto *configuration = logModeConfiguration<DaemonConfiguration *>();
+    DaemonConfiguration *configuration = logModeConfiguration<DaemonConfiguration *>();
     return configuration->findGenericLogFiles(configuration->daemonPaths());
 }

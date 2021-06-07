@@ -19,13 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DAEMON_CONFIGURATION_WIDGET_H_
+#define _DAEMON_CONFIGURATION_WIDGET_H_
 
 #include <KLocalizedString>
 
-#include "fileList.h"
 #include "globals.h"
 #include "logging.h"
+#include "fileList.h"
 
 #include "logLevel.h"
 
@@ -41,24 +42,61 @@ class DaemonConfigurationWidget : public LogModeConfigurationWidget
     Q_OBJECT
 
 public:
-    DaemonConfigurationWidget();
-
-    ~DaemonConfigurationWidget() override
+    DaemonConfigurationWidget()
+        : LogModeConfigurationWidget(i18n("Daemons' Logs"), QStringLiteral(DAEMON_MODE_ICON),
+                                     i18n("Daemons' Logs"))
     {
+        QHBoxLayout *layout = new QHBoxLayout();
+        this->setLayout(layout);
+
+        fileList = new FileList(
+            this, i18n("<p>These files will be analyzed to show the <b>Daemons' Logs</b>.</p>"));
+        connect(fileList, &FileList::fileListChanged, this, &LogModeConfigurationWidget::configurationChanged);
+        layout->addWidget(fileList);
     }
 
-public Q_SLOTS:
+    ~DaemonConfigurationWidget() {}
 
-    void saveConfig() override;
+public slots:
 
-    void readConfig() override;
+    void saveConfig() Q_DECL_OVERRIDE
+    {
+        DaemonConfiguration *daemonConfiguration = Globals::instance()
+                                                       .findLogMode(QStringLiteral(DAEMON_LOG_MODE_ID))
+                                                       ->logModeConfiguration<DaemonConfiguration *>();
 
-    void defaultConfig() override;
+        daemonConfiguration->setDaemonPaths(fileList->paths());
+    }
+
+    void readConfig() Q_DECL_OVERRIDE
+    {
+        DaemonConfiguration *daemonConfiguration = Globals::instance()
+                                                       .findLogMode(QStringLiteral(DAEMON_LOG_MODE_ID))
+                                                       ->logModeConfiguration<DaemonConfiguration *>();
+
+        fileList->removeAllItems();
+
+        fileList->addPaths(daemonConfiguration->daemonPaths());
+    }
+
+    void defaultConfig() Q_DECL_OVERRIDE
+    {
+        // TODO Find a way to read the configuration per default
+        readConfig();
+    }
 
 protected:
-    bool isValid() const override;
+    bool isValid() const Q_DECL_OVERRIDE
+    {
+        if (fileList->isEmpty() == false) {
+            return true;
+        }
+
+        return false;
+    }
 
 private:
-    FileList *mFileList = nullptr;
+    FileList *fileList;
 };
 
+#endif // _DAEMON_CONFIGURATION_WIDGET_H_

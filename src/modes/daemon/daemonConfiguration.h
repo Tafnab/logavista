@@ -19,31 +19,60 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DAEMON_CONFIGURATION_H_
+#define _DAEMON_CONFIGURATION_H_
 
 #include <QStringList>
+#include <QProcess>
 
 #include "logModeConfiguration.h"
 
-#include "defaults.h"
 #include "logging.h"
+#include "defaults.h"
 
 #include "ksystemlogConfig.h"
+
+class DaemonConfigurationPrivate
+{
+public:
+    QStringList daemonPaths;
+};
 
 class DaemonConfiguration : public LogModeConfiguration
 {
     Q_OBJECT
 
 public:
-    DaemonConfiguration();
+    DaemonConfiguration()
+        : d(new DaemonConfigurationPrivate())
+    {
+        configuration->setCurrentGroup(QStringLiteral("DaemonLogMode"));
 
-    ~DaemonConfiguration() override;
+        // Need only the latest security log.
+        QProcess myProcess;
+        // This command will only bring up the latest 1 security log, introduces dependence on utility "head"
+        QString Command = "/bin/bash -c \"ls -t /var/log/daemon.log.* | head -n 2 \"";
+        myProcess.start(Command);
+        myProcess.waitForFinished();
+        QString secfile(myProcess.readAllStandardOutput());
+        secfile = secfile.trimmed();
 
-    QStringList daemonPaths() const;
 
-    void setDaemonPaths(const QStringList &daemonPaths);
+		QStringList defaultDaemonPaths;
+        // You can't add to this list if you only want the latest file
+        defaultDaemonPaths = QStringList(secfile.split('\n'));
+        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->daemonPaths, defaultDaemonPaths,
+                                         QStringLiteral("LogFilesPaths"));
+    }
+
+    virtual ~DaemonConfiguration() { delete d; }
+
+    QStringList daemonPaths() const { return d->daemonPaths; }
+
+    void setDaemonPaths(const QStringList &daemonPaths) { d->daemonPaths = daemonPaths; }
 
 private:
-    QStringList mDaemonPaths;
+    DaemonConfigurationPrivate *const d;
 };
 
+#endif // _DAEMON_CONFIGURATION_H_

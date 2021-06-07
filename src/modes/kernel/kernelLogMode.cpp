@@ -21,28 +21,30 @@
 
 #include "kernelLogMode.h"
 
+#include <QList>
+#include <QAction>
 #include <KLocalizedString>
 
 #include "logging.h"
 
+#include "logMode.h"
+
 #include "kernelAnalyzer.h"
 #include "kernelItemBuilder.h"
-
-#include <QAction>
 
 KernelLogMode::KernelLogMode()
     : LogMode(QStringLiteral(KERNEL_LOG_MODE_ID), i18n("Kernel Log"), QStringLiteral(KERNEL_MODE_ICON))
 {
-    d->logModeConfigurationWidget = nullptr;
+    d->logModeConfigurationWidget = NULL;
 
     d->itemBuilder = new KernelItemBuilder();
 
     d->action = createDefaultAction();
     d->action->setToolTip(i18n("Display the kernel log."));
-    d->action->setWhatsThis(
-        i18n("Displays the kernel log in the current tab. This log is only useful for users who want to know why "
-             "the Kernel does not detect their hardware or what is the cause of the last <i>kernel "
-             "panic/oops</i>."));
+    d->action->setWhatsThis(i18n(
+        "Displays the kernel log in the current tab. This log is only useful for users who want to know why "
+        "the Kernel does not detect their hardware or what is the cause of the last <i>kernel "
+        "panic/oops</i>."));
 }
 
 KernelLogMode::~KernelLogMode()
@@ -55,8 +57,9 @@ Analyzer *KernelLogMode::createAnalyzer(const QVariant &options)
     return new KernelAnalyzer(this);
 }
 
-QVector<LogFile> KernelLogMode::createLogFiles()
+QList<LogFile> KernelLogMode::createLogFiles()
 {
-    const QVector<LogFile> logFiles{LogFile(QUrl::fromLocalFile(QStringLiteral("/bin/dmesg")), Globals::instance().informationLogLevel())};
+    QList<LogFile> logFiles;
+    logFiles.append(LogFile(QUrl::fromLocalFile(QStringLiteral("/bin/dmesg")), Globals::instance().informationLogLevel()));
     return logFiles;
 }

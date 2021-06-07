@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DAEMON_LOG_MODE_H_
+#define _DAEMON_LOG_MODE_H_
 
 /**
  * Daemon Log Mode Identifier
@@ -29,16 +30,16 @@
 /**
  * Daemon Log Icon
  */
-#define DAEMON_MODE_ICON "utilities-terminal"
+#define DAEMON_MODE_ICON "/usr/local/share/icons/logavista/bsd.png"
 
 #include <QList>
 
-#include "logMode.h"
 #include "logging.h"
+#include "logMode.h"
 
-#include "daemonConfiguration.h"
-#include "daemonConfigurationWidget.h"
 #include "syslogAnalyzer.h"
+#include "daemonConfigurationWidget.h"
+#include "daemonConfiguration.h"
 
 #include "logModeItemBuilder.h"
 
@@ -49,10 +50,11 @@ class DaemonLogMode : public LogMode
 public:
     explicit DaemonLogMode();
 
-    ~DaemonLogMode() override;
+    ~DaemonLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _DAEMON_LOG_MODE_H_

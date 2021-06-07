@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DAEMON_FACTORY_H_
+#define _DAEMON_FACTORY_H_
 
 #include <QList>
 
@@ -33,8 +34,9 @@ class DaemonLogModeFactory : public LogModeFactory
     Q_OBJECT
 
 public:
-    QList<LogMode *> createLogModes() const override;
+    QList<LogMode *> createLogModes() const Q_DECL_OVERRIDE;
 
-    LogModeAction *createLogModeAction() const override;
+    LogModeAction *createLogModeAction() const Q_DECL_OVERRIDE;
 };
 
+#endif // _DAEMON_FACTORY_H_
