@@ -19,13 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _TAB_LOG_MANAGER_H_
+#define _TAB_LOG_MANAGER_H_
 
 #include <QObject>
 
 class QString;
 
 class LogManager;
+
+class TabLogManagerPrivate;
 
 /**
  * Class that wrap a LogManager inside a tabbed view
@@ -35,20 +38,21 @@ class TabLogManager : public QObject
     Q_OBJECT
 
 public:
-    explicit TabLogManager(LogManager *logManager);
+    TabLogManager(LogManager *logManager);
 
-    ~TabLogManager() override;
+    virtual ~TabLogManager();
 
-    LogManager *logManager() const;
+    LogManager *logManager();
 
     void addNewLinesCount(int newLines);
     void initNewLinesCount();
 
-    QString title() const;
+    QString title();
 
 private:
-    QString logModeName() const;
-    LogManager *const mLogManager;
-    int mNewLinesCount = 0;
+    QString logModeName();
+
+    TabLogManagerPrivate *const d;
 };
 
+#endif // _TAB_LOG_MANAGER_H_

@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOG_MODE_PLUGINS_LOADER_H_
+#define _LOG_MODE_PLUGINS_LOADER_H_
 
 #include <QObject>
 
@@ -28,13 +29,14 @@ class LogModePluginsLoader : public QObject
     Q_OBJECT
 
 public:
-    explicit LogModePluginsLoader(QWidget *parent);
+    LogModePluginsLoader(QWidget *parent);
 
-    ~LogModePluginsLoader() override;
+    ~LogModePluginsLoader();
 
     void loadPlugins();
 
 private:
-    QWidget *const mParent;
+    QWidget *parent;
 };
 
+#endif //_LOG_MODE_PLUGINS_LOADER_H_

@@ -23,28 +23,30 @@
 
 // Qt includes
 
-#include <KGuiItem>
-#include <KLocalizedString>
-#include <KStandardGuiItem>
 #include <QIcon>
+#include <kiconloader.h>
+#include <KLocalizedString>
+#include <KGuiItem>
+#include <KStandardGuiItem>
 
-#include "logLine.h"
 #include "logViewWidget.h"
 #include "logViewWidgetItem.h"
+#include "logLine.h"
 
 #include "logging.h"
 
 DetailDialog::DetailDialog(QWidget *parent)
     : QDialog(parent)
+    , logViewWidget(NULL)
 {
     setupUi(this);
 
     previous->setText(i18n("&Previous"));
-    previous->setIcon(QIcon::fromTheme(QStringLiteral("arrow-up")));
+    previous->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/arrow-up.svg")));
     connect(previous, &QAbstractButton::clicked, this, &DetailDialog::previousItem);
 
     next->setText(i18n("&Next"));
-    next->setIcon(QIcon::fromTheme(QStringLiteral("arrow-down")));
+    next->setIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/arrow-down.svg")));
     connect(next, &QAbstractButton::clicked, this, &DetailDialog::nextItem);
 
     KGuiItem::assign(closeButton, KStandardGuiItem::close());
@@ -57,7 +59,7 @@ DetailDialog::~DetailDialog()
 
 void DetailDialog::selectionChanged(LogViewWidget *logViewWidget)
 {
-    mLogViewWidget = logViewWidget;
+    this->logViewWidget = logViewWidget;
 
     updateDetails();
 }
@@ -68,64 +70,61 @@ void DetailDialog::updateDetails()
     // logDebug() << "Updating Detail Dialog...";
 
     // Get the current-last item selected
-    LogViewWidgetItem *item = mLogViewWidget->lastSelectedItem();
-    if (!item) {
+    LogViewWidgetItem *item = logViewWidget->lastSelectedItem();
+    if (item == NULL) {
         logDebug() << "No item found.";
         return;
     }
 
-    icon->setPixmap(item->logLine()->logLevel()->icon().pixmap(style()->pixelMetric(QStyle::PM_LargeIconSize)));
+    icon->setPixmap(DesktopIcon(item->logLine()->logLevel()->icon()));
 
     header->setText(item->logLine()->formattedText());
 
     message->setText(item->logLine()->logItems().last());
 
-    if (!mLogViewWidget->topLevelItem(mLogViewWidget->indexOfTopLevelItem(item) - 1)) {
+    if (logViewWidget->topLevelItem(logViewWidget->indexOfTopLevelItem(item) - 1) == NULL)
         previous->setEnabled(false);
-    } else {
+    else
         previous->setEnabled(true);
-    }
 
-    if (!mLogViewWidget->topLevelItem(mLogViewWidget->indexOfTopLevelItem(item) + 1)) {
+    if (logViewWidget->topLevelItem(logViewWidget->indexOfTopLevelItem(item) + 1) == NULL)
         next->setEnabled(false);
-    } else {
+    else
         next->setEnabled(true);
-    }
 
     /*
     header->adjustSize();
-    adjustSize();
+    this->adjustSize();
     */
 }
 
 void DetailDialog::moveToItem(int direction)
 {
-    if (direction < 0) {
+    if (direction < 0)
         logDebug() << "Go to previous item...";
-    } else {
+    else
         logDebug() << "Go to next item...";
-    }
 
     // Get the current-last item selected
-    LogViewWidgetItem *item = mLogViewWidget->lastSelectedItem();
-    if (!item) {
+    LogViewWidgetItem *item = logViewWidget->lastSelectedItem();
+    if (item == NULL) {
         logDebug() << "No item found.";
         return;
     }
 
-    QTreeWidgetItem *destinationItem = mLogViewWidget->topLevelItem(mLogViewWidget->indexOfTopLevelItem(item) + direction);
-    if (!destinationItem) {
-        if (direction < 0) {
+    QTreeWidgetItem *destinationItem
+        = logViewWidget->topLevelItem(logViewWidget->indexOfTopLevelItem(item) + direction);
+    if (destinationItem == NULL) {
+        if (direction < 0)
             logDebug() << "No previous item found.";
-        } else {
+        else
             logDebug() << "No next item found.";
-        }
         return;
     }
 
-    item->setSelected(false);
-    destinationItem->setSelected(true);
-    mLogViewWidget->scrollToItem(destinationItem);
+    logViewWidget->setItemSelected(item, false);
+    logViewWidget->setItemSelected(destinationItem, true);
+    logViewWidget->scrollToItem(destinationItem);
 
     updateDetails();
 }

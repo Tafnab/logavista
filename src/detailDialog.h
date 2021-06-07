@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _DETAIL_DIALOG_H_
+#define _DETAIL_DIALOG_H_
 
 #include <QDialog>
 
@@ -34,12 +35,12 @@ class DetailDialog : public QDialog, public Ui::DetailDialogBase
 public:
     explicit DetailDialog(QWidget *parent);
 
-    ~DetailDialog() override;
+    ~DetailDialog();
 
-public Q_SLOTS:
+public slots:
     void selectionChanged(LogViewWidget *logViewWidget);
 
-private Q_SLOTS:
+private slots:
     void previousItem();
     void nextItem();
 
@@ -51,6 +52,7 @@ private:
      */
     void moveToItem(int direction);
 
-    LogViewWidget *mLogViewWidget = nullptr;
+    LogViewWidget *logViewWidget;
 };
 
+#endif //_DETAIL_DIALOG_H_

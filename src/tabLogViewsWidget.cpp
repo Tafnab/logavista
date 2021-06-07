@@ -21,35 +21,54 @@
 
 #include "tabLogViewsWidget.h"
 
-#include <QMenu>
 #include <QPushButton>
+#include <QList>
+#include <QMenu>
 
 #include <KLocalizedString>
+#include <kiconloader.h>
 #include <QIcon>
 
 #include "logging.h"
 
-#include "logViewExport.h"
 #include "view.h"
+#include "logViewExport.h"
 
+#include "logMode.h"
 #include "defaults.h"
 #include "logManager.h"
-#include "logMode.h"
-#include "logViewWidget.h"
 #include "tabLogManager.h"
+#include "logViewWidget.h"
+
+class TabLogViewsWidgetPrivate
+{
+public:
+    QList<TabLogManager *> tabLogManagers;
+
+    QMenu *contextMenu;
+};
 
 TabLogViewsWidget::TabLogViewsWidget(QWidget *parent)
     : QTabWidget(parent)
+    , d(new TabLogViewsWidgetPrivate())
 {
-    auto tabNewTabButton = new QPushButton(QIcon::fromTheme(QStringLiteral("tab-new")), QLatin1String(""), this);
+    d->contextMenu = NULL;
+
+    QPushButton *tabNewTabButton
+        = new QPushButton(DesktopIcon(QStringLiteral("/usr/local/share/icons/logavista/tab-new.svg")), QLatin1String(""), this);
     connect(tabNewTabButton, &QAbstractButton::clicked, this, &TabLogViewsWidget::createTab);
+    //tabNewTabButton->setBaseSize(32,32);
+    //tabNewTabButton->setIconSize(48,48);
+
 
     tabNewTabButton->setToolTip(i18n("Create a new tab"));
     tabNewTabButton->setWhatsThis(i18n("Creates a new tab which can display another log."));
 
-    auto tabCloseTabButton = new QPushButton(QIcon::fromTheme(QStringLiteral("tab-close")), QLatin1String(""), this);
+    QPushButton *tabCloseTabButton
+        = new QPushButton(DesktopIcon(QStringLiteral("/usr/local/share/icons/logavista/tab-close-other.svg")), QLatin1String(""), this);
     connect(tabCloseTabButton, &QAbstractButton::clicked, this, &TabLogViewsWidget::closeTab);
-
+    //tabCloseTabButton->setBaseSize(32,32);
+    
     tabCloseTabButton->setToolTip(i18n("Close the current tab"));
     tabCloseTabButton->setWhatsThis(i18n("Closes the current tab."));
 
@@ -73,12 +92,14 @@ TabLogViewsWidget::TabLogViewsWidget(QWidget *parent)
 
 TabLogViewsWidget::~TabLogViewsWidget()
 {
-    const QList<TabLogManager *> copy = mTabLogManagers;
+    QList<TabLogManager *> copy = d->tabLogManagers;
 
-    for (TabLogManager *tabLogManager : copy) {
-        mTabLogManagers.removeAll(tabLogManager);
+    foreach (TabLogManager *tabLogManager, copy) {
+        d->tabLogManagers.removeAll(tabLogManager);
         delete tabLogManager;
     }
+
+    delete d;
 }
 
 void TabLogViewsWidget::newTab(View *view)
@@ -86,25 +107,27 @@ void TabLogViewsWidget::newTab(View *view)
     logDebug() << "Inserting to a new tab the view ";
 
     // Add a tab at the end of the widget
-    insertTab(count(), view, QIcon::fromTheme(QStringLiteral(NO_MODE_ICON)), i18n("No Log"));
+    insertTab(count(), view, DesktopIcon(QStringLiteral(NO_MODE_ICON)), i18n("No Log"));
 
-    tabBar()->setVisible(count() > 1);
+    
+    if (count() > 1)
+        tabBar()->show();
+    else
+        tabBar()->hide();
 }
 
 void TabLogViewsWidget::changeTab(View *view, const QIcon &icon, const QString &label)
 {
     logDebug() << "Changing tab " << label;
-    const int index = indexOf(view);
+    int index = indexOf(view);
     setTabIcon(index, icon);
     setTabText(index, label);
 }
 
-QList<LogManager *> TabLogViewsWidget::logManagers() const
+QList<LogManager *> TabLogViewsWidget::logManagers()
 {
     QList<LogManager *> logManagers;
-    const auto tabLogManagers = mTabLogManagers;
-    logManagers.reserve(tabLogManagers.count());
-    for (TabLogManager *tabLogManager : tabLogManagers) {
+    foreach (TabLogManager *tabLogManager, d->tabLogManagers) {
         logManagers.append(tabLogManager->logManager());
     }
 
@@ -116,31 +139,30 @@ LogManager *TabLogViewsWidget::findRelatedLogManager(View *view)
     return findRelatedTabLogManager(view)->logManager();
 }
 
-TabLogManager *TabLogViewsWidget::findRelatedTabLogManager(View *view) const
+TabLogManager *TabLogViewsWidget::findRelatedTabLogManager(View *view)
 {
-    for (TabLogManager *tabLogManager : qAsConst(mTabLogManagers)) {
+    foreach (TabLogManager *tabLogManager, d->tabLogManagers) {
         if (tabLogManager->logManager()->usedView() == view) {
             return tabLogManager;
         }
     }
 
     logCritical() << "No log manager found";
-    return nullptr;
+    return NULL;
 }
 
-TabLogManager *TabLogViewsWidget::activeTabLogManager() const
+TabLogManager *TabLogViewsWidget::activeTabLogManager()
 {
     View *currentView = static_cast<View *>(currentWidget());
 
     return findRelatedTabLogManager(currentView);
 }
 
-LogManager *TabLogViewsWidget::activeLogManager() const
+LogManager *TabLogViewsWidget::activeLogManager()
 {
     TabLogManager *tabLogManager = activeTabLogManager();
-    if (tabLogManager) {
+    if (tabLogManager)
         return tabLogManager->logManager();
-    }
     return nullptr;
 }
 
@@ -156,15 +178,15 @@ void TabLogViewsWidget::moveTabLeft()
     logDebug() << "Duplicate tab to the left";
 
     TabLogManager *currentTabLogManager = activeTabLogManager();
-    const int position = indexOf(currentTabLogManager->logManager()->usedView());
+    int position = indexOf(currentTabLogManager->logManager()->usedView());
 
     if (position <= 0) {
         logCritical() << "Tab Position <= 0 : " << position;
         return;
     }
 
-    mTabLogManagers.removeAt(position);
-    mTabLogManagers.insert(position - 1, currentTabLogManager);
+    d->tabLogManagers.removeAt(position);
+    d->tabLogManagers.insert(position - 1, currentTabLogManager);
 
     tabBar()->moveTab(position, position - 1);
 }
@@ -174,15 +196,15 @@ void TabLogViewsWidget::moveTabRight()
     logDebug() << "Duplicate tab to the right";
 
     TabLogManager *currentTabLogManager = activeTabLogManager();
-    const int position = indexOf(currentTabLogManager->logManager()->usedView());
+    int position = indexOf(currentTabLogManager->logManager()->usedView());
 
     if (position >= count() - 1) {
         logCritical() << "Tab Position >= count()-1 : " << position;
         return;
     }
 
-    mTabLogManagers.removeAt(position);
-    mTabLogManagers.insert(position + 1, currentTabLogManager);
+    d->tabLogManagers.removeAt(position);
+    d->tabLogManagers.insert(position + 1, currentTabLogManager);
 
     tabBar()->moveTab(position, position + 1);
 }
@@ -211,21 +233,21 @@ TabLogManager *TabLogViewsWidget::newTabLogManager()
 
     logDebug() << "Creating new LogManager...";
 
-    auto logManager = new LogManager(view);
+    LogManager *logManager = new LogManager(view);
 
     // Signals from LogManager to Main Class
     connect(logManager, &LogManager::tabTitleChanged, this, &TabLogViewsWidget::changeTab);
     connect(logManager, &LogManager::logUpdated, this, &TabLogViewsWidget::changeTitleAddedLines);
 
-    auto tabLogManager = new TabLogManager(logManager);
-    mTabLogManagers.append(tabLogManager);
+    TabLogManager *tabLogManager = new TabLogManager(logManager);
+    d->tabLogManagers.append(tabLogManager);
 
     logDebug() << "New LogManager created";
 
     // Finally add the view to the tabs
     newTab(view);
 
-    Q_EMIT logManagerCreated(logManager);
+    emit logManagerCreated(logManager);
 
     setCurrentIndex(count() - 1);
 
@@ -245,7 +267,7 @@ void TabLogViewsWidget::closeTab()
 
     TabLogManager *currentTabLogManager = activeTabLogManager();
 
-    mTabLogManagers.removeAll(currentTabLogManager);
+    d->tabLogManagers.removeAll(currentTabLogManager);
 
     removeTab(indexOf(currentTabLogManager->logManager()->usedView()));
     if (count() == 1) {
@@ -259,7 +281,7 @@ void TabLogViewsWidget::load(LogMode *logMode, LogManager *manager, const QVaria
 {
     logDebug() << "Loading a new mode : " << logMode->name();
 
-    if (!manager) {
+    if (manager == NULL || logMode == NULL) {
         logCritical() << "Error while loading a manager ";
         return;
     }
@@ -277,7 +299,7 @@ void TabLogViewsWidget::reloadCurrent()
 
     LogManager *manager = activeLogManager();
 
-    if (manager) {
+    if (manager != NULL) {
         manager->reload();
     }
 }
@@ -286,10 +308,9 @@ void TabLogViewsWidget::reloadAll()
 {
     logDebug() << "Reloading all tabs...";
 
-    const auto tabLogManagers = mTabLogManagers;
-    for (TabLogManager *tabLogManager : tabLogManagers) {
+    foreach (TabLogManager *tabLogManager, d->tabLogManagers) {
         // Log manager without log mode does not need to be reloaded
-        if (!tabLogManager->logManager()->logMode()) {
+        if (tabLogManager->logManager()->logMode() == NULL) {
             continue;
         }
 
@@ -300,7 +321,8 @@ void TabLogViewsWidget::reloadAll()
         }
 
         // Do a full loading of other log modes (needed if log files have been modified)
-        load(tabLogManager->logManager()->logMode(), tabLogManager->logManager(), tabLogManager->logManager()->analyzerOptions());
+        load(tabLogManager->logManager()->logMode(), tabLogManager->logManager(),
+             tabLogManager->logManager()->analyzerOptions());
     }
 }
 
@@ -308,9 +330,8 @@ void TabLogViewsWidget::changeCurrentTab(int index)
 {
     logDebug() << "Changing current tab...";
 
-    if (index == -1) {
+    if (index == -1)
         return;
-    }
 
     TabLogManager *tabLogManager = activeTabLogManager();
 
@@ -318,7 +339,8 @@ void TabLogViewsWidget::changeCurrentTab(int index)
     tabLogManager->initNewLinesCount();
 
     // If the tab displayed the new added line count, rename it to the default log mode name
-    changeTab(tabLogManager->logManager()->usedView(), logModeIcon(tabLogManager->logManager()->logMode()), tabLogManager->title());
+    changeTab(tabLogManager->logManager()->usedView(), logModeIcon(tabLogManager->logManager()->logMode()),
+              tabLogManager->title());
 
     logDebug() << "Current tab changed";
 }
@@ -327,11 +349,12 @@ void TabLogViewsWidget::changeReloadingTab(View *view, bool reloading)
 {
     TabLogManager *tabLogManager = findRelatedTabLogManager(view);
 
-    if (reloading) {
-        changeTab(tabLogManager->logManager()->usedView(), QIcon::fromTheme(QStringLiteral("view-refresh")), tabLogManager->title());
-    } else {
-        changeTab(tabLogManager->logManager()->usedView(), logModeIcon(tabLogManager->logManager()->logMode()), tabLogManager->title());
-    }
+    if (reloading == true)
+        changeTab(tabLogManager->logManager()->usedView(), QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/tango-view-refresh.svg")),
+                  tabLogManager->title());
+    else
+        changeTab(tabLogManager->logManager()->usedView(),
+                  logModeIcon(tabLogManager->logManager()->logMode()), tabLogManager->title());
 }
 
 void TabLogViewsWidget::changeTitleAddedLines(View *view, int addedLinesSinceLastUpdate)
@@ -345,10 +368,10 @@ void TabLogViewsWidget::changeTitleAddedLines(View *view, int addedLinesSinceLas
         tabLogManager->addNewLinesCount(addedLinesSinceLastUpdate);
 
         // Update the tab title
-        changeTab(tabLogManager->logManager()->usedView(), logModeIcon(tabLogManager->logManager()->logMode()), tabLogManager->title());
+        changeTab(tabLogManager->logManager()->usedView(),
+                  logModeIcon(tabLogManager->logManager()->logMode()), tabLogManager->title());
     }
 }
-
 void TabLogViewsWidget::expandAllCurrentView()
 {
     activeLogManager()->usedView()->logViewWidget()->expandAll();
@@ -377,14 +400,12 @@ void TabLogViewsWidget::copyToClipboardCurrentView()
     connect(&logViewExport, &LogViewExport::statusBarChanged, this, &TabLogViewsWidget::statusBarChanged);
     logViewExport.copyToClipboard();
 }
-
 void TabLogViewsWidget::sendMailCurrentView()
 {
     LogViewExport logViewExport(this, activeLogManager()->usedView()->logViewWidget());
     connect(&logViewExport, &LogViewExport::statusBarChanged, this, &TabLogViewsWidget::statusBarChanged);
     logViewExport.sendMail();
 }
-
 void TabLogViewsWidget::printSelectionCurrentView()
 {
     LogViewExport logViewExport(this, activeLogManager()->usedView()->logViewWidget());
@@ -392,27 +413,19 @@ void TabLogViewsWidget::printSelectionCurrentView()
     logViewExport.printSelection();
 }
 
-void TabLogViewsWidget::printPreviewSelectionCurrentView()
+QIcon TabLogViewsWidget::logModeIcon(LogMode *logMode)
 {
-    LogViewExport logViewExport(this, activeLogManager()->usedView()->logViewWidget());
-    connect(&logViewExport, &LogViewExport::statusBarChanged, this, &TabLogViewsWidget::statusBarChanged);
-    logViewExport.printPreview();
-}
-
-QIcon TabLogViewsWidget::logModeIcon(LogMode *logMode) const
-{
-    if (!logMode) {
+    if (logMode == NULL)
         return QIcon::fromTheme(QStringLiteral(NO_MODE_ICON));
-    } else {
+    else
         return logMode->icon();
-    }
 }
 
 void TabLogViewsWidget::prepareContextMenu(bool /*onTab*/)
 {
-    if (!mContextMenu) {
-        mContextMenu = new QMenu(this);
-        mContextMenu->addActions(actions());
+    if (d->contextMenu == NULL) {
+        d->contextMenu = new QMenu(this);
+        d->contextMenu->addActions(actions());
     }
 
     // TODO Disable some actions, depending of the onTab value
@@ -424,7 +437,7 @@ void TabLogViewsWidget::showContextMenu(const QPoint &cursorPosition)
 
     prepareContextMenu(false);
 
-    mContextMenu->popup(cursorPosition);
+    d->contextMenu->popup(cursorPosition);
 }
 
 void TabLogViewsWidget::showContextMenu(QWidget *tab, const QPoint &cursorPosition)
@@ -433,5 +446,5 @@ void TabLogViewsWidget::showContextMenu(QWidget *tab, const QPoint &cursorPositi
 
     prepareContextMenu(true);
 
-    mContextMenu->popup(cursorPosition);
+    d->contextMenu->popup(cursorPosition);
 }

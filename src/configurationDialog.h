@@ -19,47 +19,46 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _CONFIGURATION_DIALOG_H_
+#define _CONFIGURATION_DIALOG_H_
 
-#include <KConfigDialog>
+#include <kconfigdialog.h>
 
-class GeneralConfigurationWidget;
-class LogModeConfigurationWidget;
+class ConfigurationDialogPrivate;
+
 class ConfigurationDialog : public KConfigDialog
 {
     Q_OBJECT
 
 public:
-    explicit ConfigurationDialog(QWidget *parent);
+    ConfigurationDialog(QWidget *parent);
 
-    ~ConfigurationDialog() override;
+    ~ConfigurationDialog();
 
     void showConfiguration();
 
-Q_SIGNALS:
+signals:
     void configurationSaved();
 
-protected Q_SLOTS:
+protected slots:
 
-    void updateWidgets() override;
-    void updateWidgetsDefault() override;
-    void updateSettings() override;
+    void updateWidgets() Q_DECL_OVERRIDE;
+    void updateWidgetsDefault() Q_DECL_OVERRIDE;
+    void updateSettings() Q_DECL_OVERRIDE;
     void updateButtons();
 
-private Q_SLOTS:
+private slots:
     void updateConfiguration();
 
 private:
-    bool hasChanged() override;
-    bool isDefault() override;
+    bool hasChanged() Q_DECL_OVERRIDE;
+    bool isDefault() Q_DECL_OVERRIDE;
+
+    ConfigurationDialogPrivate *const d;
 
     void setupGeneralConfiguration();
 
     void setupLogModeConfigurations();
-    GeneralConfigurationWidget *mGeneralConfiguration = nullptr;
-
-    QList<LogModeConfigurationWidget *> mLogModeConfigurations;
-
-    bool mChanged = false;
 };
 
+#endif //_CONFIGURATION_DIALOG_H_

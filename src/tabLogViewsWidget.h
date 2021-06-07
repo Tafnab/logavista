@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _TAB_LOG_VIEWS_WIDGET_H_
+#define _TAB_LOG_VIEWS_WIDGET_H_
 
-#include <QList>
 #include <QTabWidget>
+#include <QList>
 #include <QVariant>
 
 class QString;
@@ -32,24 +33,25 @@ class LogManager;
 class TabLogManager;
 class View;
 class LogMode;
-class QMenu;
+
+class TabLogViewsWidgetPrivate;
 
 class TabLogViewsWidget : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    explicit TabLogViewsWidget(QWidget *parent = nullptr);
+    TabLogViewsWidget(QWidget *parent = NULL);
 
-    ~TabLogViewsWidget() override;
+    virtual ~TabLogViewsWidget();
 
-    QList<LogManager *> logManagers() const;
+    QList<LogManager *> logManagers();
 
-    LogManager *activeLogManager() const;
+    LogManager *activeLogManager();
 
     void load(LogMode *logMode, LogManager *manager, const QVariant &analyzerOptions = QVariant());
 
-public Q_SLOTS:
+public slots:
 
     LogManager *createTab();
     LogManager *duplicateTab();
@@ -76,9 +78,8 @@ public Q_SLOTS:
     void copyToClipboardCurrentView();
     void sendMailCurrentView();
     void printSelectionCurrentView();
-    void printPreviewSelectionCurrentView();
 
-private Q_SLOTS:
+private slots:
     void changeTab(View *view, const QIcon &icon, const QString &label);
 
     void changeCurrentTab(int index);
@@ -87,7 +88,9 @@ private Q_SLOTS:
     void showContextMenu(const QPoint &cursorPosition);
     void showContextMenu(QWidget *tab, const QPoint &cursorPosition);
 
-Q_SIGNALS:
+signals:
+    void tabCreationRequested();
+    void tabClosingRequested();
 
     void logManagerCreated(LogManager *manager);
 
@@ -100,14 +103,14 @@ private:
 
     LogManager *findRelatedLogManager(View *view);
 
-    QIcon logModeIcon(LogMode *icon) const;
+    QIcon logModeIcon(LogMode *icon);
 
-    TabLogManager *activeTabLogManager() const;
-    TabLogManager *findRelatedTabLogManager(View *view) const;
+    TabLogManager *activeTabLogManager();
+    TabLogManager *findRelatedTabLogManager(View *view);
 
     void prepareContextMenu(bool onTab);
-    QList<TabLogManager *> mTabLogManagers;
 
-    QMenu *mContextMenu = nullptr;
+    TabLogViewsWidgetPrivate *const d;
 };
 
+#endif // _TAB_LOG_VIEWS_WIDGET_H_

@@ -1,0 +1,417 @@
+configurationDialog.cpp:    d->generalConfiguration->saveConfig();
+configurationDialog.cpp:    bool valid = d->generalConfiguration->isValid();
+configurationDialog.cpp:    d->generalConfiguration->readConfig();
+configurationDialog.cpp:    d->generalConfiguration->defaultConfig();
+modes/acpid/acpidConfigurationWidget.h:        acpidConfiguration->setAcpidPaths(fileList->paths());
+modes/acpid/acpidConfigurationWidget.h:        fileList->addPaths(acpidConfiguration->acpidPaths());
+modes/acpid/acpidConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AcpidLogMode"));
+modes/acpid/acpidConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->acpidPaths, defaultAcpidPaths,
+modes/acpid/acpidLogMode.cpp:    checkLogFilesPresence(configuration->acpidPaths());
+modes/acpid/acpidLogMode.cpp:    return configuration->findNoModeLogFiles(configuration->acpidPaths());
+modes/formatusb/formatusbLogMode.cpp:    checkLogFilesPresence(configuration->formatusbPaths());
+modes/formatusb/formatusbLogMode.cpp:    return configuration->findGenericLogFiles(configuration->formatusbPaths());
+modes/formatusb/formatusbConfigurationWidget.h:        formatusbConfiguration->setFormatusbPaths(fileList->paths());
+modes/formatusb/formatusbConfigurationWidget.h:        fileList->addPaths(formatusbConfiguration->formatusbPaths());
+modes/formatusb/formatusbAnalyzer.h://         return hasKeywords(message, configuration->warningKeywords());
+modes/formatusb/formatusbAnalyzer.h://         return hasKeywords(message, configuration->errorKeywords());
+modes/formatusb/formatusbConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FormatusbLogMode"));
+modes/formatusb/formatusbConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->formatusbPaths, defaultFormatusbPaths,
+modes/mx_live_usb_maker/mx_live_usb_makerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_live_usb_makerLogMode"));
+modes/mx_live_usb_maker/mx_live_usb_makerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_live_usb_makerPaths, defaultMx_live_usb_makerPaths,
+modes/mx_live_usb_maker/mx_live_usb_makerConfigurationWidget.h:        mx_live_usb_makerConfiguration->setMx_live_usb_makerPaths(fileList->paths());
+modes/mx_live_usb_maker/mx_live_usb_makerConfigurationWidget.h:        fileList->addPaths(mx_live_usb_makerConfiguration->mx_live_usb_makerPaths());
+modes/mx_live_usb_maker/mx_live_usb_makerLogMode.cpp:    checkLogFilesPresence(configuration->mx_live_usb_makerPaths());
+modes/mx_live_usb_maker/mx_live_usb_makerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_live_usb_makerPaths());
+modes/xorg/xorgConfigurationWidget.h:        xorgConfiguration->setXorgPaths(fileList->paths());
+modes/xorg/xorgConfigurationWidget.h:        fileList->addPaths(xorgConfiguration->xorgPaths());
+modes/xorg/xorgLogMode.cpp:    checkLogFilesPresence(configuration->xorgPaths());
+modes/xorg/xorgLogMode.cpp:    return configuration->findNoModeLogFiles(configuration->xorgPaths());
+modes/xorg/xorgConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("XorgLogMode"));
+modes/xorg/xorgConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->xorgPaths, defaultXorgPaths,
+modes/mx_snapshot/mx_snapshotConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_snapshotLogMode"));
+modes/mx_snapshot/mx_snapshotConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_snapshotPaths, defaultMx_snapshotPaths,
+modes/mx_snapshot/mx_snapshotConfigurationWidget.h:        mx_snapshotConfiguration->setMx_snapshotPaths(fileList->paths());
+modes/mx_snapshot/mx_snapshotConfigurationWidget.h:        fileList->addPaths(mx_snapshotConfiguration->mx_snapshotPaths());
+modes/mx_snapshot/mx_snapshotLogMode.cpp:    checkLogFilesPresence(configuration->mx_snapshotPaths());
+modes/mx_snapshot/mx_snapshotLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_snapshotPaths());
+modes/apache/apacheConfigurationWidget.h:        apacheConfiguration->setApachePaths(apacheFileList->paths(apachePathsId));
+modes/apache/apacheConfigurationWidget.h:        apacheConfiguration->setApacheAccessPaths(apacheFileList->paths(apacheAccessPathsId));
+modes/apache/apacheConfigurationWidget.h:        apacheFileList->addPaths(apachePathsId, apacheConfiguration->apachePaths());
+modes/apache/apacheConfigurationWidget.h:        apacheFileList->addPaths(apacheAccessPathsId, apacheConfiguration->apacheAccessPaths());
+modes/apache/apacheLogMode.cpp:    checkLogFilesPresence(apacheConfiguration->apachePaths());
+modes/apache/apacheLogMode.cpp:    return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apachePaths());
+modes/apache/apacheConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("ApacheLogMode"));
+modes/apache/apacheConfiguration.h:        configuration->addItemStringList(QStringLiteral("ApacheLogFilesPaths"), d->apachePaths,
+modes/apache/apacheConfiguration.h:        configuration->addItemStringList(QStringLiteral("ApacheAccessLogFilesPaths"), d->apacheAccessPaths,
+modes/apache/apacheAccessLogMode.cpp:    checkLogFilesPresence(apacheConfiguration->apacheAccessPaths());
+modes/apache/apacheAccessLogMode.cpp:    return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apacheAccessPaths());
+modes/fontconfig/fontconfigConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FontconfigLogMode"));
+modes/fontconfig/fontconfigConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->fontconfigPaths, defaultFontconfigPaths,
+modes/fontconfig/fontconfigConfigurationWidget.h:        fontconfigConfiguration->setFontconfigPaths(fileList->paths());
+modes/fontconfig/fontconfigConfigurationWidget.h:        fileList->addPaths(fontconfigConfiguration->fontconfigPaths());
+modes/fontconfig/fontconfigLogMode.cpp:    checkLogFilesPresence(configuration->fontconfigPaths());
+modes/fontconfig/fontconfigLogMode.cpp:    return configuration->findGenericLogFiles(configuration->fontconfigPaths());
+modes/powerlogs/powerlogsConfigurationWidget.h:        powerlogsConfiguration->setPowerlogsPaths(fileList->paths());
+modes/powerlogs/powerlogsConfigurationWidget.h:        fileList->addPaths(powerlogsConfiguration->powerlogsPaths());
+modes/powerlogs/powerlogsConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("PowerlogsLogMode"));
+modes/powerlogs/powerlogsConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->powerlogsPaths, defaultPowerlogsPaths,
+modes/powerlogs/powerlogsLogMode.cpp:    checkLogFilesPresence(configuration->powerlogsPaths());
+modes/powerlogs/powerlogsLogMode.cpp:    return configuration->findGenericLogFiles(configuration->powerlogsPaths());
+modes/authentication/authenticationLogMode.cpp:    checkLogFilesPresence(configuration->authenticationPaths());
+modes/authentication/authenticationLogMode.cpp:    return configuration->findGenericLogFiles(configuration->authenticationPaths());
+modes/authentication/authenticationConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AuthenticationLogMode"));
+modes/authentication/authenticationConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->authenticationPaths, defaultAuthenticationPaths,
+modes/authentication/authenticationConfigurationWidget.h:        authenticationConfiguration->setAuthenticationPaths(fileList->paths());
+modes/authentication/authenticationConfigurationWidget.h:        fileList->addPaths(authenticationConfiguration->authenticationPaths());
+modes/trim/trimConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TrimLogMode"));
+modes/trim/trimConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->trimPaths, defaultTrimPaths,
+modes/trim/trimConfigurationWidget.h:        trimConfiguration->setTrimPaths(fileList->paths());
+modes/trim/trimConfigurationWidget.h:        fileList->addPaths(trimConfiguration->trimPaths());
+modes/trim/:w:        trimConfiguration->setTrimPaths(fileList->paths());
+modes/trim/:w:        fileList->addPaths(trimConfiguration->trimPaths());
+modes/trim/trimLogMode.cpp:    checkLogFilesPresence(configuration->trimPaths());
+modes/trim/trimLogMode.cpp:    return configuration->findGenericLogFiles(configuration->trimPaths());
+modes/cups/cupsLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPaths());
+modes/cups/cupsLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPaths());
+modes/cups/cupsAccessLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsAccessPaths());
+modes/cups/cupsAccessLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsAccessPaths());
+modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPaths(cupsFileList->paths(cupsPathsId));
+modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsAccessPaths(cupsFileList->paths(cupsAccessPathsId));
+modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPagePaths(cupsFileList->paths(cupsPagePathsId));
+modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPdfPaths(cupsFileList->paths(cupsPdfPathsId));
+modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPathsId, cupsConfiguration->cupsPaths());
+modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsAccessPathsId, cupsConfiguration->cupsAccessPaths());
+modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPagePathsId, cupsConfiguration->cupsPagePaths());
+modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPdfPathsId, cupsConfiguration->cupsPdfPaths());
+modes/cups/cupsPageLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPagePaths());
+modes/cups/cupsPageLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPagePaths());
+modes/cups/cupsConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("CupsLogMode"));
+modes/cups/cupsConfiguration.h:         configuration->addItemStringList(QStringLiteral("CupsLogFilesPaths"), d->cupsPaths, defaultCupsPaths,
+modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsAccessLogFilesPaths"), d->cupsAccessPaths,
+modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsPageLogFilesPaths"), d->cupsPagePaths,
+modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsPdfLogFilesPaths"), d->cupsPdfPaths,
+modes/cups/cupsPdfLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPdfPaths());
+modes/cups/cupsPdfLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPdfPaths());
+modes/cron/cronConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("CronLogMode"));
+modes/cron/cronConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->cronPaths, defaultCronPaths,
+modes/cron/cronConfiguration.h:        configuration->addItemString(QStringLiteral("ProcessFilter"), d->processFilter, defaultProcessFilter,
+modes/cron/cronAnalyzer.cpp:        if (cronConfiguration->processFilter().isEmpty()) {
+modes/cron/cronAnalyzer.cpp:        qDebug() << " --- Apparently looking for cronConfiguration->processFilter()s " << cronConfiguration->processFilter();
+modes/cron/cronAnalyzer.cpp:        if (processLine.contains(cronConfiguration->processFilter(), Qt::CaseInsensitive) == true) {
+modes/cron/cronConfigurationWidget.h:        cronConfiguration->setCronPaths(fileList->paths());
+modes/cron/cronConfigurationWidget.h:            cronConfiguration->setProcessFilter(QLatin1String(""));
+modes/cron/cronConfigurationWidget.h:            cronConfiguration->setProcessFilter(processFilter->text());
+modes/cron/cronConfigurationWidget.h:        fileList->addPaths(cronConfiguration->cronPaths());
+modes/cron/cronConfigurationWidget.h:        if (cronConfiguration->processFilter().isEmpty()) {
+modes/cron/cronConfigurationWidget.h:            processFilter->setText(cronConfiguration->processFilter());
+modes/cron/cronLogMode.cpp:    checkLogFilesPresence(cronConfiguration->cronPaths());
+modes/cron/cronLogMode.cpp:    return cronConfiguration->findNoModeLogFiles(cronConfiguration->cronPaths());
+modes/merger/mergerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("MergerLogMode"));
+modes/merger/mergerConfiguration.h:        //configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mergerPaths, defaultMergerPaths,
+modes/merger/mergerConfiguration.h:            configuration->addItemStringList(*i.name(), *i.reference(), *i.defaultValue(), *i.key());
+modes/merger/mergerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), static_mergerPaths, defaultMergerPaths,
+modes/merger/mergerConfigurationWidget.h:        mergerConfiguration->setMergerPaths(fileList->paths());
+modes/merger/mergerConfigurationWidget.h:        fileList->addPaths(mergerConfiguration->mergerPaths());
+modes/merger/mergerLogMode.cpp:    checkLogFilesPresence(configuration->mergerPaths());
+modes/merger/mergerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mergerPaths());
+modes/merger/mergerAnalyzer.h://         return hasKeywords(message, configuration->warningKeywords());
+modes/merger/mergerAnalyzer.h://         return hasKeywords(message, configuration->errorKeywords());
+modes/samba/sambaConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("SambaLogMode"));
+modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("SambaLogFilesPaths"), d->sambaPaths,
+modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("SambaAccessLogFilesPaths"), d->sambaAccessPaths,
+modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("NetbiosLogFilesPaths"), d->netbiosPaths,
+modes/samba/netbiosLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->netbiosPaths());
+modes/samba/netbiosLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->netbiosPaths());
+modes/samba/sambaLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->sambaPaths());
+modes/samba/sambaLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->sambaPaths());
+modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setSambaPaths(sambaFileList->paths(sambaPathsId));
+modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setSambaAccessPaths(sambaFileList->paths(sambaAccessPathsId));
+modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setNetbiosPaths(sambaFileList->paths(netbiosPathsId));
+modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(sambaPathsId, sambaConfiguration->sambaPaths());
+modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(sambaAccessPathsId, sambaConfiguration->sambaAccessPaths());
+modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(netbiosPathsId, sambaConfiguration->netbiosPaths());
+modes/samba/sambaAccessLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->sambaAccessPaths());
+modes/samba/sambaAccessLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->sambaAccessPaths());
+modes/daemon/daemonConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("DaemonLogMode"));
+modes/daemon/daemonConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->daemonPaths, defaultDaemonPaths,
+modes/daemon/daemonLogMode.cpp:    checkLogFilesPresence(configuration->daemonPaths());
+modes/daemon/daemonLogMode.cpp:    return configuration->findGenericLogFiles(configuration->daemonPaths());
+modes/daemon/daemonConfigurationWidget.h:        daemonConfiguration->setDaemonPaths(fileList->paths());
+modes/daemon/daemonConfigurationWidget.h:        fileList->addPaths(daemonConfiguration->daemonPaths());
+modes/rkhunter/rkhunterConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("RkhunterLogMode"));
+modes/rkhunter/rkhunterConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->rkhunterPaths, defaultRkhunterPaths,
+modes/rkhunter/rkhunterLogMode.cpp:    checkLogFilesPresence(configuration->rkhunterPaths());
+modes/rkhunter/rkhunterLogMode.cpp:    return configuration->findGenericLogFiles(configuration->rkhunterPaths());
+modes/rkhunter/rkhunterConfigurationWidget.h:        rkhunterConfiguration->setRkhunterPaths(fileList->paths());
+modes/rkhunter/rkhunterConfigurationWidget.h:        fileList->addPaths(rkhunterConfiguration->rkhunterPaths());
+modes/xsession/xsessionAnalyzer.h:        if (configuration->isIgnoreXorgErrors())
+modes/xsession/xsessionAnalyzer.h:        if (configuration->isIgnoreXorgErrors() && configuration->xorgErrorKeywords().contains(program))
+modes/xsession/xsessionAnalyzer.h:        return hasKeywords(message, configuration->warningKeywords());
+modes/xsession/xsessionAnalyzer.h:        return hasKeywords(message, configuration->errorKeywords());
+modes/xsession/xsessionConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("XSessionLogMode"));
+modes/xsession/xsessionConfiguration.h:        configuration->addItemString(QStringLiteral("LogFilePath"), d->xsessionPath,
+modes/xsession/xsessionConfiguration.h:        configuration->addItemBool(QStringLiteral("IgnoreXorgErrors"), d->ignoreXorgErrors, false,
+modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("XorgErrorKeywords"), d->xorgErrorKeywords,
+modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("WarningKeywords"), d->warningKeywords,
+modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("ErrorKeywords"), d->errorKeywords,
+modes/xsession/xsessionConfigurationWidget.h:        configuration->setXSessionPath(xsessionUrlRequester->url().path());
+modes/xsession/xsessionConfigurationWidget.h:        configuration->setIgnoreXorgErrors(ignoreXorgErrors->isChecked());
+modes/xsession/xsessionConfigurationWidget.h:        QString path = configuration->xsessionPath();
+modes/xsession/xsessionConfigurationWidget.h:        ignoreXorgErrors->setChecked(configuration->isIgnoreXorgErrors());
+modes/xsession/xsessionConfigurationWidget.h:            foreach (const QString &xorgErrorKeyword, configuration->xorgErrorKeywords()) {
+modes/xsession/xsessionLogMode.cpp:    checkLogFilesPresence(QStringList() << configuration->xsessionPath());
+modes/xsession/xsessionLogMode.cpp:    logFiles.append(configuration->findGenericLogFile(configuration->xsessionPath()));
+modes/firewall/firewallLogMode.cpp:    checkLogFilesPresence(configuration->firewallPaths());
+modes/firewall/firewallLogMode.cpp:    return configuration->findGenericLogFiles(configuration->firewallPaths());
+modes/firewall/firewallConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FirewallLogMode"));
+modes/firewall/firewallConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->firewallPaths, defaultFirewallPaths,
+modes/firewall/firewallConfigurationWidget.h:        firewallConfiguration->setFirewallPaths(fileList->paths());
+modes/firewall/firewallConfigurationWidget.h:        fileList->addPaths(firewallConfiguration->firewallPaths());
+modes/system/systemConfigurationWidget.h:        systemConfiguration->setLogFilesPaths(fileList->paths());
+modes/system/systemConfigurationWidget.h:        systemConfiguration->setLogFilesLevels(fileList->levels());
+modes/system/systemConfigurationWidget.h:        fileList->addPaths(systemConfiguration->logFilesPaths(), systemConfiguration->logFilesLevels());
+modes/base/genericConfiguration.cpp:    configuration->setCurrentGroup(configurationGroup);
+modes/base/genericConfiguration.cpp:    configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->logFilesPaths, defaultLogFilesPaths,
+modes/base/genericConfiguration.cpp:    configuration->addItemIntList(QStringLiteral("LogFilesLevels"), d->logFilesLevels, defaultLogFilesLevels,
+modes/nvidia/nvidiaConfigurationWidget.h:        nvidiaConfiguration->setNvidiaPaths(fileList->paths());
+modes/nvidia/nvidiaConfigurationWidget.h:        fileList->addPaths(nvidiaConfiguration->nvidiaPaths());
+modes/nvidia/nvidiaConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("NvidiaLogMode"));
+modes/nvidia/nvidiaConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->nvidiaPaths, defaultNvidiaPaths,
+modes/nvidia/nvidiaLogMode.cpp:    checkLogFilesPresence(configuration->nvidiaPaths());
+modes/nvidia/nvidiaLogMode.cpp:    return configuration->findGenericLogFiles(configuration->nvidiaPaths());
+modes/alternatives/alternativesLogMode.cpp:    checkLogFilesPresence(configuration->alternativesPaths());
+modes/alternatives/alternativesLogMode.cpp:    return configuration->findGenericLogFiles(configuration->alternativesPaths());
+modes/alternatives/alternativesConfigurationWidget.h:        alternativesConfiguration->setAlternativesPaths(fileList->paths());
+modes/alternatives/alternativesConfigurationWidget.h:        fileList->addPaths(alternativesConfiguration->alternativesPaths());
+modes/alternatives/alternativesConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AlternativesLogMode"));
+modes/alternatives/alternativesConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->alternativesPaths, defaultAlternativesPaths, QStringLiteral("LogFilesPaths"));
+modes/lightdm/lightdmConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("LightdmLogMode"));
+modes/lightdm/lightdmConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->lightdmPaths, defaultLightdmPaths,
+modes/lightdm/lightdmConfigurationWidget.h:        lightdmConfiguration->setLightdmPaths(fileList->paths());
+modes/lightdm/lightdmConfigurationWidget.h:        fileList->addPaths(lightdmConfiguration->lightdmPaths());
+modes/lightdm/lightdmLogMode.cpp:    checkLogFilesPresence(configuration->lightdmPaths());
+modes/lightdm/lightdmLogMode.cpp:    return configuration->findGenericLogFiles(configuration->lightdmPaths());
+modes/postfix/postfixConfigurationWidget.h:        configuration->setLogFilesPaths(fileList->paths());
+modes/postfix/postfixConfigurationWidget.h:        configuration->setLogFilesLevels(fileList->levels());
+modes/postfix/postfixConfigurationWidget.h:        fileList->addPaths(configuration->logFilesPaths(), configuration->logFilesLevels());
+modes/tiger/tigerLogMode.cpp:    checkLogFilesPresence(configuration->tigerPaths());
+modes/tiger/tigerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->tigerPaths());
+modes/tiger/tigerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TigerLogMode"));
+modes/tiger/tigerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->tigerPaths, defaultTigerPaths,
+modes/tiger/tigerConfigurationWidget.h:        tigerConfiguration->setTigerPaths(fileList->paths());
+modes/tiger/tigerConfigurationWidget.h:        fileList->addPaths(tigerConfiguration->tigerPaths());
+modes/teamviewer/teamviewerConfigurationWidget.h:        teamviewerConfiguration->setTeamviewerPaths(fileList->paths());
+modes/teamviewer/teamviewerConfigurationWidget.h:        fileList->addPaths(teamviewerConfiguration->teamviewerPaths());
+modes/teamviewer/teamviewerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TeamviewerLogMode"));
+modes/teamviewer/teamviewerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->teamviewerPaths, defaultTeamviewerPaths,
+modes/teamviewer/teamviewerLogMode.cpp:    checkLogFilesPresence(configuration->teamviewerPaths());
+modes/teamviewer/teamviewerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->teamviewerPaths());
+modes/mx_boot_repair/mx_boot_repairConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_boot_repairLogMode"));
+modes/mx_boot_repair/mx_boot_repairConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_boot_repairPaths, defaultMx_boot_repairPaths,
+modes/mx_boot_repair/mx_boot_repairLogMode.cpp:    checkLogFilesPresence(configuration->mx_boot_repairPaths());
+modes/mx_boot_repair/mx_boot_repairLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_boot_repairPaths());
+modes/mx_boot_repair/mx_boot_repairConfigurationWidget.h:        mx_boot_repairConfiguration->setMx_boot_repairPaths(fileList->paths());
+modes/mx_boot_repair/mx_boot_repairConfigurationWidget.h:        fileList->addPaths(mx_boot_repairConfiguration->mx_boot_repairPaths());
+setdata:configurationDialog.cpp:    d->generalConfiguration->saveConfig();
+setdata:configurationDialog.cpp:    bool valid = d->generalConfiguration->isValid();
+setdata:configurationDialog.cpp:    d->generalConfiguration->readConfig();
+setdata:configurationDialog.cpp:    d->generalConfiguration->defaultConfig();
+setdata:modes/acpid/acpidConfigurationWidget.h:        acpidConfiguration->setAcpidPaths(fileList->paths());
+setdata:modes/acpid/acpidConfigurationWidget.h:        fileList->addPaths(acpidConfiguration->acpidPaths());
+setdata:modes/acpid/acpidConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AcpidLogMode"));
+setdata:modes/acpid/acpidConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->acpidPaths, defaultAcpidPaths,
+setdata:modes/acpid/acpidLogMode.cpp:    checkLogFilesPresence(configuration->acpidPaths());
+setdata:modes/acpid/acpidLogMode.cpp:    return configuration->findNoModeLogFiles(configuration->acpidPaths());
+setdata:modes/formatusb/formatusbLogMode.cpp:    checkLogFilesPresence(configuration->formatusbPaths());
+setdata:modes/formatusb/formatusbLogMode.cpp:    return configuration->findGenericLogFiles(configuration->formatusbPaths());
+setdata:modes/formatusb/formatusbConfigurationWidget.h:        formatusbConfiguration->setFormatusbPaths(fileList->paths());
+setdata:modes/formatusb/formatusbConfigurationWidget.h:        fileList->addPaths(formatusbConfiguration->formatusbPaths());
+setdata:modes/formatusb/formatusbAnalyzer.h://         return hasKeywords(message, configuration->warningKeywords());
+setdata:modes/formatusb/formatusbAnalyzer.h://         return hasKeywords(message, configuration->errorKeywords());
+setdata:modes/formatusb/formatusbConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FormatusbLogMode"));
+setdata:modes/formatusb/formatusbConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->formatusbPaths, defaultFormatusbPaths,
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_live_usb_makerLogMode"));
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_live_usb_makerPaths, defaultMx_live_usb_makerPaths,
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerConfigurationWidget.h:        mx_live_usb_makerConfiguration->setMx_live_usb_makerPaths(fileList->paths());
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerConfigurationWidget.h:        fileList->addPaths(mx_live_usb_makerConfiguration->mx_live_usb_makerPaths());
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerLogMode.cpp:    checkLogFilesPresence(configuration->mx_live_usb_makerPaths());
+setdata:modes/mx_live_usb_maker/mx_live_usb_makerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_live_usb_makerPaths());
+setdata:modes/xorg/xorgConfigurationWidget.h:        xorgConfiguration->setXorgPaths(fileList->paths());
+setdata:modes/xorg/xorgConfigurationWidget.h:        fileList->addPaths(xorgConfiguration->xorgPaths());
+setdata:modes/xorg/xorgLogMode.cpp:    checkLogFilesPresence(configuration->xorgPaths());
+setdata:modes/xorg/xorgLogMode.cpp:    return configuration->findNoModeLogFiles(configuration->xorgPaths());
+setdata:modes/xorg/xorgConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("XorgLogMode"));
+setdata:modes/xorg/xorgConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->xorgPaths, defaultXorgPaths,
+setdata:modes/mx_snapshot/mx_snapshotConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_snapshotLogMode"));
+setdata:modes/mx_snapshot/mx_snapshotConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_snapshotPaths, defaultMx_snapshotPaths,
+setdata:modes/mx_snapshot/mx_snapshotConfigurationWidget.h:        mx_snapshotConfiguration->setMx_snapshotPaths(fileList->paths());
+setdata:modes/mx_snapshot/mx_snapshotConfigurationWidget.h:        fileList->addPaths(mx_snapshotConfiguration->mx_snapshotPaths());
+setdata:modes/mx_snapshot/mx_snapshotLogMode.cpp:    checkLogFilesPresence(configuration->mx_snapshotPaths());
+setdata:modes/mx_snapshot/mx_snapshotLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_snapshotPaths());
+setdata:modes/apache/apacheConfigurationWidget.h:        apacheConfiguration->setApachePaths(apacheFileList->paths(apachePathsId));
+setdata:modes/apache/apacheConfigurationWidget.h:        apacheConfiguration->setApacheAccessPaths(apacheFileList->paths(apacheAccessPathsId));
+setdata:modes/apache/apacheConfigurationWidget.h:        apacheFileList->addPaths(apachePathsId, apacheConfiguration->apachePaths());
+setdata:modes/apache/apacheConfigurationWidget.h:        apacheFileList->addPaths(apacheAccessPathsId, apacheConfiguration->apacheAccessPaths());
+setdata:modes/apache/apacheLogMode.cpp:    checkLogFilesPresence(apacheConfiguration->apachePaths());
+setdata:modes/apache/apacheLogMode.cpp:    return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apachePaths());
+setdata:modes/apache/apacheConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("ApacheLogMode"));
+setdata:modes/apache/apacheConfiguration.h:        configuration->addItemStringList(QStringLiteral("ApacheLogFilesPaths"), d->apachePaths,
+setdata:modes/apache/apacheConfiguration.h:        configuration->addItemStringList(QStringLiteral("ApacheAccessLogFilesPaths"), d->apacheAccessPaths,
+setdata:modes/apache/apacheAccessLogMode.cpp:    checkLogFilesPresence(apacheConfiguration->apacheAccessPaths());
+setdata:modes/apache/apacheAccessLogMode.cpp:    return apacheConfiguration->findNoModeLogFiles(apacheConfiguration->apacheAccessPaths());
+setdata:modes/fontconfig/fontconfigConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FontconfigLogMode"));
+setdata:modes/fontconfig/fontconfigConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->fontconfigPaths, defaultFontconfigPaths,
+setdata:modes/fontconfig/fontconfigConfigurationWidget.h:        fontconfigConfiguration->setFontconfigPaths(fileList->paths());
+setdata:modes/fontconfig/fontconfigConfigurationWidget.h:        fileList->addPaths(fontconfigConfiguration->fontconfigPaths());
+setdata:modes/fontconfig/fontconfigLogMode.cpp:    checkLogFilesPresence(configuration->fontconfigPaths());
+setdata:modes/fontconfig/fontconfigLogMode.cpp:    return configuration->findGenericLogFiles(configuration->fontconfigPaths());
+setdata:modes/powerlogs/powerlogsConfigurationWidget.h:        powerlogsConfiguration->setPowerlogsPaths(fileList->paths());
+setdata:modes/powerlogs/powerlogsConfigurationWidget.h:        fileList->addPaths(powerlogsConfiguration->powerlogsPaths());
+setdata:modes/powerlogs/powerlogsConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("PowerlogsLogMode"));
+setdata:modes/powerlogs/powerlogsConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->powerlogsPaths, defaultPowerlogsPaths,
+setdata:modes/powerlogs/powerlogsLogMode.cpp:    checkLogFilesPresence(configuration->powerlogsPaths());
+setdata:modes/powerlogs/powerlogsLogMode.cpp:    return configuration->findGenericLogFiles(configuration->powerlogsPaths());
+setdata:modes/authentication/authenticationLogMode.cpp:    checkLogFilesPresence(configuration->authenticationPaths());
+setdata:modes/authentication/authenticationLogMode.cpp:    return configuration->findGenericLogFiles(configuration->authenticationPaths());
+setdata:modes/authentication/authenticationConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AuthenticationLogMode"));
+setdata:modes/authentication/authenticationConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->authenticationPaths, defaultAuthenticationPaths,
+setdata:modes/authentication/authenticationConfigurationWidget.h:        authenticationConfiguration->setAuthenticationPaths(fileList->paths());
+setdata:modes/authentication/authenticationConfigurationWidget.h:        fileList->addPaths(authenticationConfiguration->authenticationPaths());
+setdata:modes/trim/trimConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TrimLogMode"));
+setdata:modes/trim/trimConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->trimPaths, defaultTrimPaths,
+setdata:modes/trim/trimConfigurationWidget.h:        trimConfiguration->setTrimPaths(fileList->paths());
+setdata:modes/trim/trimConfigurationWidget.h:        fileList->addPaths(trimConfiguration->trimPaths());
+setdata:modes/trim/:w:        trimConfiguration->setTrimPaths(fileList->paths());
+setdata:modes/trim/:w:        fileList->addPaths(trimConfiguration->trimPaths());
+setdata:modes/trim/trimLogMode.cpp:    checkLogFilesPresence(configuration->trimPaths());
+setdata:modes/trim/trimLogMode.cpp:    return configuration->findGenericLogFiles(configuration->trimPaths());
+setdata:modes/cups/cupsLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPaths());
+setdata:modes/cups/cupsLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPaths());
+setdata:modes/cups/cupsAccessLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsAccessPaths());
+setdata:modes/cups/cupsAccessLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsAccessPaths());
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPaths(cupsFileList->paths(cupsPathsId));
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsAccessPaths(cupsFileList->paths(cupsAccessPathsId));
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPagePaths(cupsFileList->paths(cupsPagePathsId));
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsConfiguration->setCupsPdfPaths(cupsFileList->paths(cupsPdfPathsId));
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPathsId, cupsConfiguration->cupsPaths());
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsAccessPathsId, cupsConfiguration->cupsAccessPaths());
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPagePathsId, cupsConfiguration->cupsPagePaths());
+setdata:modes/cups/cupsConfigurationWidget.h:        cupsFileList->addPaths(cupsPdfPathsId, cupsConfiguration->cupsPdfPaths());
+setdata:modes/cups/cupsPageLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPagePaths());
+setdata:modes/cups/cupsPageLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPagePaths());
+setdata:modes/cups/cupsConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("CupsLogMode"));
+setdata:modes/cups/cupsConfiguration.h:         configuration->addItemStringList(QStringLiteral("CupsLogFilesPaths"), d->cupsPaths, defaultCupsPaths,
+setdata:modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsAccessLogFilesPaths"), d->cupsAccessPaths,
+setdata:modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsPageLogFilesPaths"), d->cupsPagePaths,
+setdata:modes/cups/cupsConfiguration.h:        configuration->addItemStringList(QStringLiteral("CupsPdfLogFilesPaths"), d->cupsPdfPaths,
+setdata:modes/cups/cupsPdfLogMode.cpp:    checkLogFilesPresence(cupsConfiguration->cupsPdfPaths());
+setdata:modes/cups/cupsPdfLogMode.cpp:    return cupsConfiguration->findNoModeLogFiles(cupsConfiguration->cupsPdfPaths());
+setdata:modes/cron/cronConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("CronLogMode"));
+setdata:modes/cron/cronConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->cronPaths, defaultCronPaths,
+setdata:modes/cron/cronConfiguration.h:        configuration->addItemString(QStringLiteral("ProcessFilter"), d->processFilter, defaultProcessFilter,
+setdata:modes/cron/cronAnalyzer.cpp:        if (cronConfiguration->processFilter().isEmpty()) {
+setdata:modes/cron/cronAnalyzer.cpp:        if (processLine.contains(cronConfiguration->processFilter(), Qt::CaseInsensitive) == true) {
+setdata:modes/cron/cronConfigurationWidget.h:        cronConfiguration->setCronPaths(fileList->paths());
+setdata:modes/cron/cronConfigurationWidget.h:            cronConfiguration->setProcessFilter(QLatin1String(""));
+setdata:modes/cron/cronConfigurationWidget.h:            cronConfiguration->setProcessFilter(processFilter->text());
+setdata:modes/cron/cronConfigurationWidget.h:        fileList->addPaths(cronConfiguration->cronPaths());
+setdata:modes/cron/cronConfigurationWidget.h:        if (cronConfiguration->processFilter().isEmpty()) {
+setdata:modes/cron/cronConfigurationWidget.h:            processFilter->setText(cronConfiguration->processFilter());
+setdata:modes/cron/cronLogMode.cpp:    checkLogFilesPresence(cronConfiguration->cronPaths());
+setdata:modes/cron/cronLogMode.cpp:    return cronConfiguration->findNoModeLogFiles(cronConfiguration->cronPaths());
+setdata:modes/samba/sambaConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("SambaLogMode"));
+setdata:modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("SambaLogFilesPaths"), d->sambaPaths,
+setdata:modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("SambaAccessLogFilesPaths"), d->sambaAccessPaths,
+setdata:modes/samba/sambaConfiguration.h:        configuration->addItemStringList(QStringLiteral("NetbiosLogFilesPaths"), d->netbiosPaths,
+setdata:modes/samba/netbiosLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->netbiosPaths());
+setdata:modes/samba/netbiosLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->netbiosPaths());
+setdata:modes/samba/sambaLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->sambaPaths());
+setdata:modes/samba/sambaLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->sambaPaths());
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setSambaPaths(sambaFileList->paths(sambaPathsId));
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setSambaAccessPaths(sambaFileList->paths(sambaAccessPathsId));
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaConfiguration->setNetbiosPaths(sambaFileList->paths(netbiosPathsId));
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(sambaPathsId, sambaConfiguration->sambaPaths());
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(sambaAccessPathsId, sambaConfiguration->sambaAccessPaths());
+setdata:modes/samba/sambaConfigurationWidget.h:        sambaFileList->addPaths(netbiosPathsId, sambaConfiguration->netbiosPaths());
+setdata:modes/samba/sambaAccessLogMode.cpp:    checkLogFilesPresence(sambaConfiguration->sambaAccessPaths());
+setdata:modes/samba/sambaAccessLogMode.cpp:    return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->sambaAccessPaths());
+setdata:modes/daemon/daemonConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("DaemonLogMode"));
+setdata:modes/daemon/daemonConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->daemonPaths, defaultDaemonPaths,
+setdata:modes/daemon/daemonLogMode.cpp:    checkLogFilesPresence(configuration->daemonPaths());
+setdata:modes/daemon/daemonLogMode.cpp:    return configuration->findGenericLogFiles(configuration->daemonPaths());
+setdata:modes/daemon/daemonConfigurationWidget.h:        daemonConfiguration->setDaemonPaths(fileList->paths());
+setdata:modes/daemon/daemonConfigurationWidget.h:        fileList->addPaths(daemonConfiguration->daemonPaths());
+setdata:modes/rkhunter/rkhunterConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("RkhunterLogMode"));
+setdata:modes/rkhunter/rkhunterConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->rkhunterPaths, defaultRkhunterPaths,
+setdata:modes/rkhunter/rkhunterLogMode.cpp:    checkLogFilesPresence(configuration->rkhunterPaths());
+setdata:modes/rkhunter/rkhunterLogMode.cpp:    return configuration->findGenericLogFiles(configuration->rkhunterPaths());
+setdata:modes/rkhunter/rkhunterConfigurationWidget.h:        rkhunterConfiguration->setRkhunterPaths(fileList->paths());
+setdata:modes/rkhunter/rkhunterConfigurationWidget.h:        fileList->addPaths(rkhunterConfiguration->rkhunterPaths());
+setdata:modes/xsession/xsessionAnalyzer.h:        if (configuration->isIgnoreXorgErrors())
+setdata:modes/xsession/xsessionAnalyzer.h:        if (configuration->isIgnoreXorgErrors() && configuration->xorgErrorKeywords().contains(program))
+setdata:modes/xsession/xsessionAnalyzer.h:        return hasKeywords(message, configuration->warningKeywords());
+setdata:modes/xsession/xsessionAnalyzer.h:        return hasKeywords(message, configuration->errorKeywords());
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("XSessionLogMode"));
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->addItemString(QStringLiteral("LogFilePath"), d->xsessionPath,
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->addItemBool(QStringLiteral("IgnoreXorgErrors"), d->ignoreXorgErrors, false,
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("XorgErrorKeywords"), d->xorgErrorKeywords,
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("WarningKeywords"), d->warningKeywords,
+setdata:modes/xsession/xsessionConfiguration.h:        configuration->addItemStringList(QStringLiteral("ErrorKeywords"), d->errorKeywords,
+setdata:modes/xsession/xsessionConfigurationWidget.h:        configuration->setXSessionPath(xsessionUrlRequester->url().path());
+setdata:modes/xsession/xsessionConfigurationWidget.h:        configuration->setIgnoreXorgErrors(ignoreXorgErrors->isChecked());
+setdata:modes/xsession/xsessionConfigurationWidget.h:        QString path = configuration->xsessionPath();
+setdata:modes/xsession/xsessionConfigurationWidget.h:        ignoreXorgErrors->setChecked(configuration->isIgnoreXorgErrors());
+setdata:modes/xsession/xsessionConfigurationWidget.h:            foreach (const QString &xorgErrorKeyword, configuration->xorgErrorKeywords()) {
+setdata:modes/xsession/xsessionLogMode.cpp:    checkLogFilesPresence(QStringList() << configuration->xsessionPath());
+setdata:modes/xsession/xsessionLogMode.cpp:    logFiles.append(configuration->findGenericLogFile(configuration->xsessionPath()));
+setdata:modes/firewall/firewallLogMode.cpp:    checkLogFilesPresence(configuration->firewallPaths());
+setdata:modes/firewall/firewallLogMode.cpp:    return configuration->findGenericLogFiles(configuration->firewallPaths());
+setdata:modes/firewall/firewallConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("FirewallLogMode"));
+setdata:modes/firewall/firewallConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->firewallPaths, defaultFirewallPaths,
+setdata:modes/firewall/firewallConfigurationWidget.h:        firewallConfiguration->setFirewallPaths(fileList->paths());
+setdata:modes/firewall/firewallConfigurationWidget.h:        fileList->addPaths(firewallConfiguration->firewallPaths());
+setdata:modes/system/systemConfigurationWidget.h:        systemConfiguration->setLogFilesPaths(fileList->paths());
+setdata:modes/system/systemConfigurationWidget.h:        systemConfiguration->setLogFilesLevels(fileList->levels());
+setdata:modes/system/systemConfigurationWidget.h:        fileList->addPaths(systemConfiguration->logFilesPaths(), systemConfiguration->logFilesLevels());
+setdata:modes/base/genericConfiguration.cpp:    configuration->setCurrentGroup(configurationGroup);
+setdata:modes/base/genericConfiguration.cpp:    configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->logFilesPaths, defaultLogFilesPaths,
+setdata:modes/base/genericConfiguration.cpp:    configuration->addItemIntList(QStringLiteral("LogFilesLevels"), d->logFilesLevels, defaultLogFilesLevels,
+setdata:modes/nvidia/nvidiaConfigurationWidget.h:        nvidiaConfiguration->setNvidiaPaths(fileList->paths());
+setdata:modes/nvidia/nvidiaConfigurationWidget.h:        fileList->addPaths(nvidiaConfiguration->nvidiaPaths());
+setdata:modes/nvidia/nvidiaConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("NvidiaLogMode"));
+setdata:modes/nvidia/nvidiaConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->nvidiaPaths, defaultNvidiaPaths,
+setdata:modes/nvidia/nvidiaLogMode.cpp:    checkLogFilesPresence(configuration->nvidiaPaths());
+setdata:modes/nvidia/nvidiaLogMode.cpp:    return configuration->findGenericLogFiles(configuration->nvidiaPaths());
+setdata:modes/alternatives/alternativesLogMode.cpp:    checkLogFilesPresence(configuration->alternativesPaths());
+setdata:modes/alternatives/alternativesLogMode.cpp:    return configuration->findGenericLogFiles(configuration->alternativesPaths());
+setdata:modes/alternatives/alternativesConfigurationWidget.h:        alternativesConfiguration->setAlternativesPaths(fileList->paths());
+setdata:modes/alternatives/alternativesConfigurationWidget.h:        fileList->addPaths(alternativesConfiguration->alternativesPaths());
+setdata:modes/alternatives/alternativesConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("AlternativesLogMode"));
+setdata:modes/alternatives/alternativesConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->alternativesPaths, defaultAlternativesPaths,
+setdata:modes/lightdm/lightdmConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("LightdmLogMode"));
+setdata:modes/lightdm/lightdmConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->lightdmPaths, defaultLightdmPaths,
+setdata:modes/lightdm/lightdmConfigurationWidget.h:        lightdmConfiguration->setLightdmPaths(fileList->paths());
+setdata:modes/lightdm/lightdmConfigurationWidget.h:        fileList->addPaths(lightdmConfiguration->lightdmPaths());
+setdata:modes/lightdm/lightdmLogMode.cpp:    checkLogFilesPresence(configuration->lightdmPaths());
+setdata:modes/lightdm/lightdmLogMode.cpp:    return configuration->findGenericLogFiles(configuration->lightdmPaths());
+setdata:modes/postfix/postfixConfigurationWidget.h:        configuration->setLogFilesPaths(fileList->paths());
+setdata:modes/postfix/postfixConfigurationWidget.h:        configuration->setLogFilesLevels(fileList->levels());
+setdata:modes/postfix/postfixConfigurationWidget.h:        fileList->addPaths(configuration->logFilesPaths(), configuration->logFilesLevels());
+setdata:modes/tiger/tigerLogMode.cpp:    checkLogFilesPresence(configuration->tigerPaths());
+setdata:modes/tiger/tigerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->tigerPaths());
+setdata:modes/tiger/tigerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TigerLogMode"));
+setdata:modes/tiger/tigerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->tigerPaths, defaultTigerPaths,
+setdata:modes/tiger/tigerConfigurationWidget.h:        tigerConfiguration->setTigerPaths(fileList->paths());
+setdata:modes/tiger/tigerConfigurationWidget.h:        fileList->addPaths(tigerConfiguration->tigerPaths());
+setdata:modes/teamviewer/teamviewerConfigurationWidget.h:        teamviewerConfiguration->setTeamviewerPaths(fileList->paths());
+setdata:modes/teamviewer/teamviewerConfigurationWidget.h:        fileList->addPaths(teamviewerConfiguration->teamviewerPaths());
+setdata:modes/teamviewer/teamviewerConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("TeamviewerLogMode"));
+setdata:modes/teamviewer/teamviewerConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->teamviewerPaths, defaultTeamviewerPaths,
+setdata:modes/teamviewer/teamviewerLogMode.cpp:    checkLogFilesPresence(configuration->teamviewerPaths());
+setdata:modes/teamviewer/teamviewerLogMode.cpp:    return configuration->findGenericLogFiles(configuration->teamviewerPaths());
+setdata:modes/mx_boot_repair/mx_boot_repairConfiguration.h:        configuration->setCurrentGroup(QStringLiteral("Mx_boot_repairLogMode"));
+setdata:modes/mx_boot_repair/mx_boot_repairConfiguration.h:        configuration->addItemStringList(QStringLiteral("LogFilesPaths"), d->mx_boot_repairPaths, defaultMx_boot_repairPaths,
+setdata:modes/mx_boot_repair/mx_boot_repairLogMode.cpp:    checkLogFilesPresence(configuration->mx_boot_repairPaths());
+setdata:modes/mx_boot_repair/mx_boot_repairLogMode.cpp:    return configuration->findGenericLogFiles(configuration->mx_boot_repairPaths());
+setdata:modes/mx_boot_repair/mx_boot_repairConfigurationWidget.h:        mx_boot_repairConfiguration->setMx_boot_repairPaths(fileList->paths());
+setdata:modes/mx_boot_repair/mx_boot_repairConfigurationWidget.h:        fileList->addPaths(mx_boot_repairConfiguration->mx_boot_repairPaths());

@@ -23,34 +23,43 @@
 
 #include "globals.h"
 
-#include "defaults.h"
 #include "logging.h"
+#include "defaults.h"
 
 // Includes existing log modes
 #include "openFactory.h"
 
 #include "systemFactory.h"
 
-#include "acpidFactory.h"
-#include "apacheFactory.h"
-#include "authenticationFactory.h"
-#include "cronFactory.h"
-#include "cupsFactory.h"
-#include "daemonFactory.h"
 #include "kernelFactory.h"
-#include "postfixFactory.h"
-#include "sambaFactory.h"
 #include "xorgFactory.h"
+#include "cronFactory.h"
+#include "daemonFactory.h"
+#include "authenticationFactory.h"
+#include "alternativesFactory.h"
+#include "powerlogsFactory.h"
+#include "apacheFactory.h"
+#include "cupsFactory.h"
+#include "postfixFactory.h"
+#include "acpidFactory.h"
 #include "xsessionFactory.h"
-#ifdef HAVE_JOURNALD
-#include "journaldFactory.h"
-#endif
-#ifdef HAVE_AUDIT
-#include "auditFactory.h"
-#endif
+#include "sambaFactory.h"
+#include "nvidiaFactory.h"
+#include "firewallFactory.h"
+#include "fontconfigFactory.h"
+#include "formatusbFactory.h"
+#include "lightdmFactory.h"
+#include "trimFactory.h"
+#include "rkhunterFactory.h"
+#include "tigerFactory.h"
+#include "mx_boot_repairFactory.h"
+#include "mx_live_usb_makerFactory.h"
+#include "mx_snapshotFactory.h"
+#include "teamviewerFactory.h"
+#include "mergerFactory.h"
 
 LogModePluginsLoader::LogModePluginsLoader(QWidget *parent)
-    : mParent(parent)
+    : parent(parent)
 {
 }
 
@@ -61,7 +70,7 @@ LogModePluginsLoader::~LogModePluginsLoader()
 void LogModePluginsLoader::loadPlugins()
 {
     // Open Log mode needs the current window to display error messages and open dialogs
-    Globals::instance().registerLogModeFactory(new OpenLogModeFactory(mParent));
+    Globals::instance().registerLogModeFactory(new OpenLogModeFactory(parent));
 
     // System
     Globals::instance().registerLogModeFactory(new SystemLogModeFactory());
@@ -99,13 +108,50 @@ void LogModePluginsLoader::loadPlugins()
     // XSession
     Globals::instance().registerLogModeFactory(new XSessionLogModeFactory());
 
-    // Audit
-#ifdef HAVE_AUDIT
-    Globals::instance().registerLogModeFactory(new AuditLogModeFactory());
-#endif
+    // Alternatives
+    Globals::instance().registerLogModeFactory(new AlternativesLogModeFactory());
 
-    // Journald
-#ifdef HAVE_JOURNALD
-    Globals::instance().registerLogModeFactory(new JournaldModeFactory());
-#endif
+    // Powerlogs
+    Globals::instance().registerLogModeFactory(new PowerlogsLogModeFactory());
+
+    // Nvidia
+    Globals::instance().registerLogModeFactory(new NvidiaLogModeFactory());
+
+    // Firewall
+    Globals::instance().registerLogModeFactory(new FirewallLogModeFactory());
+
+    // Fontconfig
+    Globals::instance().registerLogModeFactory(new FontconfigLogModeFactory());
+
+    // Formatusb
+    Globals::instance().registerLogModeFactory(new FormatusbLogModeFactory());
+
+    // Lightdm
+    Globals::instance().registerLogModeFactory(new LightdmLogModeFactory());
+
+    // Trim
+    Globals::instance().registerLogModeFactory(new TrimLogModeFactory());
+
+    // Rootkit Hunter
+    Globals::instance().registerLogModeFactory(new RkhunterLogModeFactory());
+
+    // Tiger UNIX security
+    Globals::instance().registerLogModeFactory(new TigerLogModeFactory());
+
+    // MX Boot Repair
+    Globals::instance().registerLogModeFactory(new Mx_boot_repairLogModeFactory());
+
+    // MX Live USB Maker
+    Globals::instance().registerLogModeFactory(new Mx_live_usb_makerLogModeFactory());
+
+    // MX Snapshot Utility
+    Globals::instance().registerLogModeFactory(new Mx_snapshotLogModeFactory());
+
+    // MX Snapshot Utility
+    Globals::instance().registerLogModeFactory(new TeamviewerLogModeFactory());
+
+    // MX Snapshot Utility
+    Globals::instance().registerLogModeFactory(new MergerLogModeFactory());
+
+
 }

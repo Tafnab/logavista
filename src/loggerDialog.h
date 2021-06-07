@@ -19,23 +19,26 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _LOGGER_DIALOG_H_
+#define _LOGGER_DIALOG_H_
 
 #include <QWidget>
 
 #include "ui_loggerDialogBase.h"
 
+class LoggerDialogPrivate;
+
 class LoggerDialog : public QDialog, public Ui::LoggerDialogBase
 {
     Q_OBJECT
 public:
-    explicit LoggerDialog(QWidget *parent = nullptr);
+    explicit LoggerDialog(QWidget *parent = NULL);
 
-    ~LoggerDialog() override;
+    virtual ~LoggerDialog();
 
     void initialize();
 
-protected Q_SLOTS:
+protected slots:
     void sendMessage();
 
     void textChanged();
@@ -45,11 +48,9 @@ protected Q_SLOTS:
     void changeMessageActivation(bool activation);
 
 private:
-    void slotLinkClicked(const QString &link);
     void buildMaps();
-    QMap<QString, QString> mFacilities;
 
-    QMap<QString, QString> mPriorities;
-    QMap<QString, QIcon> mPriorityIcons;
+    LoggerDialogPrivate *const d;
 };
 
+#endif // _LOGGER_DIALOG_H_

@@ -21,50 +21,53 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDateTime>
 
 #include <KAboutData>
 #include <KLocalizedString>
 
 #include "ksystemlog_version.h"
-#include "logging.h"
 #include "mainWindow.h"
+#include "logging.h"
+
+
+Q_LOGGING_CATEGORY(KSYSTEMLOG, "logavista", QtWarningMsg)
+
+
 
 int main(int argc, char **argv)
 {
-    // enable high dpi support
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+    // Enable debug output:
+    // QLoggingCategory::setFilterRules(QStringLiteral("ksystemlog.debug = true"));
 
     QApplication app(argc, argv);
 
     KLocalizedString::setApplicationDomain("ksystemlog");
 
-    KAboutData about(QStringLiteral("ksystemlog"),
-                     i18n("KSystemlog"),
-                     QStringLiteral(KSYSTEMLOG_VERSION_STRING),
-                     i18n("System Logs Viewer by KDE"),
-                     KAboutLicense::GPL_V2,
-                     i18n("(C) 2007-2015, Nicolas Ternisien"),
-                     i18n("Do not hesitate to report bugs and problems to Nicolas Ternisien <a "
-                          "href='mailto:nicolas.ternisien@gmail.com'>nicolas.ternisien@gmail.com</a>"),
-                     QStringLiteral("https://apps.kde.org/en/ksystemlog"),
-                     QString());
+    KAboutData about(QStringLiteral("logavista"), i18n("Logavista"), QStringLiteral(KSYSTEMLOG_VERSION_STRING),
+                     i18n("System Logs Viewer forked from KDE"), KAboutLicense::GPL_V2,
+                     i18n("(C) 2021, J.D. Nicholson, (C) 2007-2015, Nicolas Ternisien"),
+                     i18n("Do not report bugs and problems to Nicolas Ternisien. Visit https://github.com/Tafnab/logavista"),
+                     QStringLiteral("https://github.com/Tafnab/logavista"), QString());
 
     about.setOrganizationDomain("kde.org");
 
-    about.addAuthor(i18n("Nicolas Ternisien"),
-                    i18n("Main developer"),
+    about.addAuthor(i18n("J. D. Nicholson"), i18n("Rogue Developer"),
+                    QStringLiteral("Tafnab on Github.com"),
+                    QStringLiteral("https://github.com/Tafnab?tab=repositories"));
+    about.addAuthor(i18n("Nicolas Ternisien"), i18n("Main developer"),
                     QStringLiteral("nicolas.ternisien@gmail.com"),
-                    QStringLiteral("https://www.forum-software.org"));
-    about.addAuthor(i18n("Vyacheslav Matyushin"), i18n("Journald mode, bugfixes"), QStringLiteral("v.matyushin@gmail.com"));
+                    QStringLiteral("http://www.forum-software.org"));
     about.addCredit(i18n("Bojan Djurkovic"), i18n("Log Printing"), QStringLiteral("dbojan@gmail.com"));
-    about.addCredit(i18n("Laurent Montel"), i18n("Bug Fixing"), QStringLiteral("montel@kde.org"));
 
     KAboutData::setApplicationData(about);
 
+    app.setApplicationName(about.componentName());
     app.setApplicationDisplayName(about.displayName());
+    app.setOrganizationDomain(about.organizationDomain());
+    app.setApplicationVersion(about.version());
 
-    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("utilities-log-viewer")));
+    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("/usr/local/share/icons/logavista/Faenza-utilities-log-viewer.svg")));
 
     QCommandLineParser parser;
     about.setupCommandLine(&parser);
@@ -81,18 +84,18 @@ int main(int argc, char **argv)
 
     // See if we are starting with session management
     if (app.isSessionRestored()) {
-        kRestoreMainWindows<KSystemLog::MainWindow>();
+        RESTORE(KSystemLog::MainWindow);
     } else {
         // No session... Just start up normally
 
         const QStringList args = parser.positionalArguments();
 
-        if (args.isEmpty()) {
+        if (args.count() == 0) {
             new KSystemLog::MainWindow();
         } else {
             // KSystemLog::MainWindow* mainWindow;
             new KSystemLog::MainWindow();
-            for (int i = 0, total = args.count(); i < total; ++i) {
+            for (int i = 0; i < args.count(); i++) {
                 logDebug() << "Loading file " << args.at(i);
 
                 // TODO Implement this kind of loading

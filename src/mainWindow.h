@@ -19,13 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 // KDE includes
-#include <KConfig>
 #include <kxmlguiwindow.h>
+#include <kconfig.h>
+#include <QMenu>
+
+#include <ktoggleaction.h>
 
 #include "logModeAction.h"
+
+class QAction;
 
 class LogManager;
 class LogMode;
@@ -33,13 +39,11 @@ class LogMode;
 class View;
 
 class TabLogViewsWidget;
-class QPrinter;
-class DetailDialog;
-class LoggerDialog;
-class ConfigurationDialog;
+
 namespace KSystemLog
 {
-class StatusBar;
+class MainWindowPrivate;
+
 /**
  * This class serves as the main window for ksystemlog.  It handles the
  * menus, toolbars, and status bars.
@@ -57,7 +61,7 @@ public:
     /**
      * Default Destructor
      */
-    ~MainWindow() override;
+    virtual ~MainWindow();
 
     TabLogViewsWidget *tabs();
 
@@ -66,21 +70,21 @@ protected:
      * This function is called when it is time for the app to save its
      * properties for session management purposes.
      */
-    void saveProperties(KConfigGroup &configuration) override;
+    void saveProperties(KConfigGroup &configuration) Q_DECL_OVERRIDE;
 
     /**
      * This function is called when this app is restored.  The KConfig
      * object points to the session management config file that was saved
      * with @ref saveProperties
      */
-    void readProperties(const KConfigGroup &configuration) override;
+    void readProperties(const KConfigGroup &configuration) Q_DECL_OVERRIDE;
 
     /**
      * Reimplemented to save configuration when closing.
      */
-    void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
-public Q_SLOTS:
+public slots:
     void changeStatusBar(const QString &text);
     void changeWindowTitle(const QString &text);
 
@@ -88,7 +92,7 @@ public Q_SLOTS:
 
     void prepareCreatedLogManager(LogManager *logManager);
 
-private Q_SLOTS:
+private slots:
     void fileOpen();
 
     void showConfigurationDialog();
@@ -128,58 +132,8 @@ private:
 
     void updateDetailDialog();
 
-    QAction *mSaveAction = nullptr;
-    QAction *mCopyAction = nullptr;
-
-    QAction *mReloadAction = nullptr;
-
-    QAction *mSendMailAction = nullptr;
-    QAction *mLogMessageAction = nullptr;
-
-    QAction *mFilterBarAction = nullptr;
-
-    QAction *mSelectAllAction = nullptr;
-
-    QAction *mExpandAllAction = nullptr;
-    QAction *mCollapseAllAction = nullptr;
-
-    QAction *mResumePauseAction = nullptr;
-    QAction *mDetailAction = nullptr;
-    QAction *mPrintAction = nullptr;
-    QAction *mPrintPreviewAction = nullptr;
-
-    QAction *mFindAction = nullptr;
-    QAction *mFindNextAction = nullptr;
-    QAction *mFindPreviousAction = nullptr;
-
-    QAction *mTooltipEnabledAction = nullptr;
-    QAction *mNewLinesDisplayedAction = nullptr;
-
-    /**
-     * Action groups which stores all Log Mode Actions
-     */
-    QActionGroup *mLogModesActionGroup = nullptr;
-
-    QPrinter *mPrinter = nullptr;
-
-    /**
-     * Detail dialog
-     */
-    DetailDialog *mDetailDialog = nullptr;
-
-    /**
-     * Logged Dialog
-     */
-    LoggerDialog *mLoggedDialog = nullptr;
-
-    ConfigurationDialog *mConfigurationDialog = nullptr;
-
-    /**
-     * Tab widget managing different views
-     */
-    TabLogViewsWidget *mTabs = nullptr;
-
-    KSystemLog::StatusBar *mStatusBar = nullptr;
+    MainWindowPrivate *const d;
 };
 }
 
+#endif // MAIN_WINDOW_H

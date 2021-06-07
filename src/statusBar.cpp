@@ -21,78 +21,122 @@
 
 #include "statusBar.h"
 
-#include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QComboBox>
 #include <QTime>
 
 #include <QIcon>
 
-#include <KComboBox>
+#include <kcombobox.h>
 #include <KLocalizedString>
-#include <KSqueezedTextLabel>
+#include <ksqueezedtextlabel.h>
 
 #include "logging.h"
-using namespace KSystemLog;
+
+namespace KSystemLog
+{
+class StatusBarPrivate
+{
+public:
+    QLabel *lineCountLabel;
+
+    // KSqueezedTextLabel* messageLabel;
+
+    KComboBox *messageList;
+
+    QLabel *lastModificationLabel;
+
+    QPushButton *toggleHistory;
+};
+
 StatusBar::StatusBar(QWidget *parent)
     : QStatusBar(parent)
+    , d(new StatusBarPrivate())
 {
-    mLineCountLabel = new QLabel(this);
-    mLineCountLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    mLineCountLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    mLineCountLabel->setLineWidth(2);
-    mLineCountLabel->setMidLineWidth(2);
-    addPermanentWidget(mLineCountLabel, 1);
-    mMessageList = new QComboBox(this);
-    mMessageList->setInsertPolicy(QComboBox::InsertAtTop);
-    mMessageList->setMaxVisibleItems(5);
-    connect(mMessageList, &QComboBox::currentIndexChanged, this, &StatusBar::selectLastHistory);
-    addPermanentWidget(mMessageList, 4);
+    d->lineCountLabel = new QLabel(QLatin1String(""), this);
+    d->lineCountLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    d->lineCountLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    d->lineCountLabel->setLineWidth(2);
+    d->lineCountLabel->setMidLineWidth(2);
+    addPermanentWidget(d->lineCountLabel, 1);
 
-    mLastModificationLabel = new QLabel(this);
-    mLastModificationLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    mLastModificationLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    mLastModificationLabel->setLineWidth(2);
-    mLastModificationLabel->setMidLineWidth(2);
-    addPermanentWidget(mLastModificationLabel, 1);
+    d->toggleHistory = new QPushButton(this);
+    d->toggleHistory->setIcon(QIcon::fromTheme( QLatin1String( "/usr/local/share/icons/logavista/view-history.svg" )));
+    d->toggleHistory->setFlat(true);
+    addPermanentWidget(d->toggleHistory, 0);
+
+    connect(d->toggleHistory, SIGNAL(clicked()), this, SLOT(toggleHistory()));
+    /*
+        d->messageLabel = new KSqueezedTextLabel("", this);
+        d->messageLabel->setAlignment(Qt::AlignLeft);
+        d->messageLabel->setTextElideMode(Qt::ElideRight);
+        addPermanentWidget(d->messageLabel, 4);
+    */
+    d->messageList = new KComboBox(this);
+    d->messageList->setInsertPolicy(QComboBox::InsertAtTop);
+    d->messageList->setMaxVisibleItems(5);
+    connect(d->messageList, SIGNAL(currentIndexChanged(int)), this, SLOT(selectLastHistory()));
+    /*
+        //TODO Define a specifical palette (and make it works !)
+        QPalette palette(d->messageList->palette());
+        palette.setColor(QPalette::HighlightedText, Qt::red); //palette.color(QPalette::Base)
+        palette.setColor(QPalette::Base, Qt::red); //palette.color(QPalette::Base)
+        palette.setColor(QPalette::Text, QColor(212, 140, 95)); //palette.color(QPalette::Base)
+        d->messageList->setPalette(palette);
+        //d->messageList->repaint();
+    */
+    addPermanentWidget(d->messageList, 4);
+
+    d->lastModificationLabel = new QLabel(QLatin1String(""), this);
+    d->lastModificationLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    d->lastModificationLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    d->lastModificationLabel->setLineWidth(2);
+    d->lastModificationLabel->setMidLineWidth(2);
+    addPermanentWidget(d->lastModificationLabel, 1);
 }
 
 StatusBar::~StatusBar()
 {
+    // QLabels are automatically deleted by Qt
+    delete d;
 }
 
 void StatusBar::changeLineCountMessage(const QString &lineCountMessage)
 {
-    mLineCountLabel->setText(lineCountMessage);
+    d->lineCountLabel->setText(lineCountMessage);
 }
 
-void StatusBar::changeLastModification(QTime lastModification)
+void StatusBar::changeLastModification(const QTime &lastModification)
 {
-    // lastModificationLabel->setText(i18n("Last updated: %1.",
+    // d->lastModificationLabel->setText(i18n("Last updated: %1.",
     // KLocale::global()->formatTime(lastModification, true, false) ));
-    mLastModificationLabel->setText(i18n("Last updated: %1.", QLocale().toString(lastModification, QStringLiteral("hh:mm:ss"))));
+    d->lastModificationLabel->setText(
+        i18n("Last updated: %1.", QLocale().toString(lastModification, QString("hh:mm:ss"))));
 }
 
 void StatusBar::changeMessage(const QString &message)
 {
-    // messageLabel->setText(message);
-    // messageList->insertItem(0, i18n("%1: %2", KLocale::global()->formatTime(QTime::currentTime(), true,
+    // d->messageLabel->setText(message);
+    // d->messageList->insertItem(0, i18n("%1: %2", KLocale::global()->formatTime(QTime::currentTime(), true,
     // false), message));
-    mMessageList->insertItem(0, i18n("%1: %2", QLocale().toString(QTime::currentTime(), QStringLiteral("hh:mm:ss")), message));
+    d->messageList->insertItem(
+        0, i18n("%1: %2", QLocale().toString(QTime::currentTime(), QString("hh:mm:ss")), message));
 
     // 100 log history message max.
-    if (mMessageList->count() > 100) {
-        mMessageList->removeItem(mMessageList->count() - 1);
+    if (d->messageList->count() > 100) {
+        d->messageList->removeItem(d->messageList->count() - 1);
     }
 }
 
 void StatusBar::selectLastHistory()
 {
-    mMessageList->setCurrentIndex(0);
+    d->messageList->setCurrentIndex(0);
 }
 
 void StatusBar::toggleHistory()
 {
     logDebug() << "Toggling History...";
-    mMessageList->showPopup();
+    d->messageList->showPopup();
+}
 }

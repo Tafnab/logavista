@@ -1,33 +1,44 @@
 
 ########### Build ###############
 
-add_subdirectory(lib)
-add_subdirectory(config)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/config
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib
+    ${CMAKE_CURRENT_BINARY_DIR}/config
+    ${CMAKE_CURRENT_BINARY_DIR}/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}
 
-add_subdirectory(modes/base)
-add_subdirectory(modes/open)
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/open
 
-add_subdirectory(modes/system)
-add_subdirectory(modes/kernel)
-add_subdirectory(modes/xorg)
-add_subdirectory(modes/cron)
-add_subdirectory(modes/authentication)
-add_subdirectory(modes/daemon)
-add_subdirectory(modes/acpid)
-add_subdirectory(modes/xsession)
-add_subdirectory(modes/apache)
-add_subdirectory(modes/postfix)
-add_subdirectory(modes/samba)
-add_subdirectory(modes/cups)
-if (${AUDIT_FOUND})
-    add_subdirectory(modes/audit)
-endif (${AUDIT_FOUND})
-if (${JOURNALD_FOUND})
-    add_subdirectory(modes/journald)
-endif (${JOURNALD_FOUND})
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/system
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/kernel
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/daemon
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/xorg
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/cron
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/acpid
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/xsession
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/apache
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/cups
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/samba
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/authentication
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/postfix
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/alternatives
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/powerlogs
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/nvidia
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/fontconfig
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/formatusb
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/lightdm
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/trim
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/rkhunter
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/tiger
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/mx_boot_repair
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/mx_live_usb_maker
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/mx_snapshot
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/teamviewer
+    ${CMAKE_CURRENT_SOURCE_DIR}/modes/merger
+)
 
-add_executable(ksystemlog)
-target_sources(ksystemlog PRIVATE
+set(ksystemlog_sources
     main.cpp
     mainWindow.cpp
     logModePluginsLoader.cpp
@@ -40,14 +51,15 @@ target_sources(ksystemlog PRIVATE
     statusBar.cpp
 )
 
-ki18n_wrap_ui(ksystemlog
+ki18n_wrap_ui(ksystemlog_sources
     detailDialogBase.ui
     loggerDialogBase.ui
     generalConfigurationWidgetBase.ui
 )
 
+add_executable(logavista ${ksystemlog_sources})
 
-target_link_libraries(ksystemlog
+target_link_libraries(logavista
     ksystemlog_lib
     ksystemlog_config
     ksystemlog_open
@@ -63,25 +75,32 @@ target_link_libraries(ksystemlog
     ksystemlog_postfix
     ksystemlog_cups
     ksystemlog_samba
+    ksystemlog_alternatives
+    ksystemlog_powerlogs
+    ksystemlog_nvidia
+    ksystemlog_firewall
+    ksystemlog_fontconfig
+    ksystemlog_formatusb
+    ksystemlog_lightdm
+    ksystemlog_trim
+    ksystemlog_rkhunter
+    ksystemlog_tiger
+    ksystemlog_mx_boot_repair
+    ksystemlog_mx_live_usb_maker
+    ksystemlog_mx_snapshot
+    ksystemlog_teamviewer
+    ksystemlog_merger
 
     KF5::Archive
     KF5::TextWidgets
 )
 
-if (${JOURNALD_FOUND})
-    target_link_libraries(ksystemlog
-        ksystemlog_journald)
-endif(${JOURNALD_FOUND})
-
-if (${AUDIT_FOUND})
-    target_link_libraries(ksystemlog
-        ksystemlog_audit)
-endif(${AUDIT_FOUND})
 
 ########### Installation ###############
 
-install(TARGETS ksystemlog ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS logavista ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
-install(PROGRAMS org.kde.ksystemlog.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-install(FILES org.kde.ksystemlog.appdata.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
-install(FILES ksystemlogui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/ksystemlog)
+install(PROGRAMS logavista.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} RENAME logavista)
+install(FILES logavistaui.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/logavista)
+
+

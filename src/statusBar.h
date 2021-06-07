@@ -19,16 +19,17 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _STATUS_BAR_
+#define _STATUS_BAR_
 
 #include <QStatusBar>
 
 class QString;
-class QLabel;
-class QComboBox;
-class QPushButton;
+
 namespace KSystemLog
 {
+class StatusBarPrivate;
+
 /**
  * Status Bar
  */
@@ -39,22 +40,20 @@ class StatusBar : public QStatusBar
 public:
     explicit StatusBar(QWidget *parent);
 
-    ~StatusBar() override;
+    virtual ~StatusBar();
 
     void changeLineCountMessage(const QString &lineCountMessage);
-    void changeLastModification(QTime lastModification);
+    void changeLastModification(const QTime &lastModification);
 
     void changeMessage(const QString &message);
 
-private Q_SLOTS:
+private slots:
     void toggleHistory();
     void selectLastHistory();
 
 private:
-    QLabel *mLineCountLabel = nullptr;
-    QComboBox *mMessageList = nullptr;
-    QLabel *mLastModificationLabel = nullptr;
-    QPushButton *mToggleHistory = nullptr;
+    StatusBarPrivate *const d;
 };
 }
 
+#endif // _STATUS_BAR_

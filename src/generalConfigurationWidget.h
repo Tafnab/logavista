@@ -19,12 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _GENERAL_CONFIGURATION_WIDGET_H_
+#define _GENERAL_CONFIGURATION_WIDGET_H_
 
 #include <QWidget>
 
 #include "ui_generalConfigurationWidgetBase.h"
-class KMessageWidget;
+
+class GeneralConfigurationWidgetPrivate;
+
 class GeneralConfigurationWidget : public QWidget, public Ui::GeneralConfigurationWidgetBase
 {
     Q_OBJECT
@@ -32,23 +35,26 @@ class GeneralConfigurationWidget : public QWidget, public Ui::GeneralConfigurati
 public:
     GeneralConfigurationWidget();
 
-    ~GeneralConfigurationWidget() override;
+    ~GeneralConfigurationWidget();
 
     bool isValid() const;
 
-public Q_SLOTS:
+    enum dateFormat {};
+
+public slots:
     void saveConfig() const;
 
     void defaultConfig();
 
     void readConfig();
 
-Q_SIGNALS:
+signals:
     void configurationChanged();
 
 private:
     void addDateFormatExample();
-    QButtonGroup *mDateFormatGroup = nullptr;
-    KMessageWidget *mWarningBox = nullptr;
+
+    GeneralConfigurationWidgetPrivate *const d;
 };
 
+#endif // _GENERAL_CONFIGURATION_WIDGET_H_
