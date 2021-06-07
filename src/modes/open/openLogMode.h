@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _OPEN_LOG_MODE_H_
+#define _OPEN_LOG_MODE_H_
 
 /**
  * Open Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * System Log Icon
  */
-#define OPEN_MODE_ICON "document-open"
+#define OPEN_MODE_ICON "/usr/local/share/icons/logavista/document-open.svg"
 
 #include <QList>
 
@@ -46,13 +47,14 @@ class OpenLogMode : public LogMode
 public:
     explicit OpenLogMode(QWidget *parent);
 
-    ~OpenLogMode() override;
+    ~OpenLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 
 private:
-    QWidget *const mParent;
+    QWidget *parent;
 };
 
+#endif // _OPEN_LOG_MODE_H_

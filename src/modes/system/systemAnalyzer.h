@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SYSTEM_ANALYZER_H_
+#define _SYSTEM_ANALYZER_H_
 
 #include "syslogAnalyzer.h"
 
@@ -30,10 +31,12 @@ class SystemAnalyzer : public SyslogAnalyzer
     Q_OBJECT
 
 public:
-    explicit SystemAnalyzer(LogMode *logMode);
-
-    ~SystemAnalyzer() override
+    SystemAnalyzer(LogMode *logMode)
+        : SyslogAnalyzer(logMode)
     {
     }
+
+    virtual ~SystemAnalyzer() {}
 };
 
+#endif

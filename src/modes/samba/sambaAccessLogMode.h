@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SAMBA_ACCESS_LOG_MODE_H_
+#define _SAMBA_ACCESS_LOG_MODE_H_
 
 /**
  * Samba Access Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Samba Access Log Icon
  */
-#define SAMBA_ACCESS_MODE_ICON "preferences-system-network-server-share-windows"
+#define SAMBA_ACCESS_MODE_ICON "network-workgroup"
 
 #include <QList>
 
@@ -50,10 +51,11 @@ public:
                                 SambaConfigurationWidget *sambaConfigurationWidget,
                                 SambaItemBuilder *itemBuilder);
 
-    ~SambaAccessLogMode() override;
+    ~SambaAccessLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _SAMBA_ACCESS_LOG_MODE_H_

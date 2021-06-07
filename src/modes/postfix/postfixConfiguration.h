@@ -19,14 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _POSTFIX_CONFIGURATION_H_
+#define _POSTFIX_CONFIGURATION_H_
 
-#include <QList>
 #include <QStringList>
+#include <QList>
 
-#include "defaults.h"
 #include "genericConfiguration.h"
 #include "globals.h"
+#include "defaults.h"
 
 #include "postfixLogMode.h"
 
@@ -35,10 +36,21 @@ class PostfixConfiguration : public GenericLogModeConfiguration
     Q_OBJECT
 
 public:
-    PostfixConfiguration();
-
-    ~PostfixConfiguration() override
+    PostfixConfiguration()
+        : GenericLogModeConfiguration(
+              QStringLiteral(POSTFIX_LOG_MODE_ID),
+              QStringList() << QStringLiteral("/var/log/mail.log") << QStringLiteral("/var/log/mail.info")
+                            << QStringLiteral("/var/log/mail.warn") << QStringLiteral("/var/log/mail.err")
+                            << QStringLiteral("/var/log/mail.log.1") << QStringLiteral("/var/log/mail.info.1")
+                            << QStringLiteral("/var/log/mail.warn.1") << QStringLiteral("/var/log/mail.err.1")
+                            << QStringLiteral("/var/log/mail.log.2.gz") << QStringLiteral("/var/log/mail.info.2.gz")
+                            << QStringLiteral("/var/log/mail.warn.2.gz") << QStringLiteral("/var/log/mail.err.2.gz"),
+              QList<int>() << Globals::NOTICE_LOG_LEVEL_ID << Globals::INFORMATION_LOG_LEVEL_ID << Globals::WARNING_LOG_LEVEL_ID
+                           << Globals::ERROR_LOG_LEVEL_ID)
     {
     }
+
+    virtual ~PostfixConfiguration() {}
 };
 
+#endif // _POSTFIX_CONFIGURATION_H_

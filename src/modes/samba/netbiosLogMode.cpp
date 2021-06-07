@@ -22,15 +22,17 @@
 #include "netbiosLogMode.h"
 
 #include <QAction>
+#include <QList>
 
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "sambaAnalyzer.h"
-#include "sambaConfiguration.h"
-#include "sambaConfigurationWidget.h"
 #include "sambaItemBuilder.h"
+#include "sambaConfigurationWidget.h"
+#include "sambaConfiguration.h"
 
 NetbiosLogMode::NetbiosLogMode(QSharedPointer<SambaConfiguration> &sambaConfiguration,
                                SambaConfigurationWidget *sambaConfigurationWidget,
@@ -61,8 +63,8 @@ Analyzer *NetbiosLogMode::createAnalyzer(const QVariant &options)
     return new SambaAnalyzer(this);
 }
 
-QVector<LogFile> NetbiosLogMode::createLogFiles()
+QList<LogFile> NetbiosLogMode::createLogFiles()
 {
-    auto *sambaConfiguration = logModeConfiguration<SambaConfiguration *>();
+    SambaConfiguration *sambaConfiguration = logModeConfiguration<SambaConfiguration *>();
     return sambaConfiguration->findNoModeLogFiles(sambaConfiguration->netbiosPaths());
 }

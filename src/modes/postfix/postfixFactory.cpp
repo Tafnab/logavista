@@ -21,15 +21,20 @@
 
 #include "postfixFactory.h"
 
+#include <QList>
+
 #include "logMode.h"
 #include "logging.h"
 
-#include "postfixLogMode.h"
 #include "simpleAction.h"
+#include "postfixLogMode.h"
+
+#include "logModeFactory.h"
 
 QList<LogMode *> PostfixLogModeFactory::createLogModes() const
 {
-    const QList<LogMode *> logModes{new PostfixLogMode()};
+    QList<LogMode *> logModes;
+    logModes.append(new PostfixLogMode());
     return logModes;
 }
 
@@ -37,11 +42,10 @@ LogModeAction *PostfixLogModeFactory::createLogModeAction() const
 {
     LogMode *logMode = Globals::instance().findLogMode(QStringLiteral(POSTFIX_LOG_MODE_ID));
 
-    if (!logMode->filesExist()) {
+    if (!logMode->filesExist())
         return nullptr;
-    }
 
-    auto logModeAction = new SimpleAction(logMode->action(), logMode);
+    SimpleAction *logModeAction = new SimpleAction(logMode->action(), logMode);
 
     logModeAction->setCategory(LogModeAction::ServicesCategory);
 

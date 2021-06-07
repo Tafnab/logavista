@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _POSTFIX_LOG_MODE_H_
+#define _POSTFIX_LOG_MODE_H_
 
 /**
  * Postfix Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Postfix Log Icon
  */
-#define POSTFIX_MODE_ICON "internet-mail"
+#define POSTFIX_MODE_ICON "/usr/local/share/icons/logavista/gtk-mail.svg"
 
 #include <QList>
 
@@ -43,10 +44,11 @@ class PostfixLogMode : public LogMode
 public:
     explicit PostfixLogMode();
 
-    ~PostfixLogMode() override;
+    ~PostfixLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _POSTFIX_LOG_MODE_H_

@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SAMBA_ITEM_BUILDER_H_
+#define _SAMBA_ITEM_BUILDER_H_
 
 #include <QString>
 
@@ -30,20 +31,34 @@
 #include "logging.h"
 
 #include "logLine.h"
-#include "logMode.h"
 #include "logViewWidgetItem.h"
+#include "logMode.h"
 
 class SambaItemBuilder : public LogModeItemBuilder
 {
 public:
-    SambaItemBuilder()
-    {
-    }
+    SambaItemBuilder() {}
 
-    ~SambaItemBuilder() override
-    {
-    }
+    virtual ~SambaItemBuilder() {}
 
-    QString createFormattedText(LogLine *line) const override;
+    QString createFormattedText(LogLine *line) const Q_DECL_OVERRIDE
+    {
+        QString result;
+
+        QListIterator<QString> it(line->logItems());
+
+        result.append(QLatin1String("<table>"));
+
+        result.append(labelMessageFormat(i18n("Date:"), formatDate(line->time())));
+        result.append(labelMessageFormat(i18n("Level:"), line->logLevel()->name()));
+        result.append(labelMessageFormat(i18n("Source File:"), it.next()));
+        result.append(labelMessageFormat(i18n("Function:"), it.next()));
+        result.append(labelMessageFormat(i18n("Line:"), it.next()));
+
+        result.append(QLatin1String("</table>"));
+
+        return result;
+    }
 };
 
+#endif // _SAMBA_ITEM_BUILDER_H_

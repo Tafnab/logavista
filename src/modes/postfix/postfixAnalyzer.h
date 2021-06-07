@@ -19,24 +19,38 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _POSTFIX_ANALYZER_H_
+#define _POSTFIX_ANALYZER_H_
 
-#include "syslogAnalyzer.h"
+#include <KLocalizedString>
+#include "syslogAnalyzer2.h"
 
 #include "logMode.h"
 #include "logging.h"
 
-class PostfixAnalyzer : public SyslogAnalyzer
+class PostfixAnalyzer : public SyslogAnalyzer2
 {
     Q_OBJECT
 
 public:
-    explicit PostfixAnalyzer(LogMode *logMode);
-
-    ~PostfixAnalyzer() override
+    PostfixAnalyzer(LogMode *logMode)
+        : SyslogAnalyzer2(logMode)
     {
     }
 
+    virtual ~PostfixAnalyzer() {}
+
+    LogViewColumns initColumns() Q_DECL_OVERRIDE
+    {
+        LogViewColumns columns;
+     columns.addColumn(LogViewColumn(i18n("Date"), true, false));
+    columns.addColumn(LogViewColumn(i18n("Host"), true, true));
+    columns.addColumn(LogViewColumn(i18n("Process"), true, true));
+    columns.addColumn(LogViewColumn(i18n("Level"), true, true));
+    columns.addColumn(LogViewColumn(i18n("Message"), true, false));
+        return columns;
+    }    
+    
     /*
      * Just a test of multilines log lines (and it works well !)
      */
@@ -57,3 +71,4 @@ public:
     */
 };
 
+#endif

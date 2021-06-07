@@ -21,17 +21,17 @@
 
 #include "openFactory.h"
 
-#include "defaults.h"
-#include "ksystemlogConfig.h"
-#include "logFile.h"
 #include "logMode.h"
+#include "defaults.h"
+#include "logFile.h"
 #include "logging.h"
+#include "ksystemlogConfig.h"
 
-#include "logModeItemBuilder.h"
 #include "openLogMode.h"
+#include "logModeItemBuilder.h"
 
 OpenLogModeFactory::OpenLogModeFactory(QWidget *parent)
-    : mParent(parent)
+    : parent(parent)
 {
 }
 
@@ -41,11 +41,12 @@ OpenLogModeFactory::~OpenLogModeFactory()
 
 QList<LogMode *> OpenLogModeFactory::createLogModes() const
 {
-    const QList<LogMode *> logModes{new OpenLogMode(mParent)};
+    QList<LogMode *> logModes;
+    logModes.append(new OpenLogMode(parent));
     return logModes;
 }
 
 LogModeAction *OpenLogModeFactory::createLogModeAction() const
 {
-    return nullptr;
+    return NULL;
 }

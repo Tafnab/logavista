@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _POSTFIX_CONFIGURATION_WIDGET_H_
+#define _POSTFIX_CONFIGURATION_WIDGET_H_
 
 #include "logModeConfigurationWidget.h"
 
@@ -43,21 +44,65 @@ class PostfixConfigurationWidget : public LogModeConfigurationWidget
     Q_OBJECT
 
 public:
-    PostfixConfigurationWidget();
-
-    ~PostfixConfigurationWidget() override
+    PostfixConfigurationWidget()
+        : LogModeConfigurationWidget(i18n("Mail Log"), QStringLiteral(POSTFIX_MODE_ICON),
+                                     i18n("Mail Log"))
     {
+        QVBoxLayout *layout = new QVBoxLayout();
+        this->setLayout(layout);
+
+        QString description = i18n("<p>These files will be analyzed to show the <b>Mail Logs</b>.</p>");
+
+        fileList = new LogLevelFileList(this, description);
+
+        connect(fileList, &FileList::fileListChanged, this, &LogModeConfigurationWidget::configurationChanged);
+
+        layout->addWidget(fileList);
     }
 
-    bool isValid() const override;
+    virtual ~PostfixConfigurationWidget() {}
 
-    void saveConfig() override;
+    bool isValid() const Q_DECL_OVERRIDE
+    {
+        if (fileList->isEmpty() == false) {
+            logDebug() << "Postfix configuration valid";
+            return true;
+        }
 
-    void readConfig() override;
+        logDebug() << "Postfix configuration not valid";
+        return false;
+    }
 
-    void defaultConfig() override;
+    void saveConfig() Q_DECL_OVERRIDE
+    {
+        logDebug() << "Saving config from Postfix Options...";
+
+        PostfixConfiguration *configuration = Globals::instance()
+                                                  .findLogMode(QStringLiteral(POSTFIX_LOG_MODE_ID))
+                                                  ->logModeConfiguration<PostfixConfiguration *>();
+        configuration->setLogFilesPaths(fileList->paths());
+        configuration->setLogFilesLevels(fileList->levels());
+    }
+
+    void readConfig() Q_DECL_OVERRIDE
+    {
+        PostfixConfiguration *configuration = Globals::instance()
+                                                  .findLogMode(QStringLiteral(POSTFIX_LOG_MODE_ID))
+                                                  ->logModeConfiguration<PostfixConfiguration *>();
+
+        fileList->removeAllItems();
+
+        fileList->addPaths(configuration->logFilesPaths(), configuration->logFilesLevels());
+    }
+
+    void defaultConfig() Q_DECL_OVERRIDE
+    {
+        // TODO Find a way to read the configuration per default
+        readConfig();
+    }
 
 private:
-    LogLevelFileList *mLileList = nullptr;
+    LogLevelFileList *fileList;
 };
 
+#endif // _POSTFIX_CONFIGURATION_WIDGET_H_

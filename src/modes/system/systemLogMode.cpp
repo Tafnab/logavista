@@ -21,13 +21,16 @@
 
 #include "systemLogMode.h"
 
+#include <QList>
+
 #include <KLocalizedString>
 
 #include "logging.h"
+#include "logMode.h"
 
 #include "systemAnalyzer.h"
-#include "systemConfiguration.h"
 #include "systemConfigurationWidget.h"
+#include "systemConfiguration.h"
 
 #include "logModeItemBuilder.h"
 
@@ -41,11 +44,14 @@ SystemLogMode::SystemLogMode()
     d->itemBuilder = new LogModeItemBuilder();
 
     d->action = createDefaultAction();
-    d->action->setToolTip(i18n("Display the system log."));
-    d->action->setWhatsThis(
-        i18n("Displays the system log in the current tab. This log is generally used by non-specialized processes "
-             "(like \"sudo\" or \"fsck\" commands)"));
+    d->action->setToolTip(i18n("Display /var/log/system*"));
+    d->action->setWhatsThis(i18n(
+        "Displays the system log in the current tab. This log is generally used by non-specialized processes "
+        "(like \"sudo\" or \"fsck\" commands)"));
 
+    // logModeConfiguration<SystemConfiguration *> creates the type, where logFilesPaths() returns a QStringList
+    // The point being, it can see multiple files as system files
+    
     checkLogFilesPresence(logModeConfiguration<SystemConfiguration *>()->logFilesPaths());
 }
 
@@ -59,7 +65,7 @@ Analyzer *SystemLogMode::createAnalyzer(const QVariant &options)
     return new SystemAnalyzer(this);
 }
 
-QVector<LogFile> SystemLogMode::createLogFiles()
+QList<LogFile> SystemLogMode::createLogFiles()
 {
     return logModeConfiguration<SystemConfiguration *>()->findGenericLogFiles();
 }

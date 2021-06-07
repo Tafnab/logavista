@@ -21,15 +21,21 @@
 
 #include "systemFactory.h"
 
+#include <QList>
+
 #include "logMode.h"
 #include "logging.h"
 
 #include "simpleAction.h"
 #include "systemLogMode.h"
 
+#include "logModeFactory.h"
+
+// This is updating the global list of logModes
 QList<LogMode *> SystemLogModeFactory::createLogModes() const
 {
-    const QList<LogMode *> logModes{new SystemLogMode()};
+    QList<LogMode *> logModes;
+    logModes.append(new SystemLogMode());
     return logModes;
 }
 
@@ -37,11 +43,10 @@ LogModeAction *SystemLogModeFactory::createLogModeAction() const
 {
     LogMode *logMode = Globals::instance().findLogMode(QStringLiteral(SYSTEM_LOG_MODE_ID));
 
-    if (!logMode->filesExist()) {
+    if (!logMode->filesExist())
         return nullptr;
-    }
 
-    auto logModeAction = new SimpleAction(logMode->action(), logMode);
+    SimpleAction *logModeAction = new SimpleAction(logMode->action(), logMode);
 
     return logModeAction;
 }

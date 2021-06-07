@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SYSTEM_LOG_MODE_H_
+#define _SYSTEM_LOG_MODE_H_
 
 /**
  * System Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * System Log Icon
  */
-#define SYSTEM_MODE_ICON "preferences-desktop-wallpaper"
+#define SYSTEM_MODE_ICON "computer"
 
 #include <QList>
 
@@ -43,10 +44,11 @@ class SystemLogMode : public LogMode
 public:
     explicit SystemLogMode();
 
-    ~SystemLogMode() override;
+    ~SystemLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _SYSTEM_LOG_MODE_H_

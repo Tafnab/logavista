@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _OPEN_LOG_MODE_FACTORY_H_
+#define _OPEN_LOG_MODE_FACTORY_H_
 
-#include "logModeConfiguration.h"
 #include "logModeFactory.h"
+#include "logModeConfiguration.h"
 
 class OpenLogModeFactory : public LogModeFactory
 {
@@ -31,13 +32,14 @@ class OpenLogModeFactory : public LogModeFactory
 public:
     explicit OpenLogModeFactory(QWidget *parent);
 
-    ~OpenLogModeFactory() override;
+    ~OpenLogModeFactory();
 
-    QList<LogMode *> createLogModes() const override;
+    QList<LogMode *> createLogModes() const Q_DECL_OVERRIDE;
 
-    LogModeAction *createLogModeAction() const override;
+    LogModeAction *createLogModeAction() const Q_DECL_OVERRIDE;
 
 private:
-    QWidget *const mParent;
+    QWidget *parent;
 };
 
+#endif // _OPEN_LOG_MODE_FACTORY_H_

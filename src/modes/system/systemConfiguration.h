@@ -19,14 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SYSTEM_CONFIGURATION_H_
+#define _SYSTEM_CONFIGURATION_H_
 
-#include <QList>
 #include <QStringList>
+#include <QList>
 
-#include "defaults.h"
 #include "genericConfiguration.h"
 #include "globals.h"
+#include "defaults.h"
 
 #include "systemLogMode.h"
 
@@ -35,10 +36,18 @@ class SystemConfiguration : public GenericLogModeConfiguration
     Q_OBJECT
 
 public:
-    SystemConfiguration();
-
-    ~SystemConfiguration() override
+    SystemConfiguration()
+        : GenericLogModeConfiguration(QStringLiteral(SYSTEM_LOG_MODE_ID),
+                                      QStringList() << QStringLiteral("/var/log/syslog"),
+                                      QList<int>() << Globals::INFORMATION_LOG_LEVEL_ID)
     {
+        /*
+        <default>/var/log/messages,/var/log/syslog,/var/log/debug</default>
+        <default>2,2,1</default>
+        */
     }
+
+    virtual ~SystemConfiguration() {}
 };
 
+#endif // _SYSTEM_CONFIGURATION_H_

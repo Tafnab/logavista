@@ -19,12 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _OPEN_ANALYZER_H_
+#define _OPEN_ANALYZER_H_
 
 #include "syslogAnalyzer.h"
 
-#include "logFile.h"
 #include "logging.h"
+#include "logFile.h"
 
 #include "openLogMode.h"
 
@@ -33,10 +34,12 @@ class OpenAnalyzer : public SyslogAnalyzer
     Q_OBJECT
 
 public:
-    explicit OpenAnalyzer(LogMode *logMode);
-
-    ~OpenAnalyzer() override
+    OpenAnalyzer(LogMode *logMode)
+        : SyslogAnalyzer(logMode)
     {
     }
+
+    virtual ~OpenAnalyzer() {}
 };
 
+#endif

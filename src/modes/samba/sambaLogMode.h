@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _SAMBA_LOG_MODE_H_
+#define _SAMBA_LOG_MODE_H_
 
 /**
  * Samba Log Mode Identifier
@@ -29,7 +30,7 @@
 /**
  * Samba Log Icon
  */
-#define SAMBA_MODE_ICON "preferences-system-network-share-windows"
+#define SAMBA_MODE_ICON "/usr/local/share/icons/logavista/samba.svg"
 
 #include <QList>
 
@@ -47,13 +48,13 @@ class SambaLogMode : public LogMode
 
 public:
     explicit SambaLogMode(QSharedPointer<SambaConfiguration> &sambaConfiguration,
-                          SambaConfigurationWidget *sambaConfigurationWidget,
-                          SambaItemBuilder *itemBuilder);
+                          SambaConfigurationWidget *sambaConfigurationWidget, SambaItemBuilder *itemBuilder);
 
-    ~SambaLogMode() override;
+    ~SambaLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _SAMBA_LOG_MODE_H_

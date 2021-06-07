@@ -19,7 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  ***************************************************************************/
 
-#pragma once
+#ifndef _NETBIOS_LOG_MODE_H_
+#define _NETBIOS_LOG_MODE_H_
 
 /**
  * Netbios Log Mode Identifier
@@ -50,10 +51,11 @@ public:
                             SambaConfigurationWidget *sambaConfigurationWidget,
                             SambaItemBuilder *itemBuilder);
 
-    ~NetbiosLogMode() override;
+    ~NetbiosLogMode();
 
-    Analyzer *createAnalyzer(const QVariant &options = QVariant()) override;
+    Analyzer *createAnalyzer(const QVariant &options = QVariant()) Q_DECL_OVERRIDE;
 
-    QVector<LogFile> createLogFiles() override;
+    QList<LogFile> createLogFiles() Q_DECL_OVERRIDE;
 };
 
+#endif // _NETBIOS_LOG_MODE_H_
