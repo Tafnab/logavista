@@ -47,7 +47,7 @@
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
 
-<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. The default is to open the System Log (configurable). <br>The window title reflects the log modality currently being displayed. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
+<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. The default is to open the System Log (configurable). The window title reflects the log modality currently being displayed. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ScreenshotNoTabsOpen.png" alt="screenshot-no-tabs">
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbarsDropdown.png" alt="">
 
@@ -56,7 +56,9 @@
 <p>Logavista attempts to auto-populate your default log files with choices that make sense. To configure logs and Logavista in general, select the Settings/Configure_Logavista menu. This will open a dialog that allows you to see which log files a particular Log Mode is monitoring. Use the Add and Remove buttons to change your log files. Keep in mind that the software expects the logs to be in a particular format. In fact, the name of the log file is frequently used to adjust the data presented to you. So, make sure they have the typical names. Use the Merge or "Merge All" buttons to add log files to the Merged Logs modality.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbars.png" alt="">
 
-<p>You can use the search bar across the top to search for particular events, or use the Dropdown Priorities menu to select which alert levels you want to monitor. </p>
+<p>Tabs are not normally displayed to conserve screen area. To open a tab, press Ctl-T or select "Window/New Tab". You can right click on tabs or drag-n-drop to control. There are add and delete buttons on the tab bar.</p>
+
+<p>You can use the search bar (Filter: bar) to search for particular events, or use the Dropdown Priorities menu to select which alert levels you want to monitor. Log lines are colored depending on priority. The color code is in this dropdown menu.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/PrioritiesDropdown.png" alt="" align="right>
 
 <p>The default priority is INFO. So, removing INFO from the priorities list allows you to see errors and debug messages.</p>
