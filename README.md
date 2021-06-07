@@ -18,7 +18,7 @@
 <p align="center">
   <a href="#key-features">Key Features</a> •
   <a href="#how-to-use">How To Use</a> •
-  <a href="#feedback">Feedback</a> •
+  <a href="#feedback">Soliciting Feedback</a> •
   <a href="#known-bugs">Bugs</a> •
   <a href="#build-instructions">Build Instructions</a> •
   <a href="#related">Related</a> •
@@ -49,7 +49,7 @@
 
 <p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. <br>The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ScreenshotNoTabsOpen.png" alt="screenshot-no-tabs">
-<img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbars.png" alt="">
+<img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbarsDropdown.png" alt="">
 
 <p>Logs are found in the <b>Logs</b> menu. <b>HOWEVER</b>, a log modality will not appear there until it has a valid log file to monitor. </p>
 
@@ -68,9 +68,11 @@
 <p>The most exciting feature is the MergedLogs. This allows log files of different types to be merged into one. By default, it is populated with the /var/log/syslog. You can use the merge buttons in the configuration dialog to add files to the MergedLogs or just add them directly. A word of warning... not all log lines will show up unless they have a valid timestamp. There's no way to sort them otherwise.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureMerge.png" alt="">
 
-<p>The status bar at the bottom of the window has a popup listing log histories.</p>
+<p>The status bar at the bottom of the window has a popup listing of log update histories.</p>
 
-## Feedback
+<p>If Logavista becomes hopelessly misconfigured, simply delete the /root/.config/logavistarc file, and the program will create a new one, forgetting all your previous changed. If your are running as a non-root user, the configuration file is in $HOME/.config/logavistarc.</p>
+
+## Soliciting Feedback
 
 <p><b>Logavista</b> is based on a previous project which requires that new classes be derived to monitor different log file types. As a result, adding new log modalities isn't trivial.</p>
 
