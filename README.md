@@ -72,7 +72,7 @@
 
 <p>The status bar at the bottom of the window has a popup listing of log update histories.</p>
 
-<p>If Logavista becomes hopelessly misconfigured, simply delete the /root/.config/logavistarc file, and the program will create a new one, forgetting all your previous changes. If your are running as a non-root user, the configuration file is in $HOME/.config/logavistarc.</p>
+<p>If Logavista becomes hopelessly misconfigured, simply delete the /root/.config/logavistarc file, and the program will create a new one, forgetting all your previous changes. If you are are running as a non-root user, the configuration file is in $HOME/.config/logavistarc.</p>
 
 ## Soliciting Feedback
 
