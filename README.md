@@ -42,7 +42,7 @@
 
 <p>You can <a href="https://github.com/Tafnab/logavista/blob/master/logavista_0.9-2_amd64.deb">download the .deb binary file</a> or <a href="#build-instructions">build your own</a>.</p>
 
-<p>On MX Linux, just run from the graphical menu System/Logavista option. On other Linux(es), the graphical option won't work because you need to launch with <a href="https://github.com/MX-Linux/mx-pkexec/blob/master/mx-pkexec"></a>mx-pkexec or gksu. If you have either of those installed, edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
+<p>Just run from the graphical menu System/Logavista option. You can edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
 
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
