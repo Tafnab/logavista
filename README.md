@@ -42,7 +42,7 @@
 
 <p>You can <a href="https://github.com/Tafnab/logavista/blob/master/logavista_0.9-2_amd64.deb">download the .deb binary file</a> or <a href="#build-instructions">build your own</a>.</p>
 
-<p>Just run from the graphical menu System/Logavista option. You can edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
+<p>On any Linux desktop, just run from the graphical menu: System/Logavista. You can edit the /usr/share/applications/logavista.desktop file to change the launcher.</p>
 
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
