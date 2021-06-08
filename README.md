@@ -47,7 +47,7 @@
 <p>Oherwise, you can open a terminal and run:</p>
 <pre><code>$ sudo /usr/bin/logavista &</code></pre>
 
-<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. The default is to open the System Log (configurable). The window title reflects the log modality currently being displayed. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
+<p>Logavista will open with minimal icons on the toolbar and <b>no tabs</b>. By default, Logavista displays System Log (this is configurable). The window title reflects the log modality currently being displayed. The <b>toolbar must be configured</b> by you in order to see more icons. <b>Tabs can be created</b> by pressing Ctl-T.</p>
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ScreenshotNoTabsOpen.png" alt="screenshot-no-tabs">
 <img src="https://github.com/Tafnab/logavista/blob/master/screenshots/ConfigureToolbarsDropdown.png" alt="">
 
