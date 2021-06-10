@@ -11,7 +11,7 @@
 
 <p align="center">
   <br>
-  Logavista System Log Viewer
+  Logavista: Linux System Log Viewer (Qt)
   <br>
 </p>
 
